@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShopBack.Models;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace OnlineShopBack.Controllers
 
         // GET: api/<AccuntController>
         [HttpGet]
+        
         public IEnumerable<AccountSelectDto> Get()
         {
             var result = _OnlineShopContext.TAccount

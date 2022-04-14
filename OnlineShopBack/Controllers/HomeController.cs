@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnlineShopBack.Models;
 using System;
@@ -32,7 +33,7 @@ namespace OnlineShopBack.Controllers
         {
             return View();
         }
-
+        [Authorize]  //身分驗證過後的才能讀取
         public IActionResult AddAccount()
         {
             return View();

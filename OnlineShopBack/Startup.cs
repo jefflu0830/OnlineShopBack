@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +27,13 @@ namespace OnlineShopBack
             services.AddControllers();
             services.AddDbContext<OnlineShopContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
+
+            //Cookie驗證
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
+            {
+                //未登入時會自動導到這個網址
+                option.LoginPath = new PathString("/api/Login/NoLogin");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +54,11 @@ namespace OnlineShopBack
 
             app.UseRouting();
 
+            app.UseAuthorization();
+
+            //Cookie驗證
+            app.UseCookiePolicy();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
