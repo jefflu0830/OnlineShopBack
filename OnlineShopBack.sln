@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32126.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShopBack", "OnlineShopBack\OnlineShopBack.csproj", "{951B6249-84A3-4750-9A29-ACFD237040BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{951B6249-84A3-4750-9A29-ACFD237040BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{951B6249-84A3-4750-9A29-ACFD237040BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{951B6249-84A3-4750-9A29-ACFD237040BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{951B6249-84A3-4750-9A29-ACFD237040BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D14EB29-574C-4A52-A2FF-4B5EA2368295}
+	EndGlobalSection
+EndGlobal

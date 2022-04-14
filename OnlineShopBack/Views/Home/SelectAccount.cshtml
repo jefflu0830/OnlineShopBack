@@ -1,0 +1,59 @@
+﻿@model OnlineShopBack.Models.TAccount
+@{
+    ViewData["Title"] = "SelectAccount";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <tr>
+                <th>Id</th>
+                <th>Acc</th>
+                <th>Pwd</th>
+                <th>Level</th>
+                <th>CreatDate</th>
+            </tr>   <!--end of table-row -->
+        </table>   <!--end of table -->
+    </div> <!--end of Panel-body -->
+</div> <!--end of Panel -->
+<script>
+
+    $(document).ready(function () {
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/Account",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    //alert(JSON.stringify(data));                  
+                    $("#DIV").html('');
+                    var DIV = '';
+                    $.each(data, function (i, item) {
+                        var rows = "<tr>" +
+                            "<td id='Id'>" + item.id + "</td>" +
+                            "<td id='Acc'>" + item.account + "</td>" +
+                            "<td id='Pwd'>" + item.pwd + "</td>" +
+                            "<td id='Level'>" + item.level + "</td>" +
+                            "<td id='CreatDate'>" + item.createDate + "</td>" +
+                            "</tr>";
+                        $('#Table').append(rows);
+                    }); //End of foreach Loop   
+                    console.log(data);
+                }, //End of AJAX Success function  
+
+                failure: function (data) {
+                    alert(data.responseText);
+                }, //End of AJAX failure function  
+                error: function (data) {
+                    alert(data.responseText);
+                } //End of AJAX error function  
+
+            });
+        });  
+    });
+
+</script> 
