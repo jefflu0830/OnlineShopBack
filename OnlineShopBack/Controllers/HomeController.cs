@@ -33,7 +33,7 @@ namespace OnlineShopBack.Controllers
         {
             return View();
         }
-        [Authorize]  //身分驗證過後的才能讀取
+        //[Authorize]  //身分驗證過後的才能讀取
         public IActionResult AddAccount()
         {
             return View();

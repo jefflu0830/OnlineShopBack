@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Models;
+using OnlineShopBack.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OnlineShopBack.Controllers
 {
@@ -23,11 +23,57 @@ namespace OnlineShopBack.Controllers
             _OnlineShopContext = onlineShopContext;
         }
 
+        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
+
         [HttpPost]
         public string login(AccountSelectDto value)
         {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
 
-            using (var md5 = MD5.Create())
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                SqlDataAdapter da = new SqlDataAdapter();
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_selectLogin @f_acc, @f_pwd";
+
+                cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                cmd.Parameters.AddWithValue("@f_pwd", PswToMD5(value.Pwd));
+
+                //開啟連線
+                cmd.Connection.Open();
+
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+                cmd.Connection.Close();
+                
+
+                if (dt.Rows.Count == 0)
+                {
+                    return "帳號密碼錯誤";
+                }
+                else
+                {
+                    return dt.Rows[0][2].ToString();
+                }
+
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+
+
+            /*using (var md5 = MD5.Create())
             {
                 var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
                                                                                  //
@@ -55,7 +101,8 @@ namespace OnlineShopBack.Controllers
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                     return "OK";
                 }
-            }
+            }*/
+            
         }
 
         [HttpDelete]
@@ -67,6 +114,16 @@ namespace OnlineShopBack.Controllers
         public string noLogin()
         {
             return "未登入";
+        }
+
+        //MD5 加密
+        public static string PswToMD5(string pwd)
+        {
+            var md5 = MD5.Create();
+            var result = md5.ComputeHash(Encoding.ASCII.GetBytes(pwd));
+            var strResult = BitConverter.ToString(result);
+            var md5Pwd = strResult.Replace("-", "");
+            return md5Pwd;
         }
     }
 }

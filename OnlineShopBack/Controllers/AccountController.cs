@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Models;
+using OnlineShopBack.Services;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,12 +28,30 @@ namespace OnlineShopBack.Controllers
             _OnlineShopContext = onlineShopContext;
         }
 
+        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 
         // GET: api/<AccuntController>
-        [HttpGet]
-        
+        [HttpGet]        
         public IEnumerable<AccountSelectDto> Get()
         {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+
+            // 資料庫連線
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            cmd.CommandText = @"EXEC pro_onlineShopBack_selectLogin @f_acc, @f_pwd";
+
+            //開啟連線
+            cmd.Connection.Open();
+
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+            cmd.Connection.Close();
+
             var result = _OnlineShopContext.TAccount
                 .Select(a => new AccountSelectDto
                 {
@@ -48,11 +72,42 @@ namespace OnlineShopBack.Controllers
         }
 
         // POST api/<AccuntController>
+        [HttpGet("AddAccount")]
         [HttpPost]
-        //public string Post([FromBody] TAccount value)
         public string Post([FromBody] AccountSelectDto value)
         {
-            using (var md5 = MD5.Create())
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                //SqlDataAdapter da = new SqlDataAdapter();
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccount @f_acc, @f_pwd, @f_level";
+
+                cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                cmd.Parameters.AddWithValue("@f_pwd", LoginController.PswToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_level", value.Level);
+
+                //開啟連線
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery(); //執行Transact-SQL
+                cmd.Connection.Close();
+
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            /*using (var md5 = MD5.Create())
             {
                 var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
                 var strResult = BitConverter.ToString(result);
@@ -65,8 +120,9 @@ namespace OnlineShopBack.Controllers
                 };
                 _OnlineShopContext.Add(insert);
                 _OnlineShopContext.SaveChanges();
-                return "新增成功";
-            }
+               return "新增成功"; 
+            }*/
+            return "新增成功";
         }
         // PUT api/<AccuntController>/5
         [HttpPut("{id}")]
@@ -79,5 +135,10 @@ namespace OnlineShopBack.Controllers
         public void Delete(int id)
         {
         }
+
+
+
+
+
     }
 }
