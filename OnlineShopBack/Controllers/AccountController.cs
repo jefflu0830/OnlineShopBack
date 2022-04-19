@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 
 
@@ -28,11 +25,15 @@ namespace OnlineShopBack.Controllers
             _OnlineShopContext = onlineShopContext;
         }
 
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 
-        // GET: api/<AccuntController>
-        [HttpGet]        
-        public IEnumerable<AccountSelectDto> Get()
+        //SQL連線字串  SQLConnectionString
+        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); 
+
+
+        //取得會員資料
+        [HttpGet]
+        //public IEnumerable<AccountSelectDto> Get()
+        public string Get()
         {
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
@@ -43,7 +44,7 @@ namespace OnlineShopBack.Controllers
 
             SqlDataAdapter da = new SqlDataAdapter();
 
-            cmd.CommandText = @"EXEC pro_onlineShopBack_selectLogin @f_acc, @f_pwd";
+            cmd.CommandText = @"EXEC pro_onlineShopBack_selectMember ";
 
             //開啟連線
             cmd.Connection.Open();
@@ -52,14 +53,18 @@ namespace OnlineShopBack.Controllers
             da.Fill(dt);
             cmd.Connection.Close();
 
-            var result = _OnlineShopContext.TAccount
+            //return JsonConvert.SerializeObject(dt);
+            var result=DataTableJson(dt);
+
+
+            /*var result = _OnlineShopContext.TAccount
                 .Select(a => new AccountSelectDto
                 {
                     Id = a.FId,
                     Account = a.FAcc,
                     Pwd = a.FPwd,
                     Level = a.FLevel
-                });
+                });*/
 
             return result;
         }
@@ -129,16 +134,36 @@ namespace OnlineShopBack.Controllers
         public void Put(int id, [FromBody] string value)
         {
         }
-
         // DELETE api/<AccuntController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
         }
 
-
-
-
-
+        //DataTable 转换成JSON数据
+        public string DataTableJson(DataTable dt)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[");
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                sb.Append("{");
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    sb.Append("\"");
+                    sb.Append(dt.Columns[j].ColumnName);
+                    sb.Append("\":\"");
+                    sb.Append(dt.Rows[i][j].ToString());
+                    sb.Append("\",");
+                }
+                sb.Remove(sb.Length - 1, 1);
+                sb.Append("},");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append("]");
+            return sb.ToString();
+        }
     }
+
 }
+

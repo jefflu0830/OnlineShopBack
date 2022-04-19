@@ -39,7 +39,7 @@ namespace OnlineShopBack.Controllers
 
                 SqlDataAdapter da = new SqlDataAdapter();
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_selectLogin @f_acc, @f_pwd";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_selectAccount @f_acc, @f_pwd";
 
                 cmd.Parameters.AddWithValue("@f_acc", value.Account);
                 cmd.Parameters.AddWithValue("@f_pwd", PswToMD5(value.Pwd));
@@ -58,7 +58,7 @@ namespace OnlineShopBack.Controllers
                 }
                 else
                 {
-                    return dt.Rows[0][2].ToString();
+                    return "登入成功";
                 }
 
             }
