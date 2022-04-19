@@ -58,7 +58,9 @@ namespace OnlineShopBack.Controllers
                 }
                 else
                 {
-                    return "登入成功";
+                    
+                    //Response.Redirect("~/Admin/PAdmin1.aspx");
+                    return  "登入成功";
                 }
 
             }

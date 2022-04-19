@@ -23,17 +23,13 @@ namespace OnlineShopBack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRazorPages();
+
             services.AddControllersWithViews();
             services.AddControllers();
             services.AddDbContext<OnlineShopContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
+                                                     options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
 
-            //Cookie驗證
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
-            {
-                //未登入時會自動導到這個網址
-                option.LoginPath = new PathString("/api/Login/NoLogin");
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,16 +52,16 @@ namespace OnlineShopBack
 
             app.UseAuthorization();
 
-            //Cookie驗證
-            app.UseCookiePolicy();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
             });
         }
     }

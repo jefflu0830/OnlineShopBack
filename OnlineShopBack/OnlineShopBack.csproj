@@ -5,10 +5,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\**" />
     <Compile Remove="新文件夹1\**" />
+    <Content Remove="Views\**" />
     <Content Remove="新文件夹1\**" />
+    <EmbeddedResource Remove="Views\**" />
     <EmbeddedResource Remove="新文件夹1\**" />
+    <None Remove="Views\**" />
     <None Remove="新文件夹1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\HomeController.cs" />
+    <Compile Remove="Pages\Error.cshtml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Pages\Error.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Shared\_Layout.cshtml" />
+    <None Include="Pages\Shared\_ValidationScriptsPartial.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
