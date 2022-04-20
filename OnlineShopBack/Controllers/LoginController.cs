@@ -39,10 +39,10 @@ namespace OnlineShopBack.Controllers
 
                 SqlDataAdapter da = new SqlDataAdapter();
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_selectAccount @f_acc, @f_pwd";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount @f_acc, @f_pwd";
 
                 cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", PswToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
 
                 //開啟連線
                 cmd.Connection.Open();
@@ -73,8 +73,7 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-
-
+            #region  EF舊寫法已註解
             /*using (var md5 = MD5.Create())
             {
                 var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
@@ -104,7 +103,8 @@ namespace OnlineShopBack.Controllers
                     return "OK";
                 }
             }*/
-            
+            #endregion
+
         }
 
         [HttpDelete]
@@ -116,16 +116,6 @@ namespace OnlineShopBack.Controllers
         public string noLogin()
         {
             return "未登入";
-        }
-
-        //MD5 加密
-        public static string PswToMD5(string pwd)
-        {
-            var md5 = MD5.Create();
-            var result = md5.ComputeHash(Encoding.ASCII.GetBytes(pwd));
-            var strResult = BitConverter.ToString(result);
-            var md5Pwd = strResult.Replace("-", "");
-            return md5Pwd;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@page
 @model OnlineShopBack.Pages.Account.AddAccountModel
 @{
-    ViewBag.Title = "AddAccount";
+    Layout = null;
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -36,28 +36,4 @@
     <input type="button" id="post" value="add" />
 </div>
 
-<script>
-
-    $(document).ready(function (data) {
-        $("#post").click(function () {
-            $.ajax({
-                url: "/api/Account",
-                type: "post",
-                contentType: "application/json",
-                dataType: "text",
-                data: JSON.stringify({"account": $("#Account").val(),
-                                      "Pwd": $("#PassWord").val(),
-                                      "level": parseInt($("#level").val() //parseInt轉型成int
-                                     )
-                }),
-                success: function (result) {
-                    alert(result)
-                },
-                error: function (error) {
-                    alert(error);
-                }
-            });
-        });
-    });
-
-</script> 
+<script src="~/js/AddAccount.js"></script> 

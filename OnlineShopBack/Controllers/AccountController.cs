@@ -69,7 +69,7 @@ namespace OnlineShopBack.Controllers
                 cmd.CommandText = @"EXEC pro_onlineShopBack_addAccount @f_acc, @f_pwd, @f_level";
 
                 cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", LoginController.PswToMD5(value.Pwd));
+                cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
                 cmd.Parameters.AddWithValue("@f_level", value.Level);
 
                 //開啟連線

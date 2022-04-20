@@ -1,6 +1,7 @@
 ﻿@page
 @model OnlineShopBack.Pages.Member.SelectMemberModel
 @{
+//Layout = null;
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -26,44 +27,4 @@
     </div> <!--end of Panel-body -->
 </div> <!--end of Panel -->
 
-<script>
-    $(document).ready(function () {
-        $.ajax({
-            type: "GET",
-            url: "/api/Member",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                //alert(JSON.stringify(data));
-                $("#DIV").html('');
-                var DIV = '';
-                $.each(data, function (i, item) {
-                    var rows = "<tr>" +
-                        "<td id='RegdNo'>" + item.f_id + "</td>" +
-                        "<td id='RegdNo'>" + item.f_acc + "</td>" +
-                        "<td id='Name'>" + item.f_name + "</td>" +
-                        "<td id='phone'>" + item.f_phone + "</td>" +
-                        "<td id='Address'>" + item.f_mail + "</td>" +
-                        "<td id='Address'>" + item.f_address + "</td>" +
-                        "<td id='Address'>" + item.f_shopGold + "</td>" +
-                        "<td id='Address'>" + item.f_level + "</td>" +
-                        "<td id='Address'>" + item.f_suspension + "</td>" +
-                        "<td id='PhoneNo'>" + item.f_createDate + "</td>" +
-                        "<td class='DetailBtn' id='" + item.f_id+"'><a href=''>編輯</a></td>"+
-                        "</tr>";
-                    $('#Table').append(rows);
-                }); //End of foreach Loop
-                //console.log(data);
-            }, //End of AJAX Success function
-
-            failure: function (data) {
-                //alert(data.responseText);
-            }, //End of AJAX failure function
-            error: function (data) {
-                //alert(data.responseText);
-            } //End of AJAX error function
-
-        });
-    })
-
-</script>  
+<script src="~/js/selectMember.js" ></script>  

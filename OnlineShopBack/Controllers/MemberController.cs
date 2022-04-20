@@ -14,66 +14,31 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
         //取得會員資料
-        [HttpGet("{id}")]
+        [HttpGet]
         //public IEnumerable<AccountSelectDto> Get()
-        public string Get(string id)
+        public string Get()
         {
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
-
-            // 資料庫連線
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-
             SqlDataAdapter da = new SqlDataAdapter();
 
-            cmd.CommandText = @"EXEC pro_onlineShopBack_selectMember ";
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            cmd.CommandText = @"EXEC pro_onlineShopBack_getMember ";
 
             //開啟連線
             cmd.Connection.Open();
-
             da.SelectCommand = cmd;
             da.Fill(dt);
+
+            //關閉連線
             cmd.Connection.Close();
 
-            //return JsonConvert.SerializeObject(dt);
-            var result = DataTableJson(dt);
-
-
-            /*var result = _OnlineShopContext.TAccount
-                .Select(a => new AccountSelectDto
-                {
-                    Id = a.FId,
-                    Account = a.FAcc,
-                    Pwd = a.FPwd,
-                    Level = a.FLevel
-                });*/
+            //DataTable轉Json;
+            var result = Tool.MyTool.DataTableJson(dt);
 
             return result;
-        }
-
-        //DataTable 转换成JSON数据
-        public string DataTableJson(DataTable dt)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[");
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                sb.Append("{");
-                for (int j = 0; j < dt.Columns.Count; j++)
-                {
-                    sb.Append("\"");
-                    sb.Append(dt.Columns[j].ColumnName);
-                    sb.Append("\":\"");
-                    sb.Append(dt.Rows[i][j].ToString());
-                    sb.Append("\",");
-                }
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append("},");
-            }
-            sb.Remove(sb.Length - 1, 1);
-            sb.Append("]");
-            return sb.ToString();
         }
     }
 }
