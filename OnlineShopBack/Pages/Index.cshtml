@@ -3,24 +3,29 @@
 @{
     ViewData["Title"] = "Login";
 }
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="./lib/jquery/dist/jquery.min.js"></script>
+
+@*JQuery 資料驗證*@
+<script src="./lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="./lib/jquery-validation/dist/additional-methods.min.js"></script>
+
 <h5>帳號登入</h5>
 <div id="body" style="padding: 10px;">
-    <table>
-        <tr>
-            <td style="text-align: right;">Account</td>
-            <td>
-                <input type="text" id="Account" />
-            </td>
-        </tr>
-        <tr>
-            <td style="text-align: right;">PassWord</td>
-            <td>
-                <input type="text" id="PassWord" />
-            </td>
-        </tr>
-    </table>
-    <input type="button" id="post" value="Login" />
+    <form id="form" method="post" action="">
+        <div>
+            <label for="Account">Account:</label>
+            <input type="text" id="Account" name="Account"/>
+        </div>
+        <div>
+            <label for="PassWord">PassWord:</label>
+            <input type="text" id="PassWord" name="PassWord"/>
+        </div>
+        <div>
+            <input id="post" type="submit" value="login" />
+        </div>
+    </form>
 </div>
 
 <script src="./js/index.js"></script>
+
+

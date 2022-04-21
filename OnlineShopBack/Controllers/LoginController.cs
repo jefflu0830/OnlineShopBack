@@ -29,7 +29,7 @@ namespace OnlineShopBack.Controllers
         public string login(AccountSelectDto value)
         {
             SqlCommand cmd = null;
-            DataTable dt = new DataTable();
+            //DataTable dt = new DataTable();
 
             try
             {
@@ -37,7 +37,7 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                SqlDataAdapter da = new SqlDataAdapter();
+                //SqlDataAdapter da = new SqlDataAdapter();
 
                 cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount @f_acc, @f_pwd";
 
@@ -47,18 +47,15 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
                 cmd.Connection.Open();
 
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-                cmd.Connection.Close();
+                //da.SelectCommand = cmd;
                 
 
-                if (dt.Rows.Count == 0)
+                if (cmd.ExecuteScalar()== null)
                 {
                     return "帳號密碼錯誤";
                 }
                 else
-                {
-                    
+                {                    
                     //Response.Redirect("~/Admin/PAdmin1.aspx");
                     return  "登入成功";
                 }
