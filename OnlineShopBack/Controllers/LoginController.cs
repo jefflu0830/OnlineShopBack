@@ -6,10 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
-using System;
-using System.Data;
-using System.Security.Cryptography;
-using System.Text;
+using OnlineShopBack.Tool;
 
 namespace OnlineShopBack.Controllers
 {
@@ -28,45 +25,84 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(AccountSelectDto value)
         {
-            SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+           
+            string loginErrorStr = "";
 
-            try
+
+            if (value.Account =="" || value.Pwd =="")
             {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                //SqlDataAdapter da = new SqlDataAdapter();
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount @f_acc, @f_pwd";
-
-                cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
-
-                //開啟連線
-                cmd.Connection.Open();
-
-                //da.SelectCommand = cmd;
-                
-
-                if (cmd.ExecuteScalar()== null)
-                {
-                    return "帳號密碼錯誤";
-                }
-                else
-                {                    
-                    //Response.Redirect("~/Admin/PAdmin1.aspx");
-                    return  "登入成功";
-                }
-
+                loginErrorStr += "[帳號或密碼不可為空]";
             }
-            finally
+
+            if (value.Account !="")
             {
-                if (cmd != null)
+                if (!MyTool.IsENAndNumber(value.Account))
                 {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
+                    loginErrorStr += "[＊帳號只能為英數]\n";
+                }
+                if (value.Account.Length>20 || value.Account.Length<3)
+                {
+                    loginErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
+                }
+            };
+
+            if (value.Pwd !="")
+            {
+                if (!MyTool.IsENAndNumber(value.Pwd))
+                {
+                    loginErrorStr += "[＊密碼只能為英數]\n";
+                }
+                if (value.Pwd.Length>16 || value.Pwd.Length<8)
+                {
+                    loginErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
+                }
+            }
+
+            if(value.Level<0 || value.Level > 255)
+            {
+                loginErrorStr += "[＊Level值超過設定範圍]\n";
+            }
+
+            //錯誤訊息不為空
+            if (loginErrorStr != "")
+            {
+                return loginErrorStr;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount @f_acc, @f_pwd";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                    cmd.Parameters.AddWithValue("@f_pwd", MyTool.PswToMD5(value.Pwd));
+
+                    //開啟連線
+                    cmd.Connection.Open();
+
+                    if (cmd.ExecuteScalar() == null)
+                    {
+                        return "帳號密碼錯誤";
+                    }
+                    else
+                    {
+                        //Response.Redirect("~/Admin/PAdmin1.aspx");
+                        return "登入成功";
+                    }
+
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿@page
 @model OnlineShopBack.Pages.Account.AddAccountModel
 @{
+
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -8,6 +9,7 @@
 @*JQuery 資料驗證*@
 <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
 <script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
+<link rel="stylesheet" href="~/css/AddAccount.css" />
 
 <h5>添加帳號</h5>
 <div id="body" style="padding: 10px;">
@@ -23,12 +25,9 @@
         <div>
             <label for="Level">Level:</label>
             <select id="level">
-
-                <option value='0'>超級使用者</option>
-
-                <option value='100'>一般使用者</option>
-
-            </select>
+            <option value='0'>超級使用者</option>
+            <option value='100'>一般使用者</option>
+        </select>
         </div>
         <div>
             <input id="post" type="submit" value="login" />

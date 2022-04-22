@@ -2,12 +2,12 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Models;
+using OnlineShopBack.Pages.Account;
 using OnlineShopBack.Services;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
+using OnlineShopBack.Tool;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -27,7 +27,7 @@ namespace OnlineShopBack.Controllers
 
 
         //SQL連線字串  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); 
+        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
         [HttpGet]
         public IEnumerable<AccountSelectDto> Get()
@@ -56,35 +56,78 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string Post([FromBody] AccountSelectDto value)
         {
-            SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
-            try
+            //後端驗證
+            //如字串字數特殊字元驗證
+
+            string addAccErrorStr = "";
+
+
+            if (value.Account == "" || value.Pwd == "")
             {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                //SqlDataAdapter da = new SqlDataAdapter();
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccount @f_acc, @f_pwd, @f_level";
-
-                cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
-                cmd.Parameters.AddWithValue("@f_level", value.Level);
-
-                //開啟連線
-                cmd.Connection.Open();
-                cmd.ExecuteNonQuery(); //執行Transact-SQL
-                cmd.Connection.Close();
-
+                addAccErrorStr += "[帳號或密碼不可為空]";
             }
-            finally
+
+            if (value.Account != "")
             {
-                if (cmd != null)
+                if (!MyTool.IsENAndNumber(value.Account))
                 {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
+                    addAccErrorStr += "[＊帳號只能為英數]\n";
                 }
+                if (value.Account.Length > 20 || value.Account.Length < 3)
+                {
+                    addAccErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
+                }
+            };
+
+            if (value.Pwd != "")
+            {
+                if (!MyTool.IsENAndNumber(value.Pwd))
+                {
+                    addAccErrorStr += "[＊密碼只能為英數]\n";
+                }
+                if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
+                {
+                    addAccErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
+                }
+            }
+
+            if (addAccErrorStr != "") 
+            {
+                return addAccErrorStr;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                //DataTable dt = new DataTable();
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                    //帳號重複驗證寫在SP中
+
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_addAccount @f_acc, @f_pwd, @f_level";
+
+                    cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                    cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
+                    cmd.Parameters.AddWithValue("@f_level", value.Level);
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    cmd.ExecuteNonQuery(); //執行Transact-SQL
+                    cmd.Connection.Close();
+
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+                return "新增成功";
             }
 
             #region EF舊寫法已註解
@@ -105,7 +148,6 @@ namespace OnlineShopBack.Controllers
             }*/
             #endregion
 
-            return "新增成功";
         }
         // PUT api/<AccuntController>/5
         [HttpPut("{id}")]

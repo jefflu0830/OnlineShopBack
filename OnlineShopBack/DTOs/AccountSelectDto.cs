@@ -4,6 +4,7 @@ namespace OnlineShopBack.Controllers
 {
     public class AccountSelectDto
     {
+
         public int Id { get; set; }
         public string Account { get; set; }
         public string Pwd { get; set; }
