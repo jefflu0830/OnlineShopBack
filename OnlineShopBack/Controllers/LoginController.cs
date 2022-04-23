@@ -58,11 +58,6 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-            if(value.Level<0 || value.Level > 255)
-            {
-                loginErrorStr += "[＊Level值超過設定範圍]\n";
-            }
-
             //錯誤訊息不為空
             if (loginErrorStr != "")
             {

@@ -78,7 +78,6 @@ namespace OnlineShopBack.Controllers
                     addAccErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
                 }
             };
-
             if (value.Pwd != "")
             {
                 if (!MyTool.IsENAndNumber(value.Pwd))
@@ -89,6 +88,10 @@ namespace OnlineShopBack.Controllers
                 {
                     addAccErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
                 }
+            }
+            if (value.Level>255 || value.Level<0)
+            {
+                addAccErrorStr += "[＊該權限不再範圍內]\n";
             }
 
             if (addAccErrorStr != "") 
@@ -104,6 +107,7 @@ namespace OnlineShopBack.Controllers
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
+                    
 
                     //帳號重複驗證寫在SP中
 
@@ -113,10 +117,19 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.AddWithValue("@f_pwd", Tool.MyTool.PswToMD5(value.Pwd));
                     cmd.Parameters.AddWithValue("@f_level", value.Level);
 
+                    #region //SQL回傳是 Return時的接法
+                    //SqlParameter returnValue = new SqlParameter("XXX", SqlDbType.Int);
+                    //returnValue.Direction = ParameterDirection.ReturnValue;
+                    //cmd.Parameters.Add(returnValue);
+
+
+                    //return returnValue.Value.ToString();
+                    #endregion
+
                     //開啟連線
                     cmd.Connection.Open();
-                    cmd.ExecuteNonQuery(); //執行Transact-SQL
-                    cmd.Connection.Close();
+                    addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                    return addAccErrorStr;
 
                 }
                 finally
@@ -127,7 +140,7 @@ namespace OnlineShopBack.Controllers
                         cmd.Connection.Close();
                     }
                 }
-                return "新增成功";
+                 
             }
 
             #region EF舊寫法已註解

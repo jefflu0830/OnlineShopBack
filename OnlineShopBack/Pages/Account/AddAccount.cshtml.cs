@@ -1,15 +1,12 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Controllers;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+
 
 namespace OnlineShopBack.Pages.Account
 {
@@ -17,9 +14,12 @@ namespace OnlineShopBack.Pages.Account
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+        public string Acclevel01;
+        public string Acclevel02;
 
         public void OnGet()
         {
+            var item = new List<SelectListItem>();
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -27,7 +27,7 @@ namespace OnlineShopBack.Pages.Account
             // ÙYÁÏŽìßB¾€&SQLÖ¸Áî
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShopBack_getMember ";
+            cmd.CommandText = @"SELECT * FROM T_accountLevel ";
 
             //é_†¢ßB¾€
             cmd.Connection.Open();
@@ -35,8 +35,20 @@ namespace OnlineShopBack.Pages.Account
             da.Fill(dt);
 
             //êPé]ßB¾€
-            cmd.Connection.Close();          
+            cmd.Connection.Close();
 
+            string accLevel = "";
+            string accPosition = "";
+
+            for (int i=0; i<dt.Rows.Count;i++ )
+            {
+                accLevel += dt.Rows[i][0].ToString() +"/";
+                accPosition += dt.Rows[i][1]+"/";
+                Acclevel02 += dt.Rows[i][1]+"/";
+            }
+
+            ViewData["accLevel"] += accLevel;
+            ViewData["accPosition"] += accPosition;
         }
     }
 }
