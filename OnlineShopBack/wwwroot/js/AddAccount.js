@@ -1,6 +1,13 @@
 ﻿$(document).ready(function (data) {
+
     $.validator.addMethod("stringCheck", function (value, element) {
         return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
+    }, "只能包含英文、數字等字元");
+
+    $.validator.addMethod("MinMaxLenth", function (value, minValue, MaxValue) {
+        if (value < minValue || value > MaxValue) {
+            return false
+        }       
     }, "只能包含英文、數字等字元");
 
     $('#form').validate({
@@ -16,15 +23,16 @@
         rules: {
             Account: {
                 required: true,
-                stringCheck: true
+                stringCheck: true,
             },
             PassWord: {
-                required: true
+                required: true,
+                stringCheck: true,
             }
         },
         messages: {
             Account: {
-                required: '必填'
+                required: '必填',
             },
             PassWord: {
                 required: '必填'

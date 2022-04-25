@@ -26,15 +26,14 @@ namespace OnlineShopBack.Controllers
         public string login(AccountSelectDto value)
         {
            
-            string loginErrorStr = "";
+            string loginErrorStr = "";//記錄錯誤訊息
 
-
-            if (value.Account =="" || value.Pwd =="")
+            //帳號資料驗證
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                loginErrorStr += "[帳號或密碼不可為空]";
+                loginErrorStr += "[帳號不可為空]\n";
             }
-
-            if (value.Account !="")
+            else if (value.Account !="")
             {
                 if (!MyTool.IsENAndNumber(value.Account))
                 {
@@ -46,7 +45,12 @@ namespace OnlineShopBack.Controllers
                 }
             };
 
-            if (value.Pwd !="")
+            //密碼資料驗證
+            if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
+            {
+                loginErrorStr += "[密碼不可為空]\n";
+            }
+            else if (value.Pwd !="")
             {
                 if (!MyTool.IsENAndNumber(value.Pwd))
                 {

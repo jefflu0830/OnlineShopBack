@@ -29,17 +29,28 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        [HttpGet]
-        public IEnumerable<AccountSelectDto> Get()
+        [HttpGet("GetAccount")]
+        public string GetAccount()
         {
-            var result = _OnlineShopContext.TAccount
-                .Select(a => new AccountSelectDto
-                {
-                    Id = a.FId,
-                    Account = a.FAcc,
-                    Pwd = a.FPwd,
-                    Level = a.FLevel
-                });
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount ";
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -51,23 +62,56 @@ namespace OnlineShopBack.Controllers
             return "value";
         }
 
-        // POST api/<AccuntController>
-        [HttpGet("AddAccount")]
-        [HttpPost]
-        public string Post([FromBody] AccountSelectDto value)
+        private enum addACCountErrorCode
+        {
+            //<summary >
+            //帳號新增成功
+            //</summary >
+            AddOK = 0,
+
+            //<summary >
+            //帳號重複
+            //</summary >
+            duplicateAccount = 101,
+
+            //<summary >
+            //該權限未建立
+            //</summary >
+            permissionIsNull = 102
+
+        }
+
+
+        //[POST]  增加會員等級 t_memberLevel
+        [HttpPost("AddMemberLevel")]
+        public string AddMemberLevel([FromBody] AccountSelectDto value)  // t_memberLevel 的DTO
+        {
+            return "AddMemberLevel API ";
+        }
+
+        //[POST]  增加帳號權限 t_accountLevel
+        [HttpPost("AddAccountLevel")]
+        public string AddAccountLevel([FromBody] AccountSelectDto value) // t_accountLevel 的DTO
+        {
+
+            return "AddAccountLevel API ";
+        }
+
+        //[POST]  增加帳號 t_account
+        [HttpPost("AddAccount")]
+        public string AddAccount([FromBody] AccountSelectDto value)
         {
             //後端驗證
             //如字串字數特殊字元驗證
 
-            string addAccErrorStr = "";
+            string addAccErrorStr = "";//記錄錯誤訊息
 
-
-            if (value.Account == "" || value.Pwd == "")
+            //帳號資料驗證
+            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
             {
-                addAccErrorStr += "[帳號或密碼不可為空]";
+                addAccErrorStr += "[帳號不可為空]\n";
             }
-
-            if (value.Account != "")
+            else if (value.Account != "")
             {
                 if (!MyTool.IsENAndNumber(value.Account))
                 {
@@ -78,7 +122,12 @@ namespace OnlineShopBack.Controllers
                     addAccErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
                 }
             };
-            if (value.Pwd != "")
+            //密碼資料驗證
+            if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
+            {
+                addAccErrorStr += "[密碼不可為空]\n";
+            }
+            else if (value.Pwd != "")
             {
                 if (!MyTool.IsENAndNumber(value.Pwd))
                 {
@@ -89,12 +138,13 @@ namespace OnlineShopBack.Controllers
                     addAccErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
                 }
             }
-            if (value.Level>255 || value.Level<0)
+            //權限資料驗證
+            if (value.Level > 255 || value.Level < 0)
             {
                 addAccErrorStr += "[＊該權限不再範圍內]\n";
             }
 
-            if (addAccErrorStr != "") 
+            if (addAccErrorStr != "")
             {
                 return addAccErrorStr;
             }
@@ -107,7 +157,7 @@ namespace OnlineShopBack.Controllers
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
-                    
+
 
                     //帳號重複驗證寫在SP中
 
@@ -127,9 +177,25 @@ namespace OnlineShopBack.Controllers
                     #endregion
 
                     //開啟連線
+
                     cmd.Connection.Open();
                     addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                    return addAccErrorStr;
+                    int SQLReturnCode = int.Parse(addAccErrorStr);
+
+                    switch (SQLReturnCode)
+                    {
+                        case (int)addACCountErrorCode.duplicateAccount:
+                            return "此帳號已存在";
+
+                        case (int)addACCountErrorCode.permissionIsNull:
+                            return "該權限未建立";
+
+                        case (int)addACCountErrorCode.AddOK:
+                            return "帳號新增成功";
+
+                    }
+
+                    return "帳號新增成功";
 
                 }
                 finally
@@ -140,7 +206,7 @@ namespace OnlineShopBack.Controllers
                         cmd.Connection.Close();
                     }
                 }
-                 
+
             }
 
             #region EF舊寫法已註解
@@ -172,6 +238,7 @@ namespace OnlineShopBack.Controllers
         public void Delete(int id)
         {
         }
+
     }
 
 }

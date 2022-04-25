@@ -14,8 +14,8 @@ namespace OnlineShopBack.Pages.Account
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        public string Acclevel01;
-        public string Acclevel02;
+        public string AccLevel;
+        public string AccPosition;
 
         public void OnGet()
         {
@@ -27,7 +27,7 @@ namespace OnlineShopBack.Pages.Account
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"SELECT * FROM T_accountLevel ";
+            cmd.CommandText = @"SELECT * FROM T_accountLevel "; //改成SP
 
             //開啟連線
             cmd.Connection.Open();
@@ -37,18 +37,11 @@ namespace OnlineShopBack.Pages.Account
             //關閉連線
             cmd.Connection.Close();
 
-            string accLevel = "";
-            string accPosition = "";
-
             for (int i=0; i<dt.Rows.Count;i++ )
             {
-                accLevel += dt.Rows[i][0].ToString() +"/";
-                accPosition += dt.Rows[i][1]+"/";
-                Acclevel02 += dt.Rows[i][1]+"/";
+                AccLevel += dt.Rows[i][0].ToString() +"/";
+                AccPosition += dt.Rows[i][1]+"/";
             }
-
-            ViewData["accLevel"] += accLevel;
-            ViewData["accPosition"] += accPosition;
         }
     }
 }
