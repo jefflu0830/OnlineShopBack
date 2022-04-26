@@ -10,6 +10,7 @@ using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -76,17 +77,22 @@ namespace OnlineShopBack.Controllers
             else
             {
                 SqlCommand cmd = null;
+                DataTable dt = new DataTable();
+                SqlDataAdapter da = new SqlDataAdapter();
+
                 try
                 {
+
 
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                    cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount @f_acc, @f_pwd";
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel @f_acc, @f_pwd";
 
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
                     cmd.Parameters.AddWithValue("@f_pwd", MyTool.PswToMD5(value.Pwd));
+
 
                     //開啟連線
                     cmd.Connection.Open();
@@ -97,16 +103,28 @@ namespace OnlineShopBack.Controllers
                     }
                     else
                     {
+                        da.SelectCommand = cmd;
+                        da.Fill(dt);
+
+
+
                         //Cookie 驗證
                         var claims = new List<Claim>
                         {
                            new Claim(ClaimTypes.Name, value.Account)
                         };
 
+                        if (dt.Rows[0]["f_canUseAccount"].ToString() == "True")
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, "canUseAccount"));
+                        };
+
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                        
-                        return "loginOK"; //登入OK
+
+
+
+                        return "loginOK";  //登入OK
                     }
 
                 }
@@ -114,8 +132,9 @@ namespace OnlineShopBack.Controllers
                 {
                     if (cmd != null)
                     {
-                        cmd.Parameters.Clear();
                         cmd.Connection.Close();
+                        cmd.Parameters.Clear();
+
                     }
                 }
             }

@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using OnlineShopBack.Tool;
+using Microsoft.AspNetCore.Authorization;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace OnlineShopBack.Controllers
 {
+    [Authorize (Roles = "canUseAccount") ]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -58,7 +60,9 @@ namespace OnlineShopBack.Controllers
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = " SELECT f_id,f_acc,f_level,f_accPosition,f_canUseAccount,f_canUseMember,f_createDate FROM t_account WITH(NOLOCK) " +
+                             " LEFT JOIN t_accountLevel ON f_accLevel = f_level";
 
             //開啟連線
             cmd.Connection.Open();

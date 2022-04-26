@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineShopBack.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace OnlineShopBack
@@ -37,12 +38,22 @@ namespace OnlineShopBack
             {
                 //未登入時會自動導到這個網址
                 option.LoginPath = new PathString("/Index");
+                //沒有權限時會自動導到這個網址
+                option.AccessDeniedPath = new PathString("/BackPage");
+                //設定時間失效
+                //option.ExpireTimeSpan = TimeSpan.FromHours(5);
+                option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
             });
             //全域套用 [Authorize]
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AuthorizeFilter());
             });
+//-------------------------------------------------------------------------------
+            //services.AddRazorPages(options =>
+            //{
+            //    options.Conventions.AuthorizeFolder("/Pages/Account","Pages");
+            //});
 
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

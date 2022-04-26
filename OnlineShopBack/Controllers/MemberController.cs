@@ -8,13 +8,16 @@ using System.Text;
 
 namespace OnlineShopBack.Controllers
 {
+    
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
         //取得會員資料
+
         [HttpGet("GetMember")]
+
         //public IEnumerable<AccountSelectDto> Get()
         public string GetMember()
         {
