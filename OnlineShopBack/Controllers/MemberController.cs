@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
@@ -8,15 +9,14 @@ using System.Text;
 namespace OnlineShopBack.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     public class MemberController : ControllerBase
     {
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
         //取得會員資料
-        [HttpGet]
+        [HttpGet("GetMember")]
         //public IEnumerable<AccountSelectDto> Get()
-        public string Get()
+        public string GetMember()
         {
             SqlCommand cmd = null;
             DataTable dt = new DataTable();

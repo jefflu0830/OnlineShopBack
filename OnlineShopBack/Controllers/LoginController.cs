@@ -1,17 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace OnlineShopBack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class LoginController : ControllerBase
     {
         private readonly OnlineShopContext _OnlineShopContext;
@@ -25,7 +31,7 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(AccountSelectDto value)
         {
-           
+
             string loginErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
@@ -33,13 +39,13 @@ namespace OnlineShopBack.Controllers
             {
                 loginErrorStr += "[帳號不可為空]\n";
             }
-            else if (value.Account !="")
+            else
             {
                 if (!MyTool.IsENAndNumber(value.Account))
                 {
                     loginErrorStr += "[＊帳號只能為英數]\n";
                 }
-                if (value.Account.Length>20 || value.Account.Length<3)
+                if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
                     loginErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
                 }
@@ -50,13 +56,13 @@ namespace OnlineShopBack.Controllers
             {
                 loginErrorStr += "[密碼不可為空]\n";
             }
-            else if (value.Pwd !="")
+            else
             {
                 if (!MyTool.IsENAndNumber(value.Pwd))
                 {
                     loginErrorStr += "[＊密碼只能為英數]\n";
                 }
-                if (value.Pwd.Length>16 || value.Pwd.Length<8)
+                if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
                     loginErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
                 }
@@ -72,6 +78,7 @@ namespace OnlineShopBack.Controllers
                 SqlCommand cmd = null;
                 try
                 {
+
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
@@ -86,12 +93,20 @@ namespace OnlineShopBack.Controllers
 
                     if (cmd.ExecuteScalar() == null)
                     {
-                        return "帳號密碼錯誤";
+                        return "loginFail"; //登入失敗
                     }
                     else
                     {
-                        //Response.Redirect("~/Admin/PAdmin1.aspx");
-                        return "登入成功";
+                        //Cookie 驗證
+                        var claims = new List<Claim>
+                        {
+                           new Claim(ClaimTypes.Name, value.Account)
+                        };
+
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                        
+                        return "loginOK"; //登入OK
                     }
 
                 }
@@ -139,7 +154,7 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        [HttpDelete]
+        [HttpDelete("Logout")]
         public void logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

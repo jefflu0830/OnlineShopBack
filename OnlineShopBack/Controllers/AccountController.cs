@@ -29,6 +29,25 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+
+        #region  GetAccount舊寫法EF
+        //[HttpGet("GetAccount")]
+        //public IEnumerable<AccountSelectDto> GetAccount()
+        //{
+        //    var result = _OnlineShopContext.TAccount
+        //        .Select(a => new AccountSelectDto
+        //        {
+        //            Id = a.FId,
+        //            Account = a.FAcc,
+        //            Pwd = a.FPwd,
+        //            Level = a.FLevel
+        //        });
+        //    return result;
+
+        //}
+        #endregion
+
+
         [HttpGet("GetAccount")]
         public string GetAccount()
         {
@@ -39,7 +58,7 @@ namespace OnlineShopBack.Controllers
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShopBack_getAccount ";
+            cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
 
             //開啟連線
             cmd.Connection.Open();
@@ -107,41 +126,41 @@ namespace OnlineShopBack.Controllers
             string addAccErrorStr = "";//記錄錯誤訊息
 
             //帳號資料驗證
-            if (value.Account == "" || (string.IsNullOrEmpty(value.Account)))
+            if (string.IsNullOrEmpty(value.Account))
             {
                 addAccErrorStr += "[帳號不可為空]\n";
             }
-            else if (value.Account != "")
+            else
             {
                 if (!MyTool.IsENAndNumber(value.Account))
                 {
-                    addAccErrorStr += "[＊帳號只能為英數]\n";
+                    addAccErrorStr += "[帳號只能為英數]\n";
                 }
                 if (value.Account.Length > 20 || value.Account.Length < 3)
                 {
-                    addAccErrorStr += "[＊帳號長度應介於3～20個數字之間]\n";
+                    addAccErrorStr += "[帳號長度應介於3～20個數字之間]\n";
                 }
             };
             //密碼資料驗證
-            if (value.Pwd == "" || (string.IsNullOrEmpty(value.Pwd)))
+            if (string.IsNullOrEmpty(value.Pwd))
             {
                 addAccErrorStr += "[密碼不可為空]\n";
             }
-            else if (value.Pwd != "")
+            else
             {
                 if (!MyTool.IsENAndNumber(value.Pwd))
                 {
-                    addAccErrorStr += "[＊密碼只能為英數]\n";
+                    addAccErrorStr += "[密碼只能為英數]\n";
                 }
                 if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
                 {
-                    addAccErrorStr += "[＊密碼長度應應介於8～16個數字之間]\n";
+                    addAccErrorStr += "[密碼長度應應介於8～16個數字之間]\n";
                 }
             }
             //權限資料驗證
             if (value.Level > 255 || value.Level < 0)
             {
-                addAccErrorStr += "[＊該權限不再範圍內]\n";
+                addAccErrorStr += "[該權限不再範圍內]\n";
             }
 
             if (addAccErrorStr != "")
@@ -157,7 +176,6 @@ namespace OnlineShopBack.Controllers
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
-
 
                     //帳號重複驗證寫在SP中
 

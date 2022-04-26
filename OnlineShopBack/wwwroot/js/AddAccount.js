@@ -45,7 +45,7 @@ $.validator.setDefaults({
     /*submitHandler成功提交表單 做什麼事*/
     submitHandler: function (form) {
         $.ajax({
-            url: "/api/Account",
+            url: "/api/Account/AddAccount",
             type: "post",
             contentType: "application/json",
             dataType: "text",

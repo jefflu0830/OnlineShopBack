@@ -1,0 +1,46 @@
+﻿@page
+@model OnlineShopBack.Pages.BackPageModel
+@{
+}
+
+<div id="body" style="margin: 0 auto;">
+
+    <button id="member">會員管理</button>
+
+    <button id="Account">後台帳號管理</button>
+
+    <button id="logOut">登出</button>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#member").click(function () {
+            location.href = "/Member/MemberMenu"
+        });
+
+        $("#Account").click(function () {
+            location.href = "/Account/AccountMenu"
+        });
+
+        $("#logOut").click(function () {
+            $.ajax({
+                url: "api/Login/Logout",
+                type: "Delete",
+                contentType: "application/json",
+                dataType: "text",
+                data: JSON.stringify({
+                    "account": $("#Account").val(),
+                    "Pwd": $("#PassWord").val()
+                }),
+                success: function (result) {
+                    location.href = "/Index"
+                },
+                error: function (error) {
+                }
+            })
+        });
+    });
+
+</script>

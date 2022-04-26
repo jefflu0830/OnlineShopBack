@@ -42,7 +42,7 @@ namespace OnlineShopBack.Tool
         }
 
         //判斷字串是否只有英數
-        public static bool IsENAndNumber(string str)
+        public static bool IsENAndNumber(string str )
 
         {
 

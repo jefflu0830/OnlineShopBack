@@ -1,5 +1,10 @@
 ﻿$(document).ready(function (data) {
 
+
+
+
+
+
     jQuery.validator.addMethod("stringCheck", function (value, element) {
         return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
     }, "只能包含英文、數字等字元");
@@ -46,7 +51,13 @@ $.validator.setDefaults({
                 "Pwd": $("#PassWord").val()
             }),
             success: function (result) {
-                alert(result);
+                if (result == "loginOK") {
+                    location.href = "/BackPage"
+                }
+                else {
+                    alert(result)  
+                }
+                
             },
             error: function (error) {
                 alert(error);
