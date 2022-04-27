@@ -106,23 +106,25 @@ namespace OnlineShopBack.Controllers
                         da.SelectCommand = cmd;
                         da.Fill(dt);
 
-
-
-                        //Cookie 驗證
+                        //添加角色權限
                         var claims = new List<Claim>
                         {
                            new Claim(ClaimTypes.Name, value.Account)
                         };
 
-                        if (dt.Rows[0]["f_canUseAccount"].ToString() == "True")
+                        //添加 可使用帳號管理
+                        if ((bool)dt.Rows[0]["f_canUseAccount"])
                         {
                             claims.Add(new Claim(ClaimTypes.Role, "canUseAccount"));
                         };
-
+                        //添加 可使用會員管理
+                        if ((bool)dt.Rows[0]["f_canUseMember"])
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, "canUseMember"));
+                        };
+                        //Cookie 驗證
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-
 
                         return "loginOK";  //登入OK
                     }

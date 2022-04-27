@@ -1,4 +1,12 @@
 ﻿$(document).ready(function () {
+    $("#AddAccount").click(function () {
+        location.href = "/Account/AddAccount"
+    });
+    $("#AddAccountLevel").click(function () {
+        location.href = "/Account/AddAccountLevel"
+    });
+
+
     $.ajax({
         type: "GET",
         url: "/api/account/GetAccount",

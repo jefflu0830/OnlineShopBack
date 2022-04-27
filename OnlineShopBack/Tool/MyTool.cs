@@ -43,15 +43,19 @@ namespace OnlineShopBack.Tool
 
         //判斷字串是否只有英數
         public static bool IsENAndNumber(string str )
-
         {
-
             System.Text.RegularExpressions.Regex reg1 = new System.Text.RegularExpressions.Regex(@"^[A-Za-z0-9]+$");
 
+            return reg1.IsMatch(str);
+        }
+
+        //判斷字串是否只有中,英及數字
+        public static bool IsCNAndENAndNumber(string str)
+        {
+            System.Text.RegularExpressions.Regex reg1 = new System.Text.RegularExpressions.Regex(@"^[A-Za-z0-9_\u4e00-\u9fa5]+$");
 
             return reg1.IsMatch(str);
-
-
         }
+
     }
 }

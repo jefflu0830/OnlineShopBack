@@ -25,7 +25,7 @@ namespace OnlineShopBack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
+            
 
             services.AddControllersWithViews();
             services.AddControllers();
@@ -44,16 +44,17 @@ namespace OnlineShopBack
                 //option.ExpireTimeSpan = TimeSpan.FromHours(5);
                 option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
             });
-            //全域套用 [Authorize]
+            //全域套用 [Authorize]?
             services.AddMvc(options =>
             {
                 options.Filters.Add(new AuthorizeFilter());
             });
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
             //services.AddRazorPages(options =>
             //{
             //    options.Conventions.AuthorizeFolder("/Pages/Account","Pages");
             //});
+            services.AddRazorPages();
 
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -83,7 +84,8 @@ namespace OnlineShopBack
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}") ;
+
             });
 
             app.UseEndpoints(endpoints =>

@@ -8,16 +8,25 @@ using System.Text;
 
 namespace OnlineShopBack.Controllers
 {
-    
+    [Authorize(Roles = "canUseMember")]
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+
+
+
+        //[POST]  增加會員等級 t_memberLevel
+        [HttpPost("AddMemberLevel")]
+        public string AddMemberLevel([FromBody] AccountSelectDto value)  // t_memberLevel 的DTO
+        {
+            return "AddMemberLevel API ";
+        }
+
+
         //取得會員資料
-
         [HttpGet("GetMember")]
-
         //public IEnumerable<AccountSelectDto> Get()
         public string GetMember()
         {

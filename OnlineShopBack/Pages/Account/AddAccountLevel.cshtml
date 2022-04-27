@@ -1,0 +1,43 @@
+﻿@page
+@model OnlineShopBack.Pages.Account.AddAccountLevelModel
+@{
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@*JQuery 資料驗證*@
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
+
+
+<h5>Add AccountLevel</h5>
+
+<div id="body" style="padding: 10px;">
+    <form id="form" method="post" action="">
+        <div>
+            <label for="AccLevel">AccLevel:</label>
+            <input type="text" id="AccLevel" name="AccLevel" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div>
+            <label for="AccPosission">AccPosission:</label>
+            <input type="text" id="AccPosission" name="AccPosission" />
+        </div>
+        <div>
+            <label for="canUseAccount">會員管理權限:</label>
+            <select id="canUseAccount">
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+        </div>
+        <div>
+            <label for="canUseAccount">後台帳號管理權限:</label>
+            <select id="canUseAccount">
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+        </div>
+        <div>
+            <input id="post" type="submit" value="login" />
+        </div>
+    </form>
+</div>
+<script src="~/js/AddAccountLevel.js"></script>
