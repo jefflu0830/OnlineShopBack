@@ -139,7 +139,7 @@ namespace OnlineShopBack.Controllers
         }
 
         //列舉(Enum)
-        #region 列舉存放區 (新增帳號,新增權限,刪除權限)
+        #region 列舉存放區 (新增帳號,新增權限,刪除權限,更新權限)
         private enum addACCountErrorCode //新增帳號
         {
             //<summary >
@@ -176,7 +176,15 @@ namespace OnlineShopBack.Controllers
             //<summary >
             //權限刪除成功
             //</summary >
-            DelOK = 0,
+            DelOK = 0
+        }
+
+        private enum PutACCountLVErrorCode //刪除權限
+        {
+            //<summary >
+            //權限更新成功
+            //</summary >
+            PutOK = 0
         }
         #endregion
 
@@ -272,6 +280,51 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+        }
+
+        [HttpPut("PutAccountLevel/{id}")]
+        public string PutAccountLevel(int id, [FromBody] AccountLevelDto value)
+        {
+            string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                //帳號重複驗證寫在SP中
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember ";
+
+                cmd.Parameters.AddWithValue("@accLevel", id);
+                cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
+                cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
+                cmd.Parameters.AddWithValue("@canUseMember", value.canUseAccount);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutACCountLVErrorCode.PutOK:
+                        return "權限更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
         }
 
 

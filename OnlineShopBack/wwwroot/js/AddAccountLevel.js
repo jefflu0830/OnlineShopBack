@@ -1,4 +1,6 @@
-﻿function Del_Click(DelBtnId) {
+﻿
+//刪除
+function Del_Click(DelBtnId) {
     if (window.confirm("確定要刪除嗎")) {
         $.ajax({
             url: "/api/Account/DelAccountLevel/" + DelBtnId,
@@ -18,6 +20,7 @@
     }
 }
 
+//點擊編輯按鈕
 function Edit_Click(Editid) {
     if ($("#EditBox").css("display") == "none") {
         $.ajax({
@@ -27,28 +30,29 @@ function Edit_Click(Editid) {
             dataType: "json",
             success: function (data) {
                 var canUseAccountChk = ""
-                var canUseMember=""
+                var canUseMember = ""
                 if (data[0].f_canUseAccount === "True") {
-                    canUseAccountChk="checked"
+                    canUseAccountChk = "checked"
                 }
                 if (data[0].f_canUseMember === "True") {
                     canUseMember = "checked"
                 }
 
-                var rows = "<div><label> AccLevel:" + data[0].f_accLevel + "</label></div>" +
+                var EditData = "<div><label> AccLevel:" + data[0].f_accLevel + "</label></div>" +
                     //f_accPosition
-                    "<div><label for='AccPosission'>AccPosission:</label>" +
-                    "<input type='text' id='AccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
+                    "<div><label for='EditAccPosission'>AccPosission:</label>" +
+                    "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
                     //canUseAccount
-                    "<div><input type='checkbox' id='canUseAccount'" + canUseAccountChk + " />" +
+                    "<div><input type='checkbox' id='EditCanUseAccount'" + canUseAccountChk + " />" +
                     " <label for='canUseAccount'>是否有後台帳號管理權限</label></div >" +
                     //canUseMember
-                    "<div><input type='checkbox' id='canUseMember'" + canUseMember + " />" +
+                    "<div><input type='checkbox' id='EditCanUseMember'" + canUseMember + " />" +
                     "<label for='canUseMember'>是否有會員管理權限</label></div >" +
                     //Edit Button
-                    "<div><input id='EditAccLV' type='submit' value='Edit' /></div>"
+                    "<div><input id='" + data[0].f_accLevel + "' onclick ='EditOK_Click(this.id)' type='Button' value='Edit' />" +
+                    "<input id='EditCancel' type='Button' value='Cancel' onclick='EditCancel_Click()' /></div> "
 
-                $('#Editform').append(rows);
+                $('#Editform').append(EditData);
             },
             failure: function (data) {
             },
@@ -56,13 +60,60 @@ function Edit_Click(Editid) {
             }
         });
         $("#EditBox").show();
-    } else {
+    }
+}
+//取消編輯
+function EditCancel_Click() {
+    if ($("#EditBox").css("display") !== "none") {
         $("#EditBox").hide();
         $("#Editform > div").remove();
     }
 }
 
+//確認編輯
+function EditOK_Click(EditidOK) {
+    var EditcanUseAccount = 0
+    var EditcanUseMember = 0
+    //canUseMember  checkbox
+    if ($("#EditCanUseAccount").prop("checked")) {
+        EditcanUseAccount = 1
+    }
+    else {
+        EditcanUseAccount = 0
+    }
+    //canUseMember  checkbox
+    if ($("#EditCanUseMember").prop("checked")) {
+        EditcanUseMember = 1
+    } else {
+        EditcanUseMember = 0
+    }
+
+    $.ajax({
+        url: "/api/account/PutAccountLevel/" + EditidOK,
+        type: "put",
+        contentType: "application/json",
+        dataType: "text",
+        data: JSON.stringify({
+            "accPosition": $("#EditAccPosission").val(),
+            "CanUseAccount": EditcanUseAccount,
+            "CanUseMember": EditcanUseMember
+        }),
+        success: function (result) {
+            alert(result)
+
+            if (result == "權限更新成功") {
+                location.reload(); //新增成功才更新頁面
+            }
+        },
+        error: function (error) {
+            alert(error);
+        }
+    })
+}
+
+
 $(document).ready(function (data) {
+    //取得權限資料
     $.ajax({
         type: "GET",
         url: "/api/account/GetAccountLV",
@@ -71,7 +122,6 @@ $(document).ready(function (data) {
         success: function (data) {
 
             for (var i in data) {
-
                 var rows = rows + "<tr>" +
                     "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
                     "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
@@ -88,11 +138,10 @@ $(document).ready(function (data) {
         },
         error: function (data) {
         }
-
     });
 
 
-
+    //自訂檢測
     $.validator.addMethod("stringCheck", function (value, element) {
         return this.optional(element) || /^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(value);
     }, "只能包含中文,英文、數字等字元");
@@ -105,8 +154,7 @@ $(document).ready(function (data) {
         $("#AccLevel").val(parseInt($("#AccLevel").val()))
     })
 
-
-
+    //validate 設定
     $('#Addform').validate({
         /* 常用檢測屬性
        required:必填
@@ -141,8 +189,6 @@ $(document).ready(function (data) {
     });
 });
 
-
-
 $.validator.setDefaults({
     /*submitHandler成功提交表單 做什麼事*/
     submitHandler: function (form) {
@@ -170,10 +216,8 @@ $.validator.setDefaults({
             data: JSON.stringify({
                 "accLevel": parseInt($("#AccLevel").val()),
                 "accPosition": $("#AccPosission").val(),
-                "canUseAccount": canUseAccount, 
-                "canUseMember": canUseMember   
-                //"canUseAccount": parseInt($("#canUseAccount").val()), //parseInt轉型成int
-                //"canUseMember": parseInt($("#canUseMember").val()), //parseInt轉型成int                
+                "canUseAccount": canUseAccount,
+                "canUseMember": canUseMember             
             }),
             success: function (result) {
                 alert(result)

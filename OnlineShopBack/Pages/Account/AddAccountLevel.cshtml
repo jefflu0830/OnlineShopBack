@@ -23,18 +23,9 @@
         <div>
             <input type="checkbox" id="canUseAccount" value="是否有後台帳號管理權限" />
             <label for="canUseAccount">是否有後台帳號管理權限</label>
-            @*<label for="canUseAccount">會員管理權限:</label>
-                <select id="canUseAccount">
-                    <option value="0">否</option>
-                    <option value="1">是</option>
-                </select>*@
+
         </div>
         <div>
-            @*<label for="canUseMember">後台帳號管理權限:</label>
-                <select id="canUseMember">
-                    <option value="0">否</option>
-                    <option value="1">是</option>
-                </select>*@
             <input type="checkbox" id="canUseMember" value="是否有會員管理權限" />
             <label for="canUseMember">是否有會員管理權限</label>
         </div>
@@ -45,23 +36,25 @@
 </div>
 
 <div class="panel panel-primary">
-    <div class="panel-heading">
-    </div>   <!--en dof panel-heading -->
     <div class="panel-body">
         <table class="table table-bordered" id="Table">
             <tr>
                 <th>編號</th>
                 <th>名稱</th>
-                <th>會員管理</th>
                 <th>帳號管理</th>
-            </tr>   <!--end of table-row -->
-        </table>   <!--end of table -->
-    </div> <!--end of Panel-body -->
-</div> <!--end of Panel -->
-<script src="~/js/AddAccountLevel.js"></script>
+                <th>會員管理</th>
+            </tr>
+        </table>
+    </div>
+</div>
 
-<div id="EditBox" style="background-color:yellow; display:none;">
+
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <form id="Editform" method="post" action="">
-      @* use append*@
+    @* 用append放入*@
     </form>
 </div>
+
+
+
+<script src="~/js/AddAccountLevel.js"></script>
