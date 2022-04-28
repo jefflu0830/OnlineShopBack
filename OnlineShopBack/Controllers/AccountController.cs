@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using OnlineShopBack.Tool;
 using Microsoft.AspNetCore.Authorization;
+using System;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,18 +21,20 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-
-        private readonly OnlineShopContext _OnlineShopContext;
-        public AccountController(OnlineShopContext onlineShopContext)
-        {
-            _OnlineShopContext = onlineShopContext;
-        }
+        //已註解
+        #region GetAccount  EF舊寫法用所需
+        //private readonly OnlineShopContext _OnlineShopContext;
+        //public AccountController(OnlineShopContext onlineShopContext)
+        //{
+        //    _OnlineShopContext = onlineShopContext;
+        //}
+        #endregion
 
 
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-
+        //已註解
         #region  GetAccount舊寫法EF
         //[HttpGet("GetAccount")]
         //public IEnumerable<AccountSelectDto> GetAccount()
@@ -49,7 +52,7 @@ namespace OnlineShopBack.Controllers
         //}
         #endregion
 
-
+        //獲得Select帳號資料Left join權限資料
         [HttpGet("GetAccount")]
         public string GetAccount()
         {
@@ -78,13 +81,65 @@ namespace OnlineShopBack.Controllers
             return result;
         }
 
-        // GET api/<AccuntController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        //獲得Select帳號權限資料
+        [HttpGet("GetAccountLV")]
+        public string GetAccountLV()
         {
-            return "value";
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";  
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
         }
 
+
+        [HttpGet("GetAccountLV/{id}")]
+        public string IdGetAccountLV(int id)
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel01 @accLevel ";
+            cmd.Parameters.AddWithValue("@accLevel", id);
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
+
+        //列舉(Enum)
+        #region 列舉存放區 (新增帳號,新增權限,刪除權限)
         private enum addACCountErrorCode //新增帳號
         {
             //<summary >
@@ -106,11 +161,24 @@ namespace OnlineShopBack.Controllers
         private enum addACCountLVErrorCode //新增權限
         {
             //<summary >
-            //帳號新增成功
+            //權限新增成功
             //</summary >
-            AddOK = 0
+            AddOK = 0,
 
+            //<summary >
+            //權限重複
+            //</summary >
+            duplicateAccountLv = 101
         }
+
+        private enum DelACCountLVErrorCode //刪除權限
+        {
+            //<summary >
+            //權限刪除成功
+            //</summary >
+            DelOK = 0,
+        }
+        #endregion
 
 
         //[POST]  增加帳號權限 t_accountLevel
@@ -120,6 +188,8 @@ namespace OnlineShopBack.Controllers
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //資料驗證
+
+            //權限編號 
             if (value.accLevel== null)
             {
                 addAccLVErrorStr += "[編號不可為空]\n";
@@ -131,7 +201,7 @@ namespace OnlineShopBack.Controllers
                     addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
                 }
             }
-
+            //權限名稱
             if (string.IsNullOrEmpty(value.accPosition)) 
             {
                 addAccLVErrorStr += "[權限名稱不可為空]\n";
@@ -147,17 +217,18 @@ namespace OnlineShopBack.Controllers
                     addAccLVErrorStr += "[名稱應介於0～10個字之間]\n";
                 }
             }
-
+            //是否有權使用帳號管理 or 會員管理
             if (value.canUseAccount == null || value.canUseMember == null)
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
             }
 
+
+            //錯誤訊息有值 return錯誤值
             if (!string.IsNullOrEmpty(addAccLVErrorStr))
             {
                 return addAccLVErrorStr;
             }
-
 
 
             SqlCommand cmd = null;
@@ -187,6 +258,8 @@ namespace OnlineShopBack.Controllers
                 {
                     case (int)addACCountLVErrorCode.AddOK:
                         return "權限新增成功";
+                    case (int)addACCountLVErrorCode.duplicateAccountLv:
+                        return "權限編號重複";
                     default:
                         return "失敗";
                 }
@@ -202,7 +275,51 @@ namespace OnlineShopBack.Controllers
         }
 
 
+        [HttpDelete("DelAccountLevel/{id}")]
+        public string DelAccountLevel(int id)
+        {
+            string addAccLVErrorStr = "";//記錄錯誤訊息
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                //帳號重複驗證寫在SP中
+                cmd.CommandText = @"EXEC pro_onlineShopBack_delAccountLevel @accLevel";
+
+                cmd.Parameters.AddWithValue("@accLevel", id);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)DelACCountLVErrorCode.DelOK:
+                        return "刪除成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+        }
+
+
         //[POST]  增加帳號 t_account
+
+
         [HttpPost("AddAccount")]
         public string AddAccount([FromBody] AccountSelectDto value)
         {

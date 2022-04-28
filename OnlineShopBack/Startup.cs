@@ -49,6 +49,12 @@ namespace OnlineShopBack
             {
                 options.Filters.Add(new AuthorizeFilter());
             });
+
+
+            services.AddMvc().ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true; //tuer後 不管有沒有報錯 都先會進 controller
+            });
             //-------------------------------------------------------------------------------
             //services.AddRazorPages(options =>
             //{

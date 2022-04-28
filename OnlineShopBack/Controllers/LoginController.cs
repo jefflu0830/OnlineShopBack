@@ -32,6 +32,12 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(AccountSelectDto value)
         {
+            if(ModelState.IsValid == false)
+            {
+                /*****/
+                return "113";
+            }
+            
 
             string loginErrorStr = "";//記錄錯誤訊息
 

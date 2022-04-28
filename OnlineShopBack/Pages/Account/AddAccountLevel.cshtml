@@ -10,34 +10,58 @@
 
 
 <h5>Add AccountLevel</h5>
-
 <div id="body" style="padding: 10px;">
-    <form id="form" method="post" action="">
+    <form id="Addform" method="post" action="">
         <div>
             <label for="AccLevel">AccLevel:</label>
             <input type="text" id="AccLevel" name="AccLevel" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
             <label for="AccPosission">AccPosission:</label>
-            <input type="text" id="AccPosission" name="AccPosission" />
+            <input type="text" id="AccPosission" name="AccPosission" maxlength="10" />
         </div>
         <div>
-            <label for="canUseAccount">會員管理權限:</label>
-            <select id="canUseAccount">
-                <option value="0">否</option>
-                <option value="1">是</option>
-            </select>
+            <input type="checkbox" id="canUseAccount" value="是否有後台帳號管理權限" />
+            <label for="canUseAccount">是否有後台帳號管理權限</label>
+            @*<label for="canUseAccount">會員管理權限:</label>
+                <select id="canUseAccount">
+                    <option value="0">否</option>
+                    <option value="1">是</option>
+                </select>*@
         </div>
         <div>
-            <label for="canUseAccount">後台帳號管理權限:</label>
-            <select id="canUseAccount">
-                <option value="0">否</option>
-                <option value="1">是</option>
-            </select>
+            @*<label for="canUseMember">後台帳號管理權限:</label>
+                <select id="canUseMember">
+                    <option value="0">否</option>
+                    <option value="1">是</option>
+                </select>*@
+            <input type="checkbox" id="canUseMember" value="是否有會員管理權限" />
+            <label for="canUseMember">是否有會員管理權限</label>
         </div>
         <div>
-            <input id="post" type="submit" value="login" />
+            <input id="post" type="submit" value="ADD" />
         </div>
     </form>
 </div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+    </div>   <!--en dof panel-heading -->
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <tr>
+                <th>編號</th>
+                <th>名稱</th>
+                <th>會員管理</th>
+                <th>帳號管理</th>
+            </tr>   <!--end of table-row -->
+        </table>   <!--end of table -->
+    </div> <!--end of Panel-body -->
+</div> <!--end of Panel -->
 <script src="~/js/AddAccountLevel.js"></script>
+
+<div id="EditBox" style="background-color:yellow; display:none;">
+    <form id="Editform" method="post" action="">
+      @* use append*@
+    </form>
+</div>
