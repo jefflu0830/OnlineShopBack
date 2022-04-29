@@ -38,7 +38,6 @@
 <script src="~/js/AddAccount.js"></script>
 
 <script id="getSelect">
-
     //立即執行函式  (變數只會存活在這之中 不會對外造成汙染)
     (function (accLV, accPosition) {
         try {
@@ -58,34 +57,4 @@
             $("#getSelect").remove();
         }
     })("@Html.Raw(Model.AccLevel)".split('/'), "@Html.Raw(Model.AccPosition)".split('/'));
-
-
-    //舊寫法  TaccountLevel 物件會無法刪除 BEGIN-------------------------
-    @*//建立物件 取從後端取值
-    var TaccountLevel = {
-        accLV: "@Html.Raw(Model.AccLevel)".split('/'),
-        accPosition: "@Html.Raw(Model.AccPosition)".split('/')
-    }
-
-    try {
-        //組標籤
-        for (var i = 0; i < TaccountLevel.accLV.length - 1; i++) {
-            var LvRows = LvRows + "<option value='" + TaccountLevel.accLV[i] + "'>" + TaccountLevel.accPosition[i] + "</option>"
-        }
-
-        //將組好的標籤append至 #level
-        $('#level').append(LvRows);
-    }
-    catch (e) {
-        handleError(e);
-    }
-    finally {
-        //清空物件屬性
-        for (var i in TaccountLevel) {
-            delete TaccountLevel[i]
-        }
-        //清除SCRIPT標籤
-        $("#getSelect").remove();
-    }*@
-    //舊寫法  TaccountLevel 物件會無法刪除 END-------------------------
 </script>

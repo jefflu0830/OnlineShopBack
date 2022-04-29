@@ -1,5 +1,5 @@
 ﻿@page
-@model OnlineShopBack.Pages.Member.SelectMemberModel
+@model OnlineShopBack.Pages.Account.AccountMenuModel
 @{
     //Layout = null;
 }
@@ -28,4 +28,44 @@
     </div> <!--end of Panel-body -->
 </div> <!--end of Panel -->
 
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <h5>帳號編輯</h5>
+    <form id="Editform" method="post" action="">
+        <div>
+            <label id='Editfacc'> 帳號:</label>
+        </div>
+        <div>
+            <label for='EditAccPosission'>密碼:</label>
+            <input type="text" id="EditPwd" name="EditPwd" maxlength="20" />
+        </div>
+        <div>
+            <label for="Level">Level:</label>
+            <select id="Editlevel">
+            </select>
+        </div>
+    </form>
+</div>
+
 <script src="~/js/AccountMenu.js"></script> 
+
+<script id="getSelect">
+    //立即執行函式  (變數只會存活在這之中 不會對外造成汙染)
+    (function (accLV, accPosition) {
+        try {
+            //組標籤
+            for (var i = 0; i < accLV.length - 1; i++) {
+                var LvRows = LvRows + "<option value='" + accLV[i] + "'>" + accPosition[i] + "</option>"
+            }
+
+            //將組好的標籤append至 #level
+            $('#Editlevel').append(LvRows);
+        }
+        catch (e) {
+            handleError(e);
+        }
+        finally {
+            //清除SCRIPT標籤
+            $("#getSelect").remove();
+        }
+    })("@Html.Raw(Model.AccLevel)".split('/'), "@Html.Raw(Model.AccPosition)".split('/'));
+</script>

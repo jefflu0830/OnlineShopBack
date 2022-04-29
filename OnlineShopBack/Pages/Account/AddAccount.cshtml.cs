@@ -20,7 +20,6 @@ namespace OnlineShopBack.Pages.Account
 
         public void OnGet()
         {
-            var item = new List<SelectListItem>();
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();

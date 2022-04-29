@@ -57,6 +57,12 @@ $.validator.setDefaults({
             }),
             success: function (result) {
                 alert(result)
+                if (result == "帳號新增成功") {
+                    location.href = "/Account/AccountMenu"
+                }
+                else {
+                    alert(result)
+                }  
             },
             error: function (error) {
                 alert(error);

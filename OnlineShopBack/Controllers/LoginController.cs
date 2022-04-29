@@ -32,6 +32,8 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(AccountSelectDto value)
         {
+
+            //查詢伺服器狀態是否正常
             if(ModelState.IsValid == false)
             {
                 /*****/
