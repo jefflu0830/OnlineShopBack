@@ -33,7 +33,7 @@ namespace OnlineShopBack
                                                      options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
 
 
-            //Cookie 驗證
+            ////Cookie 驗證
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
             {
                 //未登入時會自動導到這個網址
@@ -44,6 +44,8 @@ namespace OnlineShopBack
                 //option.ExpireTimeSpan = TimeSpan.FromHours(5);
                 option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
             });
+            services.AddAuthentication();
+
             //全域套用 [Authorize]?
             services.AddMvc(options =>
             {

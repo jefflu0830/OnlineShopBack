@@ -10,6 +10,7 @@ using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -37,7 +38,7 @@ namespace OnlineShopBack.Controllers
             if(ModelState.IsValid == false)
             {
                 /*****/
-                return "113";
+                return "輸入參數有誤";
             }
             
 

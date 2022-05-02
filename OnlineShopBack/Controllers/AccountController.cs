@@ -51,126 +51,10 @@ namespace OnlineShopBack.Controllers
         //}
         #endregion
 
-        //Select帳號資料Left join權限資料
-        [HttpGet("GetAccount")]
-        public string GetAccount()
-        {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevel01 ";  
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
-
-            return result;
-        }
-
-        //Select帳號資料Left join權限資料where ID
-        [HttpGet("GetAccount/{id}")]
-        public string IdGetAccount(int id)
-        {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" SELECT f_acc FROM t_Account ";
-            cmd.Parameters.AddWithValue("@accLevel", id);
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
-
-            return result;
-        }
-
-        //Select帳號權限資料
-        [HttpGet("GetAccountLV")]
-        public string GetAccountLV()
-        {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";  
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
-
-            return result;
-        }
-
-        //Select帳號權限資料where ID
-        [HttpGet("GetAccountLV/{id}")]
-        public string IdGetAccountLV(int id)
-        {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel01 @accLevel ";
-            cmd.Parameters.AddWithValue("@accLevel", id);
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
-
-            return result;
-        }
-
-
 
         //權限相關-------------------------------------------------------------------
 
-        //列舉(Enum)
-        #region 權限相關列舉
+        #region 權限相關列舉(Enum)
         private enum addACCountLVErrorCode //新增權限
         {
             //<summary >
@@ -208,9 +92,66 @@ namespace OnlineShopBack.Controllers
 
         #endregion
 
-        //[POST]  增加帳號權限 t_accountLevel
-        [HttpPost("AddAccountLevel")]
-        public string AddAccountLevel([FromBody] AccountLevelDto value)
+        //權限資料List
+        [HttpGet("GetAccLvList")]
+        public string GetAccLvList()
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
+
+        //依照ID查詢權限資料
+        [HttpGet("IdGetAccLV")]
+        public string IdGetAccLV([FromQuery] int id)
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel01 @accLevel ";
+            cmd.Parameters.AddWithValue("@accLevel", id);
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
+
+        //增加權限
+        [HttpPost("AddAccLv")]
+        public string AddAccLv([FromBody] AccountLevelDto value)
         {
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
@@ -306,9 +247,9 @@ namespace OnlineShopBack.Controllers
             }
         }
 
-        //更新帳號權限
-        [HttpPut("PutAccountLevel/{id}")]
-        public string PutAccountLevel(int id, [FromBody] AccountLevelDto value)
+        //更新權限
+        [HttpPut("PutAccLv")]
+        public string PutAccLv([FromQuery]int id, [FromBody] AccountLevelDto value)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
@@ -352,13 +293,11 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        //刪除帳號權限
-        [HttpDelete("DelAccountLevel/{id}")]
-        public string DelAccountLevel(int id)
+        //刪除權限
+        [HttpDelete("DelAccLv")]
+        public string DelAccLv([FromQuery]int id)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
-
-
 
             SqlCommand cmd = null;
             //DataTable dt = new DataTable();
@@ -401,8 +340,7 @@ namespace OnlineShopBack.Controllers
 
         //帳號相關------------------------------------------------------------------
 
-        //列舉(Enum)
-        #region 帳號相關列舉
+        #region 帳號相關列舉(Enum)
         private enum addACCountErrorCode //新增帳號
         {
             //<summary >
@@ -430,9 +368,66 @@ namespace OnlineShopBack.Controllers
 
         #endregion
 
-        //[POST]  增加帳號 t_account
-        [HttpPost("AddAccount")]
-        public string AddAccount([FromBody] AccountSelectDto value)
+        //Select帳號資料Left join權限資料
+        [HttpGet("GetAcc")]
+        public string GetAcc()
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
+
+        //Select帳號資料Left join權限資料where ID
+        [HttpGet("IdGetAcc")]
+        public string IdGetAccount([FromQuery]int id)
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            // 資料庫連線&SQL指令
+            cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(SQLConnectionString);
+            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+            cmd.CommandText = @" SELECT f_acc FROM t_Account ";
+            cmd.Parameters.AddWithValue("@accLevel", id);
+
+            //開啟連線
+            cmd.Connection.Open();
+            da.SelectCommand = cmd;
+            da.Fill(dt);
+
+            //關閉連線
+            cmd.Connection.Close();
+
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
+
+        //增加帳號
+        [HttpPost("AddAcc")]
+        public string AddAcc([FromBody] AccountSelectDto value)
         {
             //後端驗證
             //如字串字數特殊字元驗證
@@ -544,8 +539,6 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-
-
             #region EF舊寫法已註解
             /*using (var md5 = MD5.Create())
             {
@@ -566,11 +559,17 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        // PUT 更新帳號
-        [HttpPut("PutAccount/{id}")]
-        public string PutAccount(int id, [FromBody] AccountSelectDto value)
+        //更新帳號
+        [HttpPut("PutAcc")]
+        public string PutAcc([FromQuery]int id, [FromBody] AccountSelectDto value)
         {
-            string addAccLVErrorStr = "";//記錄錯誤訊息
+            string addAccErrorStr = "";//記錄錯誤訊息
+
+
+            if (!string.IsNullOrEmpty(addAccErrorStr))
+            {
+                return addAccErrorStr;
+            }
 
             SqlCommand cmd = null;
             //DataTable dt = new DataTable();
@@ -589,8 +588,8 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccErrorStr);
 
                 switch (SQLReturnCode)
                 {
@@ -610,9 +609,9 @@ namespace OnlineShopBack.Controllers
             }
         }
 
-        // DELETE 刪除帳號
-        [HttpDelete("AccountDel/{id}")]
-        public string AccountDel(int id)
+        //刪除帳號
+        [HttpDelete("DelAcc")]
+        public string DelAcc([FromQuery]int id)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
             SqlCommand cmd = null;

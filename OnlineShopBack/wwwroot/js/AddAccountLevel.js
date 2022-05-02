@@ -2,7 +2,7 @@
     //取得權限資料
     $.ajax({
         type: "GET",
-        url: "/api/account/GetAccountLV",
+        url: "/api/account/GetAccLvList",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
@@ -94,7 +94,7 @@ $.validator.setDefaults({
             canUseMember = 0
         }
         $.ajax({
-            url: "/api/Account/AddAccountLevel",
+            url: "/api/Account/AddAccLv",
             type: "post",
             contentType: "application/json",
             dataType: "text",
@@ -124,7 +124,7 @@ $.validator.setDefaults({
 function Del_Click(DelBtnId) {
     if (window.confirm("確定要刪除此權限嗎?")) {
         $.ajax({
-            url: "/api/Account/DelAccountLevel/" + DelBtnId,
+            url: "/api/Account/DelAccLv?id=" + DelBtnId,
             type: "DELETE",
             data: {},
             success: function (result) {
@@ -146,7 +146,7 @@ function Edit_Click(Editid) {
     if ($("#EditBox").css("display") == "none") {
         $.ajax({
             type: "GET",
-            url: "/api/account/GetAccountLV/" + Editid,
+            url: "/api/account/IdGetAccLV?id=" + Editid,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
@@ -164,10 +164,10 @@ function Edit_Click(Editid) {
                     "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
                     //canUseAccount
                     "<div><input type='checkbox' id='EditCanUseAccount'" + canUseAccountChk + " />" +
-                    " <label for='canUseAccount'>是否有後台帳號管理權限</label></div >" +
+                    " <label for='EditCanUseAccount'>是否有後台帳號管理權限</label></div >" +
                     //canUseMember
                     "<div><input type='checkbox' id='EditCanUseMember'" + canUseMember + " />" +
-                    "<label for='canUseMember'>是否有會員管理權限</label></div >" +
+                    "<label for='EditCanUseMember'>是否有會員管理權限</label></div >" +
                     //Edit Button
                     "<div><input id='" + data[0].f_accLevel + "' onclick ='EditOK_Click(this.id)' type='Button' value='Edit' />" +
                     "<input id='EditCancel' type='Button' value='Cancel' onclick='EditCancel_Click()' /></div> "
@@ -210,7 +210,7 @@ function EditOK_Click(Id) {
     }
 
     $.ajax({
-        url: "/api/account/PutAccountLevel/" + Id,
+        url: "/api/account/PutAccLv?id=" + Id,
         type: "put",
         contentType: "application/json",
         dataType: "text",
