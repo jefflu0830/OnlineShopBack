@@ -1,0 +1,111 @@
+﻿@page
+@model OnlineShopBack.Pages.Account.PutPwdModel
+@{
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+@*JQuery 資料驗證*@
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
+<link rel="stylesheet" href="~/css/AddAccount.css" />
+
+<h5>修改密碼</h5>
+<h5 class=innertest></h5>
+<div id="body" style="padding: 10px;">
+    <form id="form" method="post" action="">
+        <div>
+            <label for="Acc">帳號:</label>
+            <input type="text" id="Acc" name="Acc" />
+        </div>
+        <div>
+            <label for="OldPassWord">舊密碼:</label>
+            <input type="password" id="OldPassWord" name="OldPassWord" />
+        </div>
+        <div>
+            <label for="NewPassWord">新密碼:</label>
+            <input type="password" id="NewPassWord" name="NewPassWord" />
+        </div>
+
+        <div>
+            <input id="post" type="submit" value="Add" />
+        </div>
+    </form>
+</div>
+<div>
+    <div>
+        <button id="GoAccMenu">上一頁</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function (data) {
+
+        $('#form').validate({
+            /* 常用檢測屬性
+           required:必填
+           noSpace:空白
+           minlength:最小長度
+           maxlength:最大長度
+           email:信箱格式
+           number:數字格式
+           url:網址格式https://www.minwt.com
+           */
+            rules: {
+                Acc: {
+                    required: true
+                },
+                OldPassWord: {
+                    required: true
+                },
+                NewPassWord: {
+                    required: true
+                }
+            },
+            messages: {
+                Acc: {
+                    required: '必填'
+                },
+                OldPassWord: {
+                    required: '必填'
+                },
+                NewPassWord: {
+                    required: '必填'
+                }
+            }
+
+        });
+
+
+    });
+
+    $.validator.setDefaults({
+        /*submitHandler成功提交表單 做什麼事*/
+        submitHandler: function (form) {
+        $.ajax({
+            url: "/api/account/PutPwd",
+            type: "put",
+            contentType: "application/json",
+            dataType: "text",
+            data: JSON.stringify({
+                "Acc": $("#Acc").val(),
+                "NewPwd": $("#OldPassWord").val(),
+                "OldPwd": $("#NewPassWord").val(),
+            }),
+            success: function (result) {
+                alert(result)
+
+                if (result == "權限更新成功") {
+                    location.reload(); //新增成功才更新頁面
+                }
+            },
+            error: function (error) {
+                alert(error);
+            }
+        })
+
+
+        }
+    });
+
+
+</script>

@@ -19,7 +19,9 @@
                     "<td id='level'>" + data[i].f_level + "</td>" +
                     "<td id='suspension'>" + data[i].f_suspension + "</td>" +
                     "<td id='createDate'>" + data[i].f_createDate + "</td>" +
-                    "<td class='DetailBtn' id='" + data[i].f_id + "'><a href=''>編輯</a></td>" +
+                    "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'   id = '" + data[i].f_id + "'  value='編輯'/ ></td>" +
+                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' id = '" + data[i].f_id + "'  value='刪除'/ ></td>" +
+
                     "</tr>";                 
             }
             $('#Table').append(rows);     

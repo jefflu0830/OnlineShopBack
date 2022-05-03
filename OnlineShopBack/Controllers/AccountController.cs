@@ -77,9 +77,11 @@ namespace OnlineShopBack.Controllers
             //<summary >
             //有帳號使用此權限中
             //</summary >
-            IsUsing = 100
-
-
+            IsUsing = 100,
+            //<summary >
+            //尚未建立此權限
+            //</summary >
+            LvIsNull = 101
         }
 
         private enum PutACCountLVErrorCode // 更新權限
@@ -87,7 +89,16 @@ namespace OnlineShopBack.Controllers
             //<summary >
             //權限更新成功
             //</summary >
-            PutOK = 0
+            PutOK = 0,
+            //<summary >
+            //尚未建立此權限
+            //</summary >
+            LvIsNull = 100,
+            //<summary >
+            //尚未建立此權限
+            //</summary >
+            CantPut = 101
+
         }
 
         #endregion
@@ -99,21 +110,32 @@ namespace OnlineShopBack.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 
@@ -124,24 +146,55 @@ namespace OnlineShopBack.Controllers
         [HttpGet("IdGetAccLV")]
         public string IdGetAccLV([FromQuery] int id)
         {
+            string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            if (id > 255 || id < 0)
+            {
+                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(addAccLVErrorStr))
+            {
+                return addAccLVErrorStr;
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel01 @accLevel ";
-            cmd.Parameters.AddWithValue("@accLevel", id);
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevelById @accLevel ";
+                cmd.Parameters.AddWithValue("@accLevel", id);
 
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
 
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
@@ -161,13 +214,13 @@ namespace OnlineShopBack.Controllers
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
-            }          
+            }
 
             //權限編號 
-            if (value.accLevel== null)
+            if (value.accLevel == null)
             {
                 addAccLVErrorStr += "[編號不可為空]\n";
-            }  
+            }
             else
             {
                 if (value.accLevel > 255 || value.accLevel < 0)
@@ -176,7 +229,7 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //權限名稱
-            if (string.IsNullOrEmpty(value.accPosition)) 
+            if (string.IsNullOrEmpty(value.accPosition))
             {
                 addAccLVErrorStr += "[權限名稱不可為空]\n";
             }
@@ -193,8 +246,8 @@ namespace OnlineShopBack.Controllers
             }
             //是否有權使用帳號管理 or 會員管理
             if (value.canUseAccount == null || value.canUseMember == null ||
-               (value.canUseAccount >1 || value.canUseAccount<0) ||
-               (value.canUseMember > 1 || value.canUseMember<0))
+               (value.canUseAccount > 1 || value.canUseAccount < 0) ||
+               (value.canUseMember > 1 || value.canUseMember < 0))
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
             }
@@ -229,6 +282,7 @@ namespace OnlineShopBack.Controllers
 
                 switch (SQLReturnCode)
                 {
+
                     case (int)addACCountLVErrorCode.addOK:
                         return "權限新增成功";
                     case (int)addACCountLVErrorCode.duplicateAccountLv:
@@ -236,6 +290,10 @@ namespace OnlineShopBack.Controllers
                     default:
                         return "失敗";
                 }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {
@@ -249,12 +307,57 @@ namespace OnlineShopBack.Controllers
 
         //更新權限
         [HttpPut("PutAccLv")]
-        public string PutAccLv([FromQuery]int id, [FromBody] AccountLevelDto value)
+        public string PutAccLv([FromQuery] int id, [FromBody] AccountLevelDto value)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //權限編號 
+            if (id == 0)
+            {
+                addAccLVErrorStr += "此權限編號為最高權限無法更改\n";
+            }
+            if (id > 255 || id < 0)
+            {
+                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
+            }
+
+            //權限名稱
+            if (string.IsNullOrEmpty(value.accPosition))
+            {
+                addAccLVErrorStr += "[權限名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.accPosition))
+                {
+                    addAccLVErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (value.accPosition.Length > 10 || value.accPosition.Length < 0)
+                {
+                    addAccLVErrorStr += "[名稱應介於0～10個字之間]\n";
+                }
+            }
+            //是否有權使用帳號管理 or 會員管理
+            if (value.canUseAccount == null || value.canUseMember == null ||
+               (value.canUseAccount > 1 || value.canUseAccount < 0) ||
+               (value.canUseMember > 1 || value.canUseMember < 0))
+            {
+                addAccLVErrorStr += "[選擇權限格式錯誤]\n";
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(addAccLVErrorStr))
+            {
+                return addAccLVErrorStr;
+            }
+
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
             try
             {
                 // 資料庫連線
@@ -276,11 +379,19 @@ namespace OnlineShopBack.Controllers
 
                 switch (SQLReturnCode)
                 {
+                    case (int)PutACCountLVErrorCode.CantPut:
+                        return "此權限不可更改";
+                    case (int)PutACCountLVErrorCode.LvIsNull:
+                        return "此權限尚未建立";
                     case (int)PutACCountLVErrorCode.PutOK:
                         return "權限更新成功";
                     default:
                         return "失敗";
                 }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {
@@ -295,9 +406,30 @@ namespace OnlineShopBack.Controllers
 
         //刪除權限
         [HttpDelete("DelAccLv")]
-        public string DelAccLv([FromQuery]int id)
+        public string DelAccLv([FromQuery] int id)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //權限編號 
+            if (id == 0)
+            {
+                addAccLVErrorStr += "此權限編號為最高權限無法更改\n";
+            }
+            if (id > 255 || id < 0)
+            {
+                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
+            }
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(addAccLVErrorStr))
+            {
+                return addAccLVErrorStr;
+            }
 
             SqlCommand cmd = null;
             //DataTable dt = new DataTable();
@@ -319,6 +451,8 @@ namespace OnlineShopBack.Controllers
 
                 switch (SQLReturnCode)
                 {
+                    case (int)DelACCountLVErrorCode.LvIsNull:
+                        return "此權限尚未建立";
                     case (int)DelACCountLVErrorCode.IsUsing:
                         return "此權限目前有人正在使用";
                     case (int)DelACCountLVErrorCode.DelOK:
@@ -326,6 +460,10 @@ namespace OnlineShopBack.Controllers
                     default:
                         return "失敗";
                 }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {
@@ -358,12 +496,37 @@ namespace OnlineShopBack.Controllers
             //</summary >
             permissionIsNull = 102
         }
+        private enum PutACCountErrorCode //更新帳號
+        {
+            //<summary >
+            //帳號刪除成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //此帳號不可更改
+            //</summary >
+            DontPut = 100,
+            //<summary >
+            //尚未建立權限
+            //</summary >
+            LvIsNull = 101
+
+        }
         private enum DelACCountErrorCode //刪除帳號
         {
             //<summary >
             //帳號刪除成功
             //</summary >
-            DelOK = 0
+            DelOK = 0,
+            //<summary >
+            //此帳號不可刪除
+            //</summary >
+            DontDel = 100,
+            //<summary >
+            //無此帳號
+            //</summary >
+            AccIsNull = 101
+
         }
 
         #endregion
@@ -375,21 +538,32 @@ namespace OnlineShopBack.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 
@@ -398,27 +572,38 @@ namespace OnlineShopBack.Controllers
 
         //Select帳號資料Left join權限資料where ID
         [HttpGet("IdGetAcc")]
-        public string IdGetAccount([FromQuery]int id)
+        public string IdGetAccount([FromQuery] int id)
         {
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+                cmd.CommandText = @" SELECT f_acc FROM t_Account ";
+                cmd.Parameters.AddWithValue("@accLevel", id);
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-            cmd.CommandText = @" SELECT f_acc FROM t_Account ";
-            cmd.Parameters.AddWithValue("@accLevel", id);
-
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
-
-            //關閉連線
-            cmd.Connection.Close();
-
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 
@@ -433,6 +618,12 @@ namespace OnlineShopBack.Controllers
             //如字串字數特殊字元驗證
 
             string addAccErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
 
             //帳號資料驗證
             if (string.IsNullOrEmpty(value.Account))
@@ -530,6 +721,10 @@ namespace OnlineShopBack.Controllers
                         return "失敗";
                 }
             }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
             finally
             {
                 if (cmd != null)
@@ -561,10 +756,21 @@ namespace OnlineShopBack.Controllers
 
         //更新帳號
         [HttpPut("PutAcc")]
-        public string PutAcc([FromQuery]int id, [FromBody] AccountSelectDto value)
+        public string PutAcc([FromQuery] int id, [FromBody] AccountSelectDto value)
         {
             string addAccErrorStr = "";//記錄錯誤訊息
 
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //權限資料驗證
+            if (value.Level > 255 || value.Level < 0)
+            {
+                addAccErrorStr += "[該權限不再範圍內]\n";
+            }
 
             if (!string.IsNullOrEmpty(addAccErrorStr))
             {
@@ -579,11 +785,9 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                //帳號重複驗證寫在SP中
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccount @Id, @Pwd, @Level";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccount @Id, @Level";
 
                 cmd.Parameters.AddWithValue("@Id", id);
-                cmd.Parameters.AddWithValue("@Pwd", MyTool.PswToMD5(value.Pwd));
                 cmd.Parameters.AddWithValue("@Level", value.Level);
 
                 //開啟連線
@@ -593,11 +797,81 @@ namespace OnlineShopBack.Controllers
 
                 switch (SQLReturnCode)
                 {
-                    case (int)PutACCountLVErrorCode.PutOK:
+                    case (int)PutACCountErrorCode.DontPut:
+                        return "此帳號不可做更改";
+                    case (int)PutACCountErrorCode.LvIsNull:
+                        return "尚未建立此權限";
+                    case (int)PutACCountErrorCode.PutOK:
                         return "帳號更新成功";
                     default:
                         return "失敗";
                 }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+        }
+
+        //更新帳號
+        [HttpPut("PutPwd")]
+        public string PutPwd([FromBody] PutPwdDto value)
+        {
+            string addAccErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            if (!string.IsNullOrEmpty(addAccErrorStr))
+            {
+                return addAccErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            //DataTable dt = new DataTable();
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccount @Acc, @OldPwd, @NewPwd";
+
+                cmd.Parameters.AddWithValue("@Acc", value.Acc);
+                cmd.Parameters.AddWithValue("@OldPwd", value.OldPwd);
+                cmd.Parameters.AddWithValue("@NewPwd", value.NewPwd);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutACCountErrorCode.DontPut:
+                        return "此帳號不可做更改";
+                    case (int)PutACCountErrorCode.LvIsNull:
+                        return "尚未建立此權限";
+                    case (int)PutACCountErrorCode.PutOK:
+                        return "帳號更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {
@@ -611,9 +885,16 @@ namespace OnlineShopBack.Controllers
 
         //刪除帳號
         [HttpDelete("DelAcc")]
-        public string DelAcc([FromQuery]int id)
+        public string DelAcc([FromQuery] int id)
         {
             string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
             SqlCommand cmd = null;
             //DataTable dt = new DataTable();
             try
@@ -622,7 +903,6 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                //帳號重複驗證寫在SP中
                 cmd.CommandText = @"EXEC pro_onlineShopBack_delAccount @f_acc";
 
                 cmd.Parameters.AddWithValue("@f_acc", id);
@@ -634,11 +914,19 @@ namespace OnlineShopBack.Controllers
 
                 switch (SQLReturnCode)
                 {
+                    case (int)DelACCountErrorCode.AccIsNull:
+                        return "無此帳號";
+                    case (int)DelACCountErrorCode.DontDel:
+                        return "此帳號不可刪除";
                     case (int)DelACCountErrorCode.DelOK:
                         return "帳號刪除成功";
                     default:
                         return "失敗";
                 }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
             finally
             {

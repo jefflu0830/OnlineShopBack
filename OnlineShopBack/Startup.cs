@@ -37,9 +37,9 @@ namespace OnlineShopBack
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
             {
                 //未登入時會自動導到這個網址
-                option.LoginPath = new PathString("/Index");
+                option.LoginPath = new PathString("/login");
                 //沒有權限時會自動導到這個網址
-                option.AccessDeniedPath = new PathString("/BackPage");
+                option.AccessDeniedPath = new PathString("/index");
                 //設定時間失效
                 //option.ExpireTimeSpan = TimeSpan.FromHours(5);
                 option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
@@ -90,15 +90,13 @@ namespace OnlineShopBack
 
             app.UseEndpoints(endpoints =>
             {
+
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}") ;
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
                 endpoints.MapRazorPages();
+
             });
         }
     }

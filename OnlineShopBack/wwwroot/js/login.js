@@ -1,17 +1,6 @@
 ﻿$(document).ready(function (data) {
-
-    $("#GoAccMenu").click(function () {
-        location.href = "/Account/Accountmenu"
-    });
-
-    $.validator.addMethod("stringCheck", function (value, element) {
+    jQuery.validator.addMethod("stringCheck", function (value, element) {
         return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
-    }, "只能包含英文、數字等字元");
-
-    $.validator.addMethod("MinMaxLenth", function (value, minValue, MaxValue) {
-        if (value < minValue || value > MaxValue) {
-            return false
-        }       
     }, "只能包含英文、數字等字元");
 
     $('#form').validate({
@@ -27,16 +16,15 @@
         rules: {
             Account: {
                 required: true,
-                stringCheck: true,
+                stringCheck: true
             },
             PassWord: {
-                required: true,
-                stringCheck: true,
+                required: true
             }
         },
         messages: {
             Account: {
-                required: '必填',
+                required: '必填'
             },
             PassWord: {
                 required: '必填'
@@ -46,27 +34,23 @@
 });
 
 $.validator.setDefaults({
-    /*submitHandler成功提交表單 做什麼事*/
     submitHandler: function (form) {
         $.ajax({
-            url: "/api/Account/AddAcc",
+            url: "/api/Login",
             type: "post",
             contentType: "application/json",
             dataType: "text",
             data: JSON.stringify({
                 "account": $("#Account").val(),
-                "Pwd": $("#PassWord").val(),
-                "level": parseInt($("#level").val() //parseInt轉型成int
-                )
+                "Pwd": $("#PassWord").val()
             }),
             success: function (result) {
-                alert(result)
-                if (result == "帳號新增成功") {
-                    location.href = "/Account/AccountMenu"
+                if (result == "loginOK") {
+                    location.href = "/index"
                 }
                 else {
-                    alert(result)
-                }  
+                    alert(result)  
+                }                
             },
             error: function (error) {
                 alert(error);

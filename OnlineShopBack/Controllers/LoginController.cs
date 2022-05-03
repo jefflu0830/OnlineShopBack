@@ -37,10 +37,12 @@ namespace OnlineShopBack.Controllers
             //查詢伺服器狀態是否正常
             if(ModelState.IsValid == false)
             {
-                /*****/
                 return "輸入參數有誤";
             }
-            
+
+            if (User.Identity.IsAuthenticated) {
+                return "請勿重複登入";
+            }
 
             string loginErrorStr = "";//記錄錯誤訊息
 

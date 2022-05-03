@@ -1,84 +1,48 @@
 ﻿@page
 @model OnlineShopBack.Pages.Account.AccountMenuModel
 @{
-    //Layout = null;
+    ViewData["Title"] = "帳號管理";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="../../OnlineShopBack/wwwroot/js/LayOut.js"></script>
 
 <div id="body" style="margin: 5px auto;">
 
     <button id="AddAccount">新增帳號</button>
 
+    <button id="EditPwd">修改密碼</button>
+
     <button id="AddAccountLevel">新增權限</button>
- 
+
 </div>
 
 <div class="panel panel-primary">
-    <div class="panel-heading">
-    </div>   <!--en dof panel-heading -->
     <div class="panel-body">
-        <table class="table table-bordered" id="Table">
-            <tr>
-                <th>ID</th>
-                <th>帳號</th>
-                <th>權限</th>
-                <th>創建時間</th>
-            </tr>   <!--end of table-row -->
-        </table>   <!--end of table -->
-    </div> <!--end of Panel-body -->
-</div> <!--end of Panel -->
+            <table class="table table-bordered" id="Table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>帳號</th>
+                        <th>權限</th>
+                        <th>創建時間</th>
+                    </tr>
+                </thead>
+                <tbody id="TableBody">
+                </tbody>
+            </table>
+        </div>
+</div>
 
 <div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <h5>帳號編輯</h5>
     <form id="Editform" method="post" action="">
-        <div>
-            <label id='Editfacc'> 帳號:</label>
-        </div>
-        <div>
-            <label for='EditAccPosission'>密碼:</label>
-            <input type="text" id="EditPwd" name="EditPwd" maxlength="20" />
-        </div>
-        <div>
-            <label for="Level">Level:</label>
-            <select id="Editlevel">
-            </select>
-        </div>
     </form>
 </div>
 
-<script src="~/js/AccountMenu.js"></script> 
+<script src="~/js/AccountMenu.js"></script>
+
 
 <script id="getSelect">
-    //立即執行函式  (變數只會存活在這之中 不會對外造成汙染)
-    (function (accLV, accPosition) {
-        try {
-            //組標籤
-            for (var i = 0; i < accLV.length - 1; i++) {
-                var LvRows = LvRows + "<option value='" + accLV[i] + "'>" + accPosition[i] + "</option>"
-            }
-
-            //將組好的標籤append至 #level
-            $('#Editlevel').append(LvRows);
-        }
-        catch (e) {
-            handleError(e);
-        }
-        finally {
-            //清除SCRIPT標籤
-            $("#getSelect").remove();
-        }
-    })("@Html.Raw(Model.AccLevel)".split('/'), "@Html.Raw(Model.AccPosition)".split('/'));
-</script>
-<script>
-    $('EditBtn').on('click', ',btn', function () {
-        alert(result)
-2        var currow = $(this).closest('tr');
-        var col1 = currow.find('td:eq(0)').text();
-        var col2 = currow.find('td:eq(1)').text();
-        var col3 = currow.find('td:eq(2)').text();
-        var col4 = currow.find('td:eq(3)').text();
-        var result = col1 + '\n' + col2 + '\n' + col3 + '\n' + col4 + '\n';
-        
-
-    })
+    var accLevel = "@Html.Raw(Model.AccLevel)".split('/');
+    var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
 </script>

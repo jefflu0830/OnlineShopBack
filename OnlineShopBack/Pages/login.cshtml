@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Login";
+}
+<script src="./lib/jquery/dist/jquery.min.js"></script>
+
+@*JQuery 資料驗證*@
+<script src="./lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="./lib/jquery-validation/dist/additional-methods.min.js"></script>
+<link rel="stylesheet" href="~/css/index.css" />
+
+
+<h5>帳號登入</h5>
+<div id="body" style="padding: 10px;">
+    <form id="form" method="post" action="">
+        <div>
+            <label for="Account">Account:</label>
+            <input type="text" id="Account" name="Account" />
+        </div>
+        <div>
+            <label for="PassWord">PassWord:</label>
+            <input type="password" id="PassWord" name="PassWord" />
+        </div>
+        <div>
+            <button id="post" type="submit">login</button>
+        </div>
+    </form>
+</div>
+
+<script src="./js/login.js"></script>
+
+

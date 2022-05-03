@@ -1,13 +1,4 @@
 ﻿$(document).ready(function () {
-
-    $("#member").click(function () {
-        location.href = "/Member/MemberMenu"
-    });
-
-    $("#Account").click(function () {
-        location.href = "/Account/AccountMenu"
-    });
-
     $("#logOut").click(function () {
         $.ajax({
             url: "api/Login/Logout",

@@ -2,7 +2,7 @@
 @model OnlineShopBack.Pages.Account.AddAccountModel
 
 @{
-
+    ViewData["Title"] = "新增帳號";
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -31,9 +31,14 @@
             </select>
         </div>
         <div>
-            <input id="post" type="submit" value="login" />
+            <input id="post" type="submit" value="Add" />
         </div>
     </form>
+</div>
+<div>
+    <div>
+        <button id="GoAccMenu">上一頁</button>
+    </div>
 </div>
 <script src="~/js/AddAccount.js"></script>
 

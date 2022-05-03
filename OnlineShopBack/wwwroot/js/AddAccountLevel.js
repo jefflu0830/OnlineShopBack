@@ -1,4 +1,11 @@
 ﻿$(document).ready(function (data) {
+    $("#GoAccMenu").click(function () {
+        location.href = "/Account/Accountmenu"
+    });
+    $("#GoIndex").click(function () {
+        location.href = "/index"
+    });
+
     //取得權限資料
     $.ajax({
         type: "GET",
@@ -7,14 +14,25 @@
         dataType: "json",
         success: function (data) {
             for (var i in data) {
-                var rows = rows + "<tr>" +
-                    "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
-                    "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
-                    "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
-                    "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
-                    "<td align='center'> <input type='button'   class='EditBtn'   id = '" + data[i].f_accLevel + "' onclick = 'Edit_Click(this.id)' value='編輯'/ ></td>" +
-                    "<td align='center'> <input type='button'   class='DeleteBtn' id = '" + data[i].f_accLevel + "' onclick = 'Del_Click(this.id)' value='刪除'/ ></td>" +
-                    "</tr>";
+                if (data[i].f_accLevel == 0) {//最高權限無法更改&刪除
+                    var rows = rows + "<tr>" +
+                        "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
+                        "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
+                        "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
+                        "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
+                        "<td align='center'></td>" +
+                        "<td align='center'></td>" +
+                        "</tr>";
+                } else {
+                    var rows = rows + "<tr>" +
+                        "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
+                        "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
+                        "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
+                        "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
+                        "<td align='center'> <input type='button'   class='EditBtn'   id = '" + data[i].f_accLevel + "' onclick = 'Edit_Click(this.id)' value='編輯'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='DeleteBtn' id = '" + data[i].f_accLevel + "' onclick = 'Del_Click(this.id)' value='刪除'/ ></td>" +
+                        "</tr>";
+                }
             }
             $('#Table').append(rows);
         },

@@ -19,7 +19,7 @@ namespace OnlineShopBack.Controllers
 
         //[POST]  增加會員等級 t_memberLevel
         [HttpPost("AddMemberLevel")]
-        public string AddMemberLevel([FromBody] AccountSelectDto value)  // t_memberLevel 的DTO
+        public string AddMemberLevel([FromBody] AccountSelectDto value)
         {
             return "AddMemberLevel API ";
         }

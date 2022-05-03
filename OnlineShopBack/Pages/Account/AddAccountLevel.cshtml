@@ -1,6 +1,7 @@
 ﻿@page
 @model OnlineShopBack.Pages.Account.AddAccountLevelModel
 @{
+    ViewData["Title"] = "新增帳號權限";
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -47,10 +48,15 @@
         </table>
     </div>
 </div>
+<div>
+    <div>
+        <button id="GoAccMenu">上一頁</button>
+    </div>
+</div>
 
 <div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <form id="Editform" method="post" action="">
-    @* 用append放入*@
+        @* 用append放入*@
     </form>
 </div>
 

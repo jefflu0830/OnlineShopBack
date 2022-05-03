@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace OnlineShopBack.Pages.Account
 {
     [Authorize(Roles = "canUseAccount")]
-    public class AddAccountLevelModel : PageModel
+    public class PutPwdModel : PageModel
     {
         public void OnGet()
         {

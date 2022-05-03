@@ -10,26 +10,35 @@
 <body>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                @*<a class="navbar-brand" asp-area="" asp-page="/Index">OnlineShopBack</a>*@
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        @*<li class="nav-item">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container">
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <ul class="navbar-nav flex-grow-1">
+
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                             </li>
+                            @*<li class="nav-item">
+                                    <a id="logOut" class="nav-link text-dark " style="cursor:pointer">LogOut</a>
+                                </li>*@
+                        </ul>
+                    </div>
+
+                    <div class="navbar-collapse collapse d-sm-inline-flex ">
+                        <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                            </li>*@
-                    </ul>
+                                <label class="nav-link text-dark">登入者: @User.Identity.Name</label>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        }
     </header>
     <div class="container" style="width:1000px;">
-        @*<main role="main" class="pb-3">*@
-            @RenderBody()
-        @*</main>*@
+        @RenderBody()
     </div>
 
     <footer class="border-top footer text-muted">
@@ -41,6 +50,7 @@
     @*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/LayOut.js"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

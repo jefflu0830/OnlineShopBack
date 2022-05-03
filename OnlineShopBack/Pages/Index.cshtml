@@ -1,33 +1,24 @@
 ﻿@page
-@model IndexModel
+@model OnlineShopBack.Pages.BackPageModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "首頁";
 }
-<script src="./lib/jquery/dist/jquery.min.js"></script>
+<div id="body" style="margin: 0 auto;">
+    @{ if (@User.IsInRole("canUseAccount"))
+        {
+            <button id="Account">後台帳號管理</button>
 
-@*JQuery 資料驗證*@
-<script src="./lib/jquery-validation/dist/jquery.validate.js"></script>
-<script src="./lib/jquery-validation/dist/additional-methods.min.js"></script>
-<link rel="stylesheet" href="~/css/index.css" />
+        }
+        if (@User.IsInRole("canUseMember"))
+        {
+            <button id="member">會員管理</button>
+        }
 
-
-<h5>帳號登入</h5>
-<div id="body" style="padding: 10px;">
-    <form id="form" method="post" action="">
-        <div>
-            <label for="Account">Account:</label>
-            <input type="text" id="Account" name="Account" />
-        </div>
-        <div>
-            <label for="PassWord">PassWord:</label>
-            <input type="text" id="PassWord" name="PassWord" />
-        </div>
-        <div>
-            <button id="post" type="submit">login</button>
-        </div>
-    </form>
+    }
+    <button id="logOut">登出</button>
 </div>
+<script   src="./js/index.js"></script>
 
-<script src="./js/index.js"></script>
+<script>
 
-
+</script>
