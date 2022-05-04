@@ -1,5 +1,6 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
+
+    //取得帳號列表
     $.ajax({
         type: "GET",
         url: "/api/account/GetAcc",
@@ -15,16 +16,18 @@ $(document).ready(function () {
                         "<td name='fcreateDate' id='" + data[i].f_id + "'>" + data[i].f_createDate + "</td>" +
                         "<td align='center'></td>" +
                         "<td align='center'></td>" +
+                        "<td align='center'></td>" +
                         "</tr>";
                 }
                 else {
                     var rows = rows + "<tr>" +
-                        "<td name='fid' id='" + data[i].f_id + "'>" + data[i].f_id + "</td>" +
-                        "<td name='facc' id='" + data[i].f_id + "'>" + data[i].f_acc + "</td>" +
-                        "<td name='faccPosition' id='" + data[i].f_id + "'>" + data[i].f_accPosition + "</td>" +
-                        "<td name='fcreateDate' id='" + data[i].f_id + "'>" + data[i].f_createDate + "</td>" +
-                        "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'   id = '" + data[i].f_id + "'  value='編輯'/ ></td>" +
-                        "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' id = '" + data[i].f_id + "'  value='刪除'/ ></td>" +
+                        "<td name='fid'>" + data[i].f_id + "</td>" +
+                        "<td name='facc'>" + data[i].f_acc + "</td>" +
+                        "<td name='faccPosition' >" + data[i].f_accPosition + "</td>" +
+                        "<td name='fcreateDate'>" + data[i].f_createDate + "</td>" +
+                        "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ ></td>" +
+                        "<td align='center'> <input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>" +
+                        "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
@@ -41,10 +44,6 @@ $(document).ready(function () {
     $("#AddAccount").click(function () {
         location.href = "/Account/AddAccount"
     });
-    //前往修改密碼
-    $("#EditPwd").click(function () {
-        location.href = "/Account/PutPwd"
-    });
     //前往新增權限
     $("#AddAccountLevel").click(function () {
         location.href = "/Account/AddAccountLevel"
@@ -54,8 +53,8 @@ $(document).ready(function () {
         location.href = "/index"
     });
 
-    //點擊編輯按鈕
-    $("#TableBody").on('click', '.EditBtn', function () {
+    //點擊編輯帳號按鈕
+    $("#TableBody").on('click', '.EditAccBtn', function () {
         var currentRow = $(this).closest("tr");
 
         var col1 = currentRow.find("td:eq(0)").text();
@@ -74,19 +73,38 @@ $(document).ready(function () {
         }
         if ($("#EditBox").css("display") == "none") {
             var EditData =
-                "<div><label id='Editfacc'> 帳號:" + col2 + "</label></div>" +
+                "<h5>帳號編輯</h5>" +
+                "<div><label> 帳號:</label><label id='Editfacc'>" + col2 + "</label></div>" +
                 "<div><label for='Level'>Level:</label><select id='Editlevel'>" + LvRows + "</select></div>" +
-                "<div id='Editbutton'><input name='EditOK' id='" + col1 + "' onclick ='EditOK_Click(this.id)' type='Button' value='確認編輯' />" +
+                "<div id='Editbutton'><input name='EditAcc' onclick ='EditAcc_Click(" + col1 + ")' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'EditCancel_Click()' value = '取消編輯' /></div > "
             $('#Editform').append(EditData);
             $("#EditBox").show();
         }
     });
-
-    //刪除
-    $("#TableBody").on('click', '.DeleteBtn', function () {
+    //點擊修改密碼按鈕
+    $("#TableBody").on('click', '.EditPwdBtn', function () {
         var currentRow = $(this).closest("tr");
 
+        var col1 = currentRow.find("td:eq(0)").text(); //取該列id
+        var col2 = currentRow.find("td:eq(1)").text(); //取該列帳號
+
+        if ($("#EditBox").css("display") == "none") {
+            var EditData =
+                "<h5>密碼修改</h5>" +
+                "<div><label> 帳號:</label><label id='Editfacc'>" + col2 + "</label></div>" +
+                "<div><label>新密碼:</label><input type='password' id='newPwd' name='newPwd'maxlength='16' /></div>" +
+                "<div><label>確認新密碼:</label><input id='cfmNewPwd' name='cfmNewPwd' maxlength='16' /></div>" +
+                "<div id='Editbutton'><input name='EditPwd' onclick ='EditPwd_Click(" + col1 + ")' type='Button' value='確認修改' />" +
+                "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'EditCancel_Click()' value = '取消修改' /></div > "
+            $('#Editform').append(EditData);
+            $("#EditBox").show();
+        }
+    });
+    //刪除按鈕
+    $("#TableBody").on('click', '.DeleteBtn', function () {
+
+        var currentRow = $(this).closest("tr");
         var col1 = currentRow.find("td:eq(0)").text();
 
         if (window.confirm("確定要刪除此帳號嗎?")) {
@@ -108,29 +126,56 @@ $(document).ready(function () {
         }
     });
 
-    $("#logOut").click(function () {
-        $.ajax({
-            url: "~/api/Login/Logout",
-            type: "Delete",
-            contentType: "application/json",
-            dataType: "text",
-            data: JSON.stringify({
-                "account": $("#Account").val(),
-                "Pwd": $("#PassWord").val()
-            }),
-            success: function (result) {
-                location.href = "/Index"
-            },
-            error: function (error) {
-            }
-        })
-    });
-
 })
 
+//$(document.body).on('blur', '#newPwd', function () { })
 
-//確認編輯
-function EditOK_Click(Id) {
+//確認修改密碼
+function EditPwd_Click(Id) {
+    var errorCode = "";
+
+    //新密碼檢測
+    if ($("#newPwd").val().length < 8) {
+        errorCode += "[新密碼] 請大於8個字。\n"
+    }
+    if (/^[a-zA-Z0-9]*$/.test($("#newPwd").val()) == false) {
+        errorCode += "[新密碼] 只允許輸入英文及數字。\n"
+    }
+    if ($("#cfmNewPwd").val() !== $("#newPwd").val()) {
+        errorCode += "[新密碼] 與 [確認新密碼] 需輸入一致。\n"
+    }
+    //errorCode若不為空則,不進行修改
+    if (errorCode !== "") {
+        alert(errorCode);
+    }
+    else {
+        if (window.confirm("確定要修改密碼嗎?")) {
+            $.ajax({
+                url: "/api/account/PutPwd",
+                type: "put",
+                contentType: "application/json",
+                dataType: "text",
+                data: JSON.stringify({
+                    "id": Id,
+                    "newPwd": $("#newPwd").val(),
+                    "cfmNewPwd": $("#cfmNewPwd").val()
+                }),
+                success: function (result) {
+                    alert(result)
+
+                    if (result == "密碼修改成功") {
+                        location.reload(); //新增成功才更新頁面
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            })
+        }
+    }
+}
+//確認編輯帳號
+function EditAcc_Click(Id) {
     $.ajax({
         url: "/api/account/PutAcc?id=" + Id,
         type: "put",
@@ -155,6 +200,6 @@ function EditOK_Click(Id) {
 function EditCancel_Click() {
     if ($("#EditBox").css("display") !== "none") {
         $("#EditBox").hide();
-        $("#Editform > div").remove();
+        $("#Editform > div,h5").remove();
     }
 }

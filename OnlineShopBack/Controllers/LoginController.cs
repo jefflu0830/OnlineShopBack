@@ -41,7 +41,7 @@ namespace OnlineShopBack.Controllers
             }
 
             if (User.Identity.IsAuthenticated) {
-                return "請勿重複登入";
+                return "請先登出再進行登入";
             }
 
             string loginErrorStr = "";//記錄錯誤訊息
@@ -120,18 +120,19 @@ namespace OnlineShopBack.Controllers
                         //添加角色權限
                         var claims = new List<Claim>
                         {
-                           new Claim(ClaimTypes.Name, value.Account)
+                           new Claim(ClaimTypes.Name, value.Account), //存使用者名稱
+                           new Claim("accPosition", dt.Rows[0]["f_accPosition"].ToString()) //存職位資訊
                         };
 
                         //添加 可使用帳號管理
                         if ((bool)dt.Rows[0]["f_canUseAccount"])
                         {
-                            claims.Add(new Claim(ClaimTypes.Role, "canUseAccount"));
+                            claims.Add(new Claim(ClaimTypes.Role, "canUseAccount"));//存入canUseAccount腳色
                         };
                         //添加 可使用會員管理
                         if ((bool)dt.Rows[0]["f_canUseMember"])
                         {
-                            claims.Add(new Claim(ClaimTypes.Role, "canUseMember"));
+                            claims.Add(new Claim(ClaimTypes.Role, "canUseMember"));//存入canUseMember腳色
                         };
                         //Cookie 驗證
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

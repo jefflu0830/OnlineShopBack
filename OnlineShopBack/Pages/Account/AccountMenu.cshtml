@@ -4,13 +4,10 @@
     ViewData["Title"] = "帳號管理";
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="../../OnlineShopBack/wwwroot/js/LayOut.js"></script>
 
 <div id="body" style="margin: 5px auto;">
 
     <button id="AddAccount">新增帳號</button>
-
-    <button id="EditPwd">修改密碼</button>
 
     <button id="AddAccountLevel">新增權限</button>
 
@@ -33,16 +30,16 @@
         </div>
 </div>
 
-<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
-    <h5>帳號編輯</h5>
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">    
     <form id="Editform" method="post" action="">
     </form>
 </div>
 
 <script src="~/js/AccountMenu.js"></script>
 
-
 <script id="getSelect">
+    //取得權限下拉選單資料
     var accLevel = "@Html.Raw(Model.AccLevel)".split('/');
     var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
+    $("#getSelect").remove();
 </script>

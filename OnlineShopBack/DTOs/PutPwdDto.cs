@@ -4,10 +4,8 @@ namespace OnlineShopBack.Controllers
 {
     public class PutPwdDto
     {
-
-        public string Acc { get; set; }
-        public string NewPwd { get; set; }
-        public string OldPwd { get; set; }
-
+        public int id { get; set; }
+        public string newPwd { get; set; }
+        public string cfmNewPwd { get; set; }
     }
 }

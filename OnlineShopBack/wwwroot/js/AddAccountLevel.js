@@ -29,8 +29,8 @@
                         "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
                         "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
                         "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
-                        "<td align='center'> <input type='button'   class='EditBtn'   id = '" + data[i].f_accLevel + "' onclick = 'Edit_Click(this.id)' value='編輯'/ ></td>" +
-                        "<td align='center'> <input type='button'   class='DeleteBtn' id = '" + data[i].f_accLevel + "' onclick = 'Del_Click(this.id)' value='刪除'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'Edit_Click(" + data[i].f_accLevel+")' value='編輯'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'Del_Click(" + data[i].f_accLevel+")' value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
@@ -78,7 +78,6 @@
                 required: true,
                 stringCheck: true,
             },
-
         },
         messages: {
             AccLevel: {
@@ -139,10 +138,10 @@ $.validator.setDefaults({
 });
 
 //刪除
-function Del_Click(DelBtnId) {
+function Del_Click(Id) {
     if (window.confirm("確定要刪除此權限嗎?")) {
         $.ajax({
-            url: "/api/Account/DelAccLv?id=" + DelBtnId,
+            url: "/api/Account/DelAccLv?id=" + Id,
             type: "DELETE",
             data: {},
             success: function (result) {
@@ -160,11 +159,11 @@ function Del_Click(DelBtnId) {
 }
 
 //點擊編輯按鈕
-function Edit_Click(Editid) {
+function Edit_Click(Id) {
     if ($("#EditBox").css("display") == "none") {
         $.ajax({
             type: "GET",
-            url: "/api/account/IdGetAccLV?id=" + Editid,
+            url: "/api/account/IdGetAccLV?id=" + Id,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
