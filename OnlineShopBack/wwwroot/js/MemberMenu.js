@@ -1,4 +1,6 @@
 ﻿$(document).ready(function () {
+
+    //取得會員列表
     $.ajax({
         type: "GET",
         url: "/api/member/getmember",             
@@ -16,11 +18,11 @@
                     "<td id='mail'>" + data[i].f_mail + "</td>" +
                     "<td id='address'>" + data[i].f_address + "</td>" +
                     "<td id='shopGold'>" + data[i].f_shopGold + "</td>" +
-                    "<td id='level'>" + data[i].f_level + "</td>" +
-                    "<td id='suspension'>" + data[i].f_suspension + "</td>" +
+                    "<td id='level'>" + data[i].f_LevelName + "</td>" +
+                    "<td id='suspension'>" + data[i].f_suspensionName + "</td>" +
                     "<td id='createDate'>" + data[i].f_createDate + "</td>" +
-                    "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'   id = '" + data[i].f_id + "'  value='編輯'/ ></td>" +
-                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' id = '" + data[i].f_id + "'  value='刪除'/ ></td>" +
+                    "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn' value='編輯'/ ></td>" +
+                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
 
                     "</tr>";                 
             }
@@ -32,5 +34,46 @@
         error: function (data) {            
         } 
 
+    });
+
+
+
+    //刪除按鈕
+    $("#TableBody").on('click', '.DeleteBtn', function () {
+
+        var currentRow = $(this).closest("tr");
+        var col1 = currentRow.find("td:eq(0)").text(); //取得該列第一格
+
+        if (window.confirm("確定要刪除此帳號嗎?")) {
+            $.ajax({
+                url: "/api/Member/DelMember?id=" + col1,
+                type: "DELETE",
+                data: {},
+                success: function (result) {
+                    alert(result)
+
+                    if (result == "會員刪除成功") {
+                        location.reload(); //刪除成功才更新頁面
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            })
+        }
+    });
+
+
+    //前往新增會員等級
+    $("#AddLevelBtn").click(function () {
+        location.href = "/Member/AddMemberLevel"
+    });
+    ////前往新增會員狀態
+    $("#AddSuspensionBtn").click(function () {
+        location.href = "/Member/AddSuspension"
+    });
+    //回Index
+    $("#GoIndex").click(function () {
+        location.href = "/index"
     });
 })

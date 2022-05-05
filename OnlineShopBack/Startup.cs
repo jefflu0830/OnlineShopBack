@@ -52,6 +52,11 @@ namespace OnlineShopBack
                 options.Filters.Add(new AuthorizeFilter());
             });
 
+            //sessionÔO¶¨
+            services.AddSession(o =>
+            {
+                o.IdleTimeout = TimeSpan.FromSeconds(1800);
+            });
 
             services.AddMvc().ConfigureApiBehaviorOptions(options =>
             {
@@ -87,6 +92,8 @@ namespace OnlineShopBack
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();//†¢ÓÃsession
 
             app.UseEndpoints(endpoints =>
             {

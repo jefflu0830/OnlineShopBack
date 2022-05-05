@@ -35,12 +35,13 @@ namespace OnlineShopBack.Controllers
         {
 
             //查詢伺服器狀態是否正常
-            if(ModelState.IsValid == false)
+            if (ModelState.IsValid == false)
             {
                 return "輸入參數有誤";
             }
 
-            if (User.Identity.IsAuthenticated) {
+            if (User.Identity.IsAuthenticated)
+            {
                 return "請先登出再進行登入";
             }
 
@@ -123,6 +124,11 @@ namespace OnlineShopBack.Controllers
                            new Claim(ClaimTypes.Name, value.Account), //存使用者名稱
                            new Claim("accPosition", dt.Rows[0]["f_accPosition"].ToString()) //存職位資訊
                         };
+
+                        //Session傳遞
+                        //HttpContext.Session.SetString("Sessin01",value.Account);
+                        //HttpContext.Session.GetString("Sessin01");
+                        //Session.Remove("UserName");
 
                         //添加 可使用帳號管理
                         if ((bool)dt.Rows[0]["f_canUseAccount"])

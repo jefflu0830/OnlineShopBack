@@ -40,18 +40,8 @@
         }
     });
 
-    //前往新增帳號
-    $("#AddAccount").click(function () {
-        location.href = "/Account/AddAccount"
-    });
-    //前往新增權限
-    $("#AddAccountLevel").click(function () {
-        location.href = "/Account/AddAccountLevel"
-    });
-    //前往首頁
-    $("#GoIndex").click(function () {
-        location.href = "/index"
-    });
+
+
 
     //點擊編輯帳號按鈕
     $("#TableBody").on('click', '.EditAccBtn', function () {
@@ -124,6 +114,19 @@
                 }
             })
         }
+    });
+
+    //前往新增帳號
+    $("#AddAccount").click(function () {
+        location.href = "/Account/AddAccount"
+    });
+    //前往新增權限
+    $("#AddAccountLevel").click(function () {
+        location.href = "/Account/AddAccountLevel"
+    });
+    //前往首頁
+    $("#GoIndex").click(function () {
+        location.href = "/index"
     });
 
 })
@@ -200,6 +203,6 @@ function EditAcc_Click(Id) {
 function EditCancel_Click() {
     if ($("#EditBox").css("display") !== "none") {
         $("#EditBox").hide();
-        $("#Editform > div,h5").remove();
+        $("#Editform > div,#Editform >h5").remove();
     }
 }

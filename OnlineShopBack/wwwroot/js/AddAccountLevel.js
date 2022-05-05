@@ -18,8 +18,6 @@
                     var rows = rows + "<tr>" +
                         "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
                         "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
-                        "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
-                        "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
                         "<td align='center'></td>" +
                         "<td align='center'></td>" +
                         "</tr>";
@@ -27,8 +25,6 @@
                     var rows = rows + "<tr>" +
                         "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
                         "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
-                        "<td name='fcanUseAccount'>" + data[i].f_canUseAccount + "</td>" +
-                        "<td name='fcanUseMember'>" + data[i].f_canUseMember + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'Edit_Click(" + data[i].f_accLevel+")' value='編輯'/ ></td>" +
                         "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'Del_Click(" + data[i].f_accLevel+")' value='刪除'/ ></td>" +
                         "</tr>";

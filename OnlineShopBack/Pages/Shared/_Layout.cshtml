@@ -40,7 +40,7 @@
             </nav>
         }
     </header>
-    <div class="container" style="width:1000px;">
+    <div class="container" @*style="width:1000px;"*@>
         @RenderBody()
     </div>
 
@@ -57,3 +57,7 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+
+<script>
+    var accName = " @User.Claims.FirstOrDefault(X => X.Type == "accPosition")?.Value";
+</script>

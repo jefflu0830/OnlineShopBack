@@ -1,0 +1,57 @@
+﻿@page
+@model OnlineShopBack.Pages.Account.AddSuspensionModel
+@{
+    ViewData["Title"] = "新增帳號權限";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@*JQuery 資料驗證*@
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
+
+
+<h5>新增會員狀態</h5>
+<div id="body" style="padding: 10px;">
+    <form id="Addform" method="post" action="">
+        <div>
+            <label>會員狀態編號:</label>
+            <input type="text" id="suspensionLevel" name="suspensionLevel" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div>
+            <label for="LevelName">會員狀態名稱:</label>
+            <input type="text" id="suspensionName" name="suspensionName" maxlength="10" />
+        </div>
+        <div>
+            <input id="post" type="button" value="ADD" />
+        </div>
+    </form>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <thead>
+                <tr>
+                    <th>狀態編號</th>
+                    <th>狀態名稱</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+        @* 用append放入*@
+    </form>
+</div>
+<div>
+    <div>
+        <button id="GoMemMenu">上一頁</button>
+    </div>
+</div>
+
+<script src="~/js/AddSuspension.js" ></script>

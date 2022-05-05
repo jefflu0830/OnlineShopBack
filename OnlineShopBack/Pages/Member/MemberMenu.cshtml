@@ -5,26 +5,41 @@
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
+<div id="body" style="margin: 5px auto;">
+
+    <button id="AddLevelBtn">新增會員等級</button>
+
+    <button id="AddSuspensionBtn">新增會員狀態</button>
+
+</div>
+
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-    </div>   <!--en dof panel-heading -->
+    </div>
     <div class="panel-body">
         <table class="table table-bordered" id="Table">
-            <tr>
-                <th>ID</th>
-                <th>帳號</th>
-                <th>姓名</th>
-                <th>電話</th>
-                <th>Email</th>
-                <th>地址</th>
-                <th>購物金</th>
-                <th>會員等級</th>
-                <th>會員狀態</th>
-                <th>創建時間</th>
-            </tr>   <!--end of table-row -->
-        </table>   <!--end of table -->
-    </div> <!--end of Panel-body -->
-</div> <!--end of Panel -->
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>帳號</th>
+                    <th>姓名</th>
+                    <th>電話</th>
+                    <th>Email</th>
+                    <th>地址</th>
+                    <th>購物金</th>
+                    <th>會員等級</th>
+                    <th>會員狀態</th>
+                    <th>創建時間</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <button id="GoIndex">上一頁</button>
+    </div>
+</div>
 
 <script src="~/js/MemberMenu.js" ></script>  
