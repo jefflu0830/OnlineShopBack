@@ -89,18 +89,18 @@
 
         var currentRow = $(this).closest("tr");
 
-        var MemLv = currentRow.find("td:eq(0)").text();
-        var MemName = currentRow.find("td:eq(1)").text();
+        var suspensionLv = currentRow.find("td:eq(0)").text();
+        var suspensionName = currentRow.find("td:eq(1)").text();
         //var data = col1 ;
         //alert(data);
 
         if ($("#EditBox").css("display") == "none") {
             var EditData =
                 "<h5>會員等級修改</h5>" +
-                "<div><label>會員等級編號 ： </label><label >" + MemLv + "</label></div>" +
-                "<div><label>會員等級名稱 ： </label><input type='text' id='memLvName' name='memLvName'maxlength='10'value='" + MemName+"' /></div>" +
+                "<div><label>會員等級編號 ： </label><label >" + suspensionLv + "</label></div>" +
+                "<div><label>會員等級名稱 ： </label><input type='text' id='EditName' name='EditName'maxlength='10'value='" + suspensionName+"' /></div>" +
                 //"<div id='Editbutton'><input name='EditMemLv' onclick ='EditMemLv_Click(" + col1 + ")' type='Button' value='確認修改' />" +
-                "<div id='Editbutton'><input id='EditMemLv' name='EditMemLv' type='Button' onclick ='EditPwd_Click(" + MemLv + ")' value='確認修改' />" +
+                "<div id='Editbutton'><input id='EditMemLv' name='EditMemLv' type='Button' onclick ='Edit_Click(" + suspensionLv + ")' value='確認修改' />" +
                 "<input name='EditCancel' id = 'EditCancel' name='EditCancel' type = 'Button'  value = '取消修改' /></div > "
             $('#Editform').append(EditData);
             $("#EditBox").show();
@@ -137,6 +137,7 @@
         location.href = "/Member/MemberMenu"
     });
 
+    //取消編輯
     $(document.body).on('click', '#EditCancel', function () {
         if ($("#EditBox").css("display") !== "none") {
             $("#EditBox").hide();
@@ -147,14 +148,14 @@
 });
 
 //編輯確認
-function EditPwd_Click(MemLv) {
+function Edit_Click(suspensionLv) {
     var errorCode = ""
 
-    if ($("#memLvName").val() === "") {
-        errorCode += "更改名稱不可為空白\n"
+    if ($("#EditName").val() === "") {
+        errorCode += "名稱不可為空白\n"
     }
-    if (/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test($("#memLvName").val()) == false) {
-        errorCode += "[會員等級名稱] 只允許輸入英文及數字。\n"
+    if (/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test($("#EditName").val()) == false) {
+        errorCode += "[名稱] 只允許輸入英文及數字。\n"
     }
 
 
@@ -164,17 +165,17 @@ function EditPwd_Click(MemLv) {
     }
     else {
         $.ajax({
-            url: "/api/Member/PutMemLv?MemLv=" + MemLv,
+            url: "/api/Member/PutSuspension?id=" + suspensionLv,
             type: "put",
             contentType: "application/json",
             dataType: "text",
             data: JSON.stringify({
-                "LvName": $("#memLvName").val()
+                "suspensionName": $("#EditName").val()
             }),
             success: function (result) {
                 alert(result)
 
-                if (result == "會員等級更新成功") {
+                if (result == "狀態更新成功") {
                     location.reload(); //新增成功才更新頁面
                 }
             },

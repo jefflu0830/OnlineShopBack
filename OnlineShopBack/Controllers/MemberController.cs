@@ -475,7 +475,7 @@ namespace OnlineShopBack.Controllers
             //<summary >
             //尚未建立此權限
             //</summary >
-            LvIsNull = 100
+            IsNull = 100
 
         }
 
@@ -670,6 +670,89 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+        }
+
+        //更新狀態
+        [HttpPut("PutSuspension")]
+        public string PutSuspension([FromQuery] int id, [FromBody] suspensionDto value)
+        {
+            string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //權限編號 
+            if (id > 255 || id < 0)
+            {
+                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
+            }
+
+            //權限名稱
+            if (string.IsNullOrEmpty(value.suspensionName))
+            {
+                addAccLVErrorStr += "[名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.suspensionName))
+                {
+                    addAccLVErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (value.suspensionName.Length > 10 || value.suspensionName.Length < 0)
+                {
+                    addAccLVErrorStr += "[名稱應介於0～10個字之間]\n";
+                }
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(addAccLVErrorStr))
+            {
+                return addAccLVErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putSuspensionById @id, @Name ";
+
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@Name", value.suspensionName);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutSuspensionCode.IsNull:
+                        return "尚未建立此狀態";
+                    case (int)PutSuspensionCode.PutOK:
+                        return "狀態更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
         }
 
 
