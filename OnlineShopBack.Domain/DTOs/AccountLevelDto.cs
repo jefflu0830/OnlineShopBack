@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnlineShopBack.Controllers
+﻿namespace OnlineShopBack.Domain.DTOS
 {
     public class AccountLevelDto
     {

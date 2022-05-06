@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Models;
-using OnlineShopBack.Pages.Account;
+using OnlineShopBack.Domain.DTOS;
+using OnlineShopBack.Domain.Enum;
+using OnlineShopBack.Domain.Repository;
 using OnlineShopBack.Services;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using OnlineShopBack.Tool;
-using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Data;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,7 +21,16 @@ namespace OnlineShopBack.Controllers
     public class AccountController : ControllerBase
     {
         //SQL連線字串  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        private readonly string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+
+        private readonly IAccountRepository _accountService = null;
+
+
+        public AccountController(IAccountRepository accountService)
+        {
+            _accountService = accountService;
+        }
+
 
         //已註解
         #region GetAccount  EF舊寫法用所需
@@ -54,23 +62,6 @@ namespace OnlineShopBack.Controllers
         //帳號相關------------------------------------------------------------------
 
         #region 帳號相關列舉(Enum)
-        private enum addACCountErrorCode //新增帳號
-        {
-            //<summary >
-            //帳號新增成功
-            //</summary >
-            AddOK = 0,
-
-            //<summary >
-            //帳號重複
-            //</summary >
-            duplicateAccount = 100,
-
-            //<summary >
-            //該權限未建立
-            //</summary >
-            permissionIsNull = 101
-        }
         private enum PutAccErrorCode //編輯帳號
         {
             //<summary >
@@ -126,37 +117,18 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetAcc")]
         public string GetAcc()
         {
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
 
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
+            (string, int)[] list = _accountService.GetAccountAndLevelList();
+
+            List<AccountLevelDto> response = new List<AccountLevelDto>)();
+            foreach((string, int) item in list)
             {
-                return e.Message;
+                response.Add();
             }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+
+            
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(list);
 
             return result;
         }

@@ -10,6 +10,9 @@ using Microsoft.Extensions.Hosting;
 using OnlineShopBack.Models;
 using System;
 using System.Threading.Tasks;
+using OnlineShopBack.Domain;
+using OnlineShopBack.Domain.Repository;
+using OnlineShopBack.Persistent;
 
 namespace OnlineShopBack
 {
@@ -25,7 +28,7 @@ namespace OnlineShopBack
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddSingleton<IAccountRepository, AccountRepository>();
 
             services.AddControllersWithViews();
             services.AddControllers();
