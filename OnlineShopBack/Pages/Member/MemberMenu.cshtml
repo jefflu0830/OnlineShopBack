@@ -1,5 +1,5 @@
 ﻿@page
-@model OnlineShopBack.Pages.Member.SelectMemberModel
+@model OnlineShopBack.Pages.Member.MemberMenuModel
 @{
 //Layout = null;
 }
@@ -11,6 +11,7 @@
 
     <button id="AddSuspensionBtn">新增會員狀態</button>
 
+    <button id="ShopGoldBtn">購物金管理</button>
 </div>
 
 
@@ -42,4 +43,19 @@
     </div>
 </div>
 
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+        @* 用append放入*@
+    </form>
+</div>
+
 <script src="~/js/MemberMenu.js" ></script>  
+
+<script id="getSelect">
+    //取得權限下拉選單資料
+    var memLevel = "@Html.Raw(Model.Level)".split('/');
+    var memLevelName = "@Html.Raw(Model.LevelName)".split('/');
+    var Suspension = "@Html.Raw(Model.Suspension)".split('/');
+    var SuspensionName = "@Html.Raw(Model.SuspensionName)".split('/');
+    $("#getSelect").remove();
+</script>

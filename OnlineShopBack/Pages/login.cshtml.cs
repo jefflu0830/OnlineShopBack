@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace OnlineShopBack.Pages
 {
-    [AllowAnonymous] //不受全域套用[Authorize]的影響
     public class IndexModel : PageModel
     {
 
@@ -22,6 +22,12 @@ namespace OnlineShopBack.Pages
 
         public void OnGet()
         {
+
+            if (HttpContext.Session.GetString("Account") != null ||
+               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/index");
+            }
 
         }
     }

@@ -1,0 +1,34 @@
+﻿@page
+@model OnlineShopBack.Pages.Member.AddShopGoldModel
+@{
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<div id="body" style="padding: 10px;" >
+    <form id="AddShopGoldForm" method="post" action="">
+        <div>
+            <label>
+                確認帳號:
+            </label>
+            <input type="text" id='CheckAcc' name='CheckAcc' maxlength='20' />
+            <input type='button' id='CheckAccBtn' name='CheckAccBtn' value='確認帳號' />
+        </div>
+        <div><label> 帳號 &nbsp;&nbsp; ： &nbsp;&nbsp;  </label><label id='CfmAcc'></label></div>
+        <div><label> 姓名 &nbsp;&nbsp; ： &nbsp;&nbsp;  </label><label id='CfmName'></label></div>
+        <div><label> 信箱 &nbsp;&nbsp; ： &nbsp;&nbsp;  </label><label id='CfmEmail'></label></div>
+        <div><label> 目前購物金 &nbsp;&nbsp; ： &nbsp;&nbsp;  </label><label id='NowAmount'style="background-color:gold ;" ></label></div>
+    </form>
+</div>
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+        <div>
+            <label>
+                調整金額:
+            </label>
+            <input type="text" id='AdjustAmount' name='AdjustAmount' maxlength='20' />
+            <input type='button' id='AdjustAmountBtn' name='AdjustAmountBtn' value='確認更改' />
+        </div>
+    </form>
+</div>
+
+<script src="~/js/AddShopGold.js"></script>

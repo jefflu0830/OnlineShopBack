@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnlineShopBack.Controllers
 {
-    public class AccountSelectDto
+    public class AccountDto
     {
 
         public int Id { get; set; }

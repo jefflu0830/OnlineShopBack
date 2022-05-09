@@ -16,7 +16,6 @@ using System;
 
 namespace OnlineShopBack.Controllers
 {
-    [Authorize(Roles = "canUseAccount")]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -204,7 +203,7 @@ namespace OnlineShopBack.Controllers
 
         //增加帳號
         [HttpPost("AddAcc")]
-        public string AddAcc([FromBody] AccountSelectDto value)
+        public string AddAcc([FromBody] AccountDto value)
         {
             //後端驗證
             //如字串字數特殊字元驗證
@@ -344,7 +343,7 @@ namespace OnlineShopBack.Controllers
 
         //編輯帳號_權限
         [HttpPut("PutAcc")]
-        public string PutAcc([FromQuery] int id, [FromBody] AccountSelectDto value)
+        public string PutAcc([FromQuery] int id, [FromBody] AccountDto value)
         {
             string addAccErrorStr = "";//記錄錯誤訊息
 

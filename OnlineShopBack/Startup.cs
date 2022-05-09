@@ -22,10 +22,13 @@ namespace OnlineShopBack
 
         public IConfiguration Configuration { get; }
 
+
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddHttpContextAccessor();
+
 
             services.AddControllersWithViews();
             services.AddControllers();
@@ -44,13 +47,8 @@ namespace OnlineShopBack
                 //option.ExpireTimeSpan = TimeSpan.FromHours(5);
                 option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
             });
-            services.AddAuthentication();
 
-            //全域套用 [Authorize]?
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new AuthorizeFilter());
-            });
+            services.AddAuthentication();
 
             //session設定
             services.AddSession(o =>
@@ -62,11 +60,7 @@ namespace OnlineShopBack
             {
                 options.SuppressModelStateInvalidFilter = true; //tuer後 不管有沒有報錯 都先會進 controller
             });
-            //-------------------------------------------------------------------------------
-            //services.AddRazorPages(options =>
-            //{
-            //    options.Conventions.AuthorizeFolder("/Pages/Account","Pages");
-            //});
+
             services.AddRazorPages();
 
         }

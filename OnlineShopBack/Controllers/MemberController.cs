@@ -10,7 +10,6 @@ using System.Text;
 
 namespace OnlineShopBack.Controllers
 {
-    [Authorize(Roles = "canUseMember")]
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {
@@ -33,7 +32,48 @@ namespace OnlineShopBack.Controllers
             //</summary >
             MemIsNull = 100
         }
+
+        private enum PutMemberErrorCode //編輯會員
+        {
+            //<summary >
+            //1編輯成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //無此會員
+            //</summary >
+            MemIsNull = 100,
+            //<summary >
+            //無此會員
+            //</summary >
+            LvIsNull = 101,
+            //<summary >
+            //無此會員
+            //</summary >
+            SuspensionNull = 102
+        }
+
+        private enum PutShopGoldCode //購物金調整
+        {
+            //<summary >
+            //調整成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //無此會員
+            //</summary >
+            MemIsNull = 100,
+            //<summary >
+            //原始購物金與帳號不相符
+            //</summary >
+            Incompatible = 101,
+            //<summary >
+            //調整後購物金不得小於0 or 大於20000
+            //</summary >
+            PutShopGoldError = 102
+        }
         #endregion
+
 
         //取得會員資料
         [HttpGet("GetMember")]
@@ -60,6 +100,47 @@ namespace OnlineShopBack.Controllers
             var result = Tool.MyTool.DataTableJson(dt);
 
             return result;
+        }
+
+        //取得指定會員資料
+        [HttpGet("GetMemberByAcc")]
+        public string GetMemberByAcc([FromQuery] string acc)
+        {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @Acc";
+
+                cmd.Parameters.AddWithValue("@Acc", acc);
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+
+                //關閉連線
+                cmd.Connection.Close();
+
+                //DataTable轉Json;
+                var result = Tool.MyTool.DataTableJson(dt);
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+
+            }
         }
 
         //刪除會員
@@ -117,6 +198,170 @@ namespace OnlineShopBack.Controllers
             }
         }
 
+        //編輯會員(等級&狀態)
+        [HttpPut("PutMember")]
+        public string PutMember([FromQuery] int id, [FromBody] MemberDto value)
+        {
+            string addAccErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //等級資料驗證
+            if (value.Level > 255 || value.Level < 0)
+            {
+                addAccErrorStr += "[等級編號不再範圍內]\n";
+            }
+
+            //狀態資料驗證
+            if (value.Suspension > 255 || value.Suspension < 0)
+            {
+                addAccErrorStr += "[狀態編號不再範圍內]\n";
+            }
+
+            if (!string.IsNullOrEmpty(addAccErrorStr))
+            {
+                return addAccErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putMemberByLvAndSuspension @Id, @Lv, @Suspension";
+
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@Lv", value.Level);
+                cmd.Parameters.AddWithValue("@Suspension", value.Suspension);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutMemberErrorCode.MemIsNull:
+                        return "無此會員帳號";
+                    case (int)PutMemberErrorCode.LvIsNull:
+                        return "無此等級";
+                    case (int)PutMemberErrorCode.SuspensionNull:
+                        return "無此狀態";
+                    case (int)PutMemberErrorCode.PutOK:
+                        return "更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+        }
+
+        //調整購物金
+        [HttpPut("PutShopGold")]
+        public string PutShopGold([FromBody] PutShopGlodDto value)
+        {
+            string addAccErrorStr = "";//記錄錯誤訊息
+
+
+            //最後修改金額(PutShopGold)=(原始金額(NowAmount)+調整金額(AdjustAmount))
+            int? PutShopGold = 0;
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //最後修改金額(PutShopGold)=(原始金額(NowAmount)+調整金額(AdjustAmount))
+            PutShopGold = value.NowAmount + value.AdjustAmount;
+
+            //購物金資料驗證
+            if (value.AdjustAmount == 0)
+            {
+                addAccErrorStr += "[調整金額]不得為零\n";
+            }
+            if (value.AdjustAmount > 5000)
+            {
+                addAccErrorStr += "[調整金額]每次增加應小於5000\n";
+            }
+            if (value.AdjustAmount < -5000)
+            {
+                addAccErrorStr += "[調整金額]每次減少不得小於5000\n";
+            }
+
+            //購物金資料驗證
+            if (PutShopGold > 20000 || PutShopGold<0)
+            {
+                addAccErrorStr += "調整後不得小於0 or 大於20000";
+            }
+
+            if (!string.IsNullOrEmpty(addAccErrorStr))
+            {
+                return addAccErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putMemberByShopGold @MemAcc,  @NowAmount, @PutShopGold ";
+
+                cmd.Parameters.AddWithValue("@MemAcc", value.MemAcc);
+                cmd.Parameters.AddWithValue("@NowAmount", value.NowAmount);
+                cmd.Parameters.AddWithValue("@PutShopGold", PutShopGold);
+
+                //開啟連線
+                cmd.Connection.Open();
+                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                int SQLReturnCode = int.Parse(addAccErrorStr);
+
+                switch (SQLReturnCode)
+                {
+                    case (int)PutShopGoldCode.Incompatible:
+                        return "原始購物金與帳號不相符";
+                    case (int)PutShopGoldCode.MemIsNull:
+                        return "會員不存在";
+                    case (int)PutShopGoldCode.PutShopGoldError:
+                        return "調整後購物金不得小於0 or 大於20000";
+                    case (int)PutShopGoldCode.PutOK:
+                        return "更新成功";
+                    default:
+                        return "失敗";
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+        }
 
 
         //會員等級相關----------------------------------------------
@@ -481,7 +726,7 @@ namespace OnlineShopBack.Controllers
 
         #endregion
 
-        //取得會員等級資料List
+        //取得狀態資料List
         [HttpGet("GetSuspensionList")]
         public string GetSuspensionList()
         {
@@ -520,7 +765,7 @@ namespace OnlineShopBack.Controllers
             return result;
         }
 
-        //增加會員狀態 
+        //增加狀態 
         [HttpPost("AddSuspension")]
         public string AddSuspension([FromBody] suspensionDto value)
         {
@@ -615,7 +860,7 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        //刪除會員等級
+        //刪除等級
         [HttpDelete("DelSuspension")]
         public string DelSuspension([FromQuery] int id)
         {

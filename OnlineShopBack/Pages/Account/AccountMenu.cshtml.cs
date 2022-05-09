@@ -7,7 +7,6 @@ using System.Data;
 
 namespace OnlineShopBack.Pages.Account
 {
-    [Authorize(Roles = "canUseAccount")]
     public class AccountMenuModel : PageModel
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");

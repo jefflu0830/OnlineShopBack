@@ -4,22 +4,27 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata;
 using System.Security.Claims;
+using System.Text;
 
 namespace OnlineShopBack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class LoginController : ControllerBase
     {
         private readonly OnlineShopContext _OnlineShopContext;
@@ -30,10 +35,10 @@ namespace OnlineShopBack.Controllers
 
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 
+        //登入
         [HttpPost]
-        public string login(AccountSelectDto value)
+        public string login(AccountDto value)
         {
-
             //查詢伺服器狀態是否正常
             if (ModelState.IsValid == false)
             {
@@ -81,6 +86,8 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
+
+
             //錯誤訊息不為空
             if (loginErrorStr != "")
             {
@@ -113,36 +120,15 @@ namespace OnlineShopBack.Controllers
                     {
                         return "loginFail"; //登入失敗
                     }
-                    else
+                    else //登入成功
                     {
                         da.SelectCommand = cmd;
                         da.Fill(dt);
 
-                        //添加角色權限
-                        var claims = new List<Claim>
-                        {
-                           new Claim(ClaimTypes.Name, value.Account), //存使用者名稱
-                           new Claim("accPosition", dt.Rows[0]["f_accPosition"].ToString()) //存職位資訊
-                        };
-
                         //Session傳遞
-                        //HttpContext.Session.SetString("Sessin01",value.Account);
-                        //HttpContext.Session.GetString("Sessin01");
-                        //Session.Remove("UserName");
-
-                        //添加 可使用帳號管理
-                        if ((bool)dt.Rows[0]["f_canUseAccount"])
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, "canUseAccount"));//存入canUseAccount腳色
-                        };
-                        //添加 可使用會員管理
-                        if ((bool)dt.Rows[0]["f_canUseMember"])
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, "canUseMember"));//存入canUseMember腳色
-                        };
-                        //Cookie 驗證
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                        HttpContext.Session.SetString("Account", value.Account);
+                        //HttpContext.Session.GetString("Account");
+                        //Session.Remove("Account");
 
                         return "loginOK";  //登入OK
                     }
@@ -196,7 +182,7 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("Logout")]
         public void logout()
         {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("Account");
         }
         [HttpGet("NoLogin")]
         public string noLogin()
