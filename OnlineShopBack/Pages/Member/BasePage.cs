@@ -1,0 +1,30 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using OnlineShopBack.Services;
+using OnlineShopBack.Tool;
+using System.Data;
+
+namespace OnlineShopBack.Pages.Member
+{
+    public class BasePage
+    {
+        public class BasePageModel : PageModel
+        {
+            public void MemberValidate()
+            {
+                if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+                {
+                    Response.Redirect("/Login");
+                    return;
+                }
+                else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+                {
+                    Response.Redirect("/index");
+                    return;
+                }
+            }
+        }
+    }
+}

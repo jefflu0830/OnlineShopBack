@@ -1,12 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OnlineShopBack.Pages
 {
@@ -23,11 +17,11 @@ namespace OnlineShopBack.Pages
         public void OnGet()
         {
 
-            //if (HttpContext.Session.GetString("Account") != null ||
-            //   !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            //{
-            //    Response.Redirect("/index");
-            //}
+            if (HttpContext.Session.GetString("Account") != null ||
+               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/index");
+            }
 
         }
     }

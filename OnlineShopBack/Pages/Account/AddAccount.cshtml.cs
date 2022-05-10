@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
 using System.Data;
-
+using static OnlineShopBack.Pages.Account.BasePage;
 
 namespace OnlineShopBack.Pages.Account
 {
-    public class AddAccountModel : PageModel
+    public class AddAccountModel : BasePageModel
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
@@ -17,16 +16,7 @@ namespace OnlineShopBack.Pages.Account
 
         public void OnGet()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                Response.Redirect("/Login");
-                return;
-            }
-            else if (!HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
-            {
-                Response.Redirect("/index");
-                return;
-            }
+            AccountValidate();
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();

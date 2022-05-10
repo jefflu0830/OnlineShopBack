@@ -4,7 +4,7 @@ using OnlineShopBack.Tool;
 
 namespace OnlineShopBack.Pages
 {
-    public class BackPageModel : BasePage
+    public class indexModel : PageModel
     {
         public string Roles;
 
@@ -14,11 +14,12 @@ namespace OnlineShopBack.Pages
 
             //if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
             //    SessionDB.sessionDB[HttpContext.Session.GetString("Account")] != HttpContext.Session.Id)
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
-                SessionDB.SessionId != HttpContext.Session.Id)
+
+            //session("account")不存在 or 資料庫sessionId 與 瀏覽器sessionId不符
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account"))||
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")] != HttpContext.Session.Id)
             {
                 Response.Redirect("/Login");
-                return;
             }
 
             Roles = HttpContext.Session.GetString("Roles");

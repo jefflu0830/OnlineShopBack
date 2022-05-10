@@ -5,27 +5,18 @@ using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System.Data;
+using static OnlineShopBack.Pages.Account.BasePage;
 
 namespace OnlineShopBack.Pages.Account
 {
-    public class AccountMenuModel : PageModel
+    public class AccountMenuModel : BasePageModel
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
         public string AccLevel;
         public string AccPosition;
         public void OnGet()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                Response.Redirect("/Login");
-                return;
-            }
-            else if (!HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
-            {
-                Response.Redirect("/index");
-                return;
-            }
-
+            AccountValidate();
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
@@ -49,6 +40,8 @@ namespace OnlineShopBack.Pages.Account
                 AccLevel += dt.Rows[i][0].ToString() + "/";
                 AccPosition += dt.Rows[i][1] + "/";
             }
+
+            
         }
     }
 }

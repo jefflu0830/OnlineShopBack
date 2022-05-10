@@ -1,18 +1,21 @@
 ﻿@page
-@model OnlineShopBack.Pages.BackPageModel
+@model OnlineShopBack.Pages.indexModel
 @{
     ViewData["Title"] = "首頁";
 }
 <div id="body" style="margin: 0 auto;">
-    @{
-        if (Model.Roles.Contains("canUseAccount"))
+    @{ if (!string.IsNullOrWhiteSpace(Model.Roles))
         {
-            <button id="Account">後台帳號管理</button>
+            if (Model.Roles.Contains("canUseAccount"))
+            {
+                <button id="Account">後台帳號管理</button>
+            }
+            if (Model.Roles.Contains("canUseMember"))
+            {
+                <button id="member">會員管理</button>
+            }
         }
-        if (Model.Roles.Contains("canUseMember"))
-        {
-            <button id="member">會員管理</button>
-        }
+
     }
 
 </div>

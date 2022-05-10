@@ -4,10 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
 using System.Data;
+using static OnlineShopBack.Pages.Member.BasePage;
 
 namespace OnlineShopBack.Pages.Member
 {
-    public class MemberMenuModel : PageModel
+    public class MemberMenuModel : BasePageModel
     {
         private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
         public string Level;
@@ -16,16 +17,7 @@ namespace OnlineShopBack.Pages.Member
         public string SuspensionName;
         public void OnGet()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                Response.Redirect("/Login");
-                return;
-            }
-            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
-            {
-                Response.Redirect("/index");
-                return;
-            }
+            MemberValidate();
 
             SqlCommand cmd = null;
             DataSet ds = new DataSet();

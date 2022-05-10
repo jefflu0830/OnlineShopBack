@@ -1,22 +1,12 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using static OnlineShopBack.Pages.Member.BasePage;
 
 namespace OnlineShopBack.Pages.Account
 {
-    public class AddMemberLevelModel : PageModel
+    public class AddMemberLevelModel : BasePageModel
     {
         public void OnGet()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                Response.Redirect("/Login");
-                return;
-            }
-            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
-            {
-                Response.Redirect("/index");
-                return;
-            }
+            MemberValidate();
         }
     }
 }

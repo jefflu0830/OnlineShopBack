@@ -151,7 +151,7 @@ namespace OnlineShopBack.Controllers
                         //}
 
 
-
+                        
                         //資料庫中 Account為空 or 存的sessionId與現在的不符
                         if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
                             dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
@@ -162,7 +162,11 @@ namespace OnlineShopBack.Controllers
                             cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
                             cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                            SessionDB.SessionId = cmd.ExecuteScalar().ToString();
+
+
+                            SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
+                            SessionDB.sessionDB.Add(HttpContext.Session.GetString("Account"), cmd.ExecuteScalar().ToString());
+                            //= cmd.ExecuteScalar().ToString();
 
                             return "重複登入";  //重複登入
                         }
@@ -170,10 +174,13 @@ namespace OnlineShopBack.Controllers
                         {
                             //登入成功 紀錄session 在DB中
                             cmd.Parameters.Clear();
-                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc ";
+                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc 
+                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
                             cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
                             cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                            cmd.ExecuteScalar();
+                            //cmd.ExecuteScalar();
+
+                            SessionDB.sessionDB.Add(HttpContext.Session.GetString("Account"), cmd.ExecuteScalar().ToString());
 
                             return "loginOK";  //登入OK
                         }
@@ -249,6 +256,7 @@ namespace OnlineShopBack.Controllers
             }
             finally
             {
+                
                 if (cmd != null)
                 {
                     cmd.Connection.Close();
@@ -258,6 +266,7 @@ namespace OnlineShopBack.Controllers
             }
 
             //SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
+            SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
             HttpContext.Session.Remove("Account");
 
         }
@@ -266,5 +275,6 @@ namespace OnlineShopBack.Controllers
         {
             return "未登入";
         }
+
     }
 }
