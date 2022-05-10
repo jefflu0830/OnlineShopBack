@@ -1,25 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection.Metadata;
-using System.Security.Claims;
-using System.Text;
 
 namespace OnlineShopBack.Controllers
 {
@@ -39,6 +28,7 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(AccountDto value)
         {
+
             //查詢伺服器狀態是否正常
             if (ModelState.IsValid == false)
             {
@@ -122,17 +112,74 @@ namespace OnlineShopBack.Controllers
                     }
                     else //登入成功
                     {
+
+
+
                         da.SelectCommand = cmd;
                         da.Fill(dt);
 
+                        string Roles = "";
+
+                        //添加 可使用帳號管理
+                        if ((bool)dt.Rows[0]["f_canUseAccount"])
+                        {
+                            Roles += "canUseAccount/";
+                        };
+                        //添加 可使用會員管理
+                        if ((bool)dt.Rows[0]["f_canUseMember"])
+                        {
+                            Roles += "canUseMember/";
+                        };
+
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
-                        //HttpContext.Session.GetString("Account");
-                        //Session.Remove("Account");
+                        HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
+                        HttpContext.Session.SetString("Roles", Roles);
 
-                        return "loginOK";  //登入OK
+
+                        //if (SessionDB.sessionDB.ContainsKey(value.Account) &&
+                        //    SessionDB.sessionDB[value.Account] != HttpContext.Session.Id)
+                        //{
+                        //    SessionDB.sessionDB.Remove(value.Account);
+                        //    SessionDB.sessionDB.Add(value.Account, HttpContext.Session.Id);
+                        //    return "有使用者正在使用此帳號";
+                        //}
+                        //else
+                        //{
+                        //    SessionDB.sessionDB.Add(value.Account, HttpContext.Session.Id);
+                        //    return "loginOK";  //登入OK
+                        //}
+
+
+
+                        //資料庫中 Account為空 or 存的sessionId與現在的不符
+                        if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
+                            dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc ";
+                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                            cmd.ExecuteScalar();
+
+                            SessionDB.SessionId = dt.Rows[0]["f_sessionId"].ToString();
+
+
+
+                            return "重複登入";  //重複登入
+                        }
+                        else
+                        {
+                            //登入成功 紀錄session 在DB中
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc ";
+                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                            cmd.ExecuteScalar();
+
+                            return "loginOK";  //登入OK
+                        }
                     }
-
                 }
                 finally
                 {
@@ -144,6 +191,10 @@ namespace OnlineShopBack.Controllers
                     }
                 }
             }
+
+
+            //HttpContext.Session.GetString("Account");
+            //Session.Remove("Account")
 
             #region  EF舊寫法已註解
             /*using (var md5 = MD5.Create())
@@ -182,7 +233,35 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("Logout")]
         public void logout()
         {
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //清空sessionId
+                cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = '' WHERE f_acc = @f_acc ";
+                cmd.Parameters.AddWithValue("@f_acc", HttpContext.Session.GetString("Account"));
+                //開啟連線
+                cmd.Connection.Open();
+                cmd.ExecuteScalar();
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Connection.Close();
+                    cmd.Parameters.Clear();
+
+                }
+            }
+
+            //SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
             HttpContext.Session.Remove("Account");
+
         }
         [HttpGet("NoLogin")]
         public string noLogin()

@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
+using OnlineShopBack.Tool;
 using System.Data;
 
 namespace OnlineShopBack.Pages.Account
@@ -14,6 +15,18 @@ namespace OnlineShopBack.Pages.Account
         public string AccPosition;
         public void OnGet()
         {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            else if (!HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
+            {
+                Response.Redirect("/index");
+                return;
+            }
+
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -21,7 +34,7 @@ namespace OnlineShopBack.Pages.Account
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"SELECT * FROM T_accountLevel "; //改成SP
+            cmd.CommandText = @"SELECT * FROM T_accountLevel "; 
 
             //開啟連線
             cmd.Connection.Open();

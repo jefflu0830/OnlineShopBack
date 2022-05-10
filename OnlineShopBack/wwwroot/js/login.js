@@ -45,11 +45,16 @@ $.validator.setDefaults({
                 "Pwd": $("#PassWord").val()
             }),
             success: function (result) {
-                if (result == "loginOK") {
+                if (result === "loginOK") {
                     location.href = "/index"
                 }
+                else if (result === "重複登入") {
+                    if (window.confirm("有使用者正在連線,要繼續登入嗎?")) {
+                        location.href = "/index"
+                    }
+                }
                 else {
-                    alert(result)  
+                    alert("123")  
                 }                
             },
             error: function (error) {

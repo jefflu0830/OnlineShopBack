@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +16,17 @@ namespace OnlineShopBack.Pages.Member
         public string SuspensionName;
         public void OnGet()
         {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            {
+                Response.Redirect("/index");
+                return;
+            }
+
             SqlCommand cmd = null;
             DataSet ds = new DataSet();
             SqlDataAdapter da = new SqlDataAdapter();

@@ -4,11 +4,16 @@
     ViewData["Title"] = "首頁";
 }
 <div id="body" style="margin: 0 auto;">
-    <h5>@Accessor.HttpContext.Session.GetString("Account")</h5>
-    <button id="Account">後台帳號管理</button>
-
-    <button id="member">會員管理</button>
-
+    @{
+        if (Model.Roles.Contains("canUseAccount"))
+        {
+            <button id="Account">後台帳號管理</button>
+        }
+        if (Model.Roles.Contains("canUseMember"))
+        {
+            <button id="member">會員管理</button>
+        }
+    }
 
 </div>
 <script src="./js/index.js"></script>

@@ -15,5 +15,6 @@ namespace OnlineShopBack.Models
         public byte FLevel { get; set; }
         public DateTime FCreateDate { get; set; }
         public DateTime FUpdateDate { get; set; }
+
     }
 }

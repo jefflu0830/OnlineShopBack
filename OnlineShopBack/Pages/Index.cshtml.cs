@@ -1,20 +1,29 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using static System.Net.Mime.MediaTypeNames;
+using OnlineShopBack.Tool;
 
 namespace OnlineShopBack.Pages
 {
     public class BackPageModel : PageModel
     {
-        public string Session01;
+        public string Roles;
+
         public void OnGet()
         {
-            if (HttpContext.Session.Keys.ToString() == null || 
-                string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            Roles = "";
+
+            //if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
+            //    SessionDB.sessionDB[HttpContext.Session.GetString("Account")] != HttpContext.Session.Id)
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
+                    SessionDB.SessionId != HttpContext.Session.Id)
             {
                 Response.Redirect("/Login");
+                return;
             }
 
-        }
+            Roles = HttpContext.Session.GetString("Roles");
+
+
+    }
     }
 }

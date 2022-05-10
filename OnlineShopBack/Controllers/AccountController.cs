@@ -10,6 +10,7 @@ using System.Linq;
 using OnlineShopBack.Tool;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using Microsoft.AspNetCore.Http;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,6 +23,7 @@ namespace OnlineShopBack.Controllers
     {
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+
 
         //已註解
         #region GetAccount  EF舊寫法用所需
@@ -49,6 +51,7 @@ namespace OnlineShopBack.Controllers
 
         //}
         #endregion
+
 
         //帳號相關------------------------------------------------------------------
 
@@ -125,6 +128,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetAcc")]
         public string GetAcc()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }      
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -164,6 +173,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("IdGetAcc")]
         public string IdGetAccount([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -205,6 +220,12 @@ namespace OnlineShopBack.Controllers
         [HttpPost("AddAcc")]
         public string AddAcc([FromBody] AccountDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             //後端驗證
             //如字串字數特殊字元驗證
 
@@ -345,6 +366,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutAcc")]
         public string PutAcc([FromQuery] int id, [FromBody] AccountDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -412,6 +439,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutPwd")]
         public string PutPwd([FromBody] PutPwdDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -496,6 +529,12 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("DelAcc")]
         public string DelAcc([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -603,6 +642,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetAccLvList")]
         public string GetAccLvList()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -642,6 +687,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("IdGetAccLV")]
         public string IdGetAccLV([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             if (id > 255 || id < 0)
@@ -702,6 +753,11 @@ namespace OnlineShopBack.Controllers
         [HttpPost("AddAccLv")]
         public string AddAccLv([FromBody] AccountLevelDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
             //資料驗證
@@ -805,6 +861,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutAccLv")]
         public string PutAccLv([FromQuery] int id, [FromBody] AccountLevelDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -903,6 +965,12 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("DelAccLv")]
         public string DelAccLv([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -970,7 +1038,23 @@ namespace OnlineShopBack.Controllers
             }
         }
 
+        //登入&權限檢查
+        private bool loginValidate()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                return false;
+            }else if (!HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
+    
 
 }
 

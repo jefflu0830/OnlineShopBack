@@ -13,7 +13,7 @@
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account") ))
+                @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")))
                     {
                         <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                             <ul class="navbar-nav flex-grow-1">
@@ -38,7 +38,7 @@
                                     <label class="nav-link text-dark">登入者: @Accessor.HttpContext.Session.GetString("Account") </label>
                                 </li>
                                 <li class="nav-item">
-                                    <label class="nav-link text-dark">職位: @Accessor.HttpContext.Session.Id </label>
+                                    <label class="nav-link text-dark">職位: @Accessor.HttpContext.Session.GetString("AccPosition") </label>
                                 </li>
                             </ul>
                         </div>

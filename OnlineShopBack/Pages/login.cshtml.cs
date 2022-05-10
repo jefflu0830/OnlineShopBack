@@ -23,11 +23,11 @@ namespace OnlineShopBack.Pages
         public void OnGet()
         {
 
-            if (HttpContext.Session.GetString("Account") != null ||
-               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                Response.Redirect("/index");
-            }
+            //if (HttpContext.Session.GetString("Account") != null ||
+            //   !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            //{
+            //    Response.Redirect("/index");
+            //}
 
         }
     }

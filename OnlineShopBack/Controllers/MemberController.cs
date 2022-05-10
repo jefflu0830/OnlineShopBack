@@ -7,6 +7,7 @@ using System;
 using System.Data;
 using OnlineShopBack.Tool;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace OnlineShopBack.Controllers
 {
@@ -79,6 +80,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetMember")]
         public string GetMember()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -106,6 +113,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetMemberByAcc")]
         public string GetMemberByAcc([FromQuery] string acc)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -147,6 +160,12 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("DelMember")]
         public string DelMember([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -202,6 +221,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutMember")]
         public string PutMember([FromQuery] int id, [FromBody] MemberDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -277,6 +302,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutShopGold")]
         public string PutShopGold([FromBody] PutShopGlodDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccErrorStr = "";//記錄錯誤訊息
 
 
@@ -410,6 +441,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetMemLvList")]
         public string GetMemLvList()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -449,6 +486,11 @@ namespace OnlineShopBack.Controllers
         [HttpPost("AddMemLv")]
         public string AddMemLv([FromBody] MemLvDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
 
             string addMemLvErrorStr = "";//記錄錯誤訊息
             //資料驗證
@@ -544,6 +586,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutMemLv")]
         public string PutMemLv([FromQuery] int MemLv, [FromBody] MemLvDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -627,6 +675,12 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("DelMemLv")]
         public string DelMemLv([FromQuery] int memLv)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -730,6 +784,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetSuspensionList")]
         public string GetSuspensionList()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -769,6 +829,11 @@ namespace OnlineShopBack.Controllers
         [HttpPost("AddSuspension")]
         public string AddSuspension([FromBody] suspensionDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
 
             string ErrorStr = "";//記錄錯誤訊息
             //資料驗證
@@ -864,6 +929,12 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("DelSuspension")]
         public string DelSuspension([FromQuery] int id)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string ErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -921,6 +992,12 @@ namespace OnlineShopBack.Controllers
         [HttpPut("PutSuspension")]
         public string PutSuspension([FromQuery] int id, [FromBody] suspensionDto value)
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "未登入or無使用權限";
+            }
+
             string addAccLVErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -998,6 +1075,23 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
+        }
+
+        //登入&權限檢查
+        private bool loginValidate()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                return false;
+            }
+            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
 

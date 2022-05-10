@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
@@ -7,6 +8,7 @@ namespace OnlineShopBack.Tool
 {
     public class MyTool
     {
+        
         //MD5 加密
         public static string PswToMD5(string pwd)
         {
@@ -56,6 +58,8 @@ namespace OnlineShopBack.Tool
 
             return reg1.IsMatch(str);
         }
+
+
 
     }
 }

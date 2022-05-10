@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace OnlineShopBack.Pages.Member
@@ -11,6 +7,16 @@ namespace OnlineShopBack.Pages.Member
     {
         public void OnGet()
         {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            {
+                Response.Redirect("/index");
+                return;
+            }
         }
     }
 }

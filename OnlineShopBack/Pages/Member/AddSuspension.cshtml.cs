@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace OnlineShopBack.Pages.Account
@@ -7,6 +7,16 @@ namespace OnlineShopBack.Pages.Account
     {
         public void OnGet()
         {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            {
+                Response.Redirect("/index");
+                return;
+            }
         }
     }
 }
