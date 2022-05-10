@@ -4,7 +4,7 @@ using OnlineShopBack.Tool;
 
 namespace OnlineShopBack.Pages
 {
-    public class BackPageModel : PageModel
+    public class BackPageModel : BasePage
     {
         public string Roles;
 
@@ -15,7 +15,7 @@ namespace OnlineShopBack.Pages
             //if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
             //    SessionDB.sessionDB[HttpContext.Session.GetString("Account")] != HttpContext.Session.Id)
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||
-                    SessionDB.SessionId != HttpContext.Session.Id)
+                SessionDB.SessionId != HttpContext.Session.Id)
             {
                 Response.Redirect("/Login");
                 return;

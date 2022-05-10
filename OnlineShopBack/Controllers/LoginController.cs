@@ -157,14 +157,12 @@ namespace OnlineShopBack.Controllers
                             dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
                         {
                             cmd.Parameters.Clear();
-                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc ";
+                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
+                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
                             cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
                             cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                            cmd.ExecuteScalar();
 
-                            SessionDB.SessionId = dt.Rows[0]["f_sessionId"].ToString();
-
-
+                            SessionDB.SessionId = cmd.ExecuteScalar().ToString();
 
                             return "重複登入";  //重複登入
                         }
