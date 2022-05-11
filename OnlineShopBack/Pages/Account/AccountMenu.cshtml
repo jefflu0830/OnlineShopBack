@@ -15,22 +15,22 @@
 
 <div class="panel panel-primary">
     <div class="panel-body">
-            <table class="table table-bordered" id="Table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>帳號</th>
-                        <th>權限</th>
-                        <th>創建時間</th>
-                    </tr>
-                </thead>
-                <tbody id="TableBody">
-                </tbody>
-            </table>
-        </div>
+        <table class="table table-bordered" id="Table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>帳號</th>
+                    <th>權限</th>
+                    <th>創建時間</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">    
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <form id="Editform" method="post" action="">
     </form>
 </div>
@@ -43,3 +43,4 @@
     var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
     $("#getSelect").remove();
 </script>
+

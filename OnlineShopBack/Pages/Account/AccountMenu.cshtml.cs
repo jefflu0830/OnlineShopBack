@@ -16,7 +16,18 @@ namespace OnlineShopBack.Pages.Account
         public string AccPosition;
         public void OnGet()
         {
-            AccountValidate();
+            //驗證登入
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            //驗證腳色
+            if (!RolesValidate())
+            {
+                Response.Redirect("/index");
+                return;
+            }
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
@@ -25,7 +36,7 @@ namespace OnlineShopBack.Pages.Account
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"SELECT * FROM T_accountLevel "; 
+            cmd.CommandText = @"SELECT * FROM T_accountLevel ";
 
             //開啟連線
             cmd.Connection.Open();
@@ -41,7 +52,7 @@ namespace OnlineShopBack.Pages.Account
                 AccPosition += dt.Rows[i][1] + "/";
             }
 
-            
+
         }
     }
 }

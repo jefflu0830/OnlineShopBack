@@ -21,6 +21,7 @@
 </div>
 <script src="./js/index.js"></script>
 
-<script>
-
-</script>
+@if (TempData["message"] != null)
+{
+    <script>alert('@Html.Raw(TempData["message"])');</script>
+}

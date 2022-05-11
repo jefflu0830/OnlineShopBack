@@ -7,6 +7,7 @@ using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 
@@ -137,18 +138,6 @@ namespace OnlineShopBack.Controllers
                         HttpContext.Session.SetString("Roles", Roles);
 
 
-                        //if (SessionDB.sessionDB.ContainsKey(value.Account) &&
-                        //    SessionDB.sessionDB[value.Account] != HttpContext.Session.Id)
-                        //{
-                        //    SessionDB.sessionDB.Remove(value.Account);
-                        //    SessionDB.sessionDB.Add(value.Account, HttpContext.Session.Id);
-                        //    return "有使用者正在使用此帳號";
-                        //}
-                        //else
-                        //{
-                        //    SessionDB.sessionDB.Add(value.Account, HttpContext.Session.Id);
-                        //    return "loginOK";  //登入OK
-                        //}
 
 
                         
@@ -162,11 +151,14 @@ namespace OnlineShopBack.Controllers
                             cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
                             cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
+                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                            SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
+                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
 
 
-                            SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
-                            SessionDB.sessionDB.Add(HttpContext.Session.GetString("Account"), cmd.ExecuteScalar().ToString());
-                            //= cmd.ExecuteScalar().ToString();
+                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                            SessionInfo,
+                                                           (key, oldValue) => oldValue=SessionInfo);
 
                             return "重複登入";  //重複登入
                         }
@@ -178,9 +170,14 @@ namespace OnlineShopBack.Controllers
                                                 SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
                             cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
                             cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                            //cmd.ExecuteScalar();
 
-                            SessionDB.sessionDB.Add(HttpContext.Session.GetString("Account"), cmd.ExecuteScalar().ToString());
+                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                            SessionInfo.SId = cmd.ExecuteScalar().ToString(); //updata完後的sessionId
+                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
+
+                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                            SessionInfo,
+                                                           (key, oldValue) => oldValue= SessionInfo);
 
                             return "loginOK";  //登入OK
                         }
@@ -238,6 +235,13 @@ namespace OnlineShopBack.Controllers
         [HttpDelete("Logout")]
         public void logout()
         {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return;
+            }
+           
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -247,7 +251,7 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //清空sessionId
+                //清空DB的sessionId
                 cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = '' WHERE f_acc = @f_acc ";
                 cmd.Parameters.AddWithValue("@f_acc", HttpContext.Session.GetString("Account"));
                 //開啟連線
@@ -255,25 +259,38 @@ namespace OnlineShopBack.Controllers
                 cmd.ExecuteScalar();
             }
             finally
-            {
-                
+            {                
                 if (cmd != null)
                 {
                     cmd.Connection.Close();
                     cmd.Parameters.Clear();
-
                 }
             }
 
+            //清空Dictionary & Session[Account]中的值
             //SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
-            SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
-            HttpContext.Session.Remove("Account");
+            HttpContext.Session.Clear();
 
         }
         [HttpGet("NoLogin")]
         public string noLogin()
         {
             return "未登入";
+        }
+
+
+        private bool loginValidate()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)       //判斷是否過期
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
     }

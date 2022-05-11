@@ -83,7 +83,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             SqlCommand cmd = null;
@@ -116,43 +120,49 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
             }
-
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-
-            try
+            else if (RolesValidate())
             {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @Acc";
-
-                cmd.Parameters.AddWithValue("@Acc", acc);
-
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-
-                //關閉連線
-                cmd.Connection.Close();
-
-                //DataTable轉Json;
-                var result = Tool.MyTool.DataTableJson(dt);
-
-                return result;
+                return "無使用權限";
             }
-            catch (Exception e)
+            else
             {
-                return e.Message;
-            }
-            finally
-            {
-                cmd.Connection.Close();
+                SqlCommand cmd = null;
+                DataTable dt = new DataTable();
+                SqlDataAdapter da = new SqlDataAdapter();
 
+                try
+                {
+                    // 資料庫連線&SQL指令
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(SQLConnectionString);
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @Acc";
+
+                    cmd.Parameters.AddWithValue("@Acc", acc);
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    da.SelectCommand = cmd;
+                    da.Fill(dt);
+
+                    //關閉連線
+                    cmd.Connection.Close();
+
+                    //DataTable轉Json;
+                    var result = Tool.MyTool.DataTableJson(dt);
+
+                    return result;
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
+                finally
+                {
+                    cmd.Connection.Close();
+
+                }
             }
         }
 
@@ -163,7 +173,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
@@ -224,7 +238,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccErrorStr = "";//記錄錯誤訊息
@@ -305,7 +323,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccErrorStr = "";//記錄錯誤訊息
@@ -338,7 +360,7 @@ namespace OnlineShopBack.Controllers
             }
 
             //購物金資料驗證
-            if (PutShopGold > 20000 || PutShopGold<0)
+            if (PutShopGold > 20000 || PutShopGold < 0)
             {
                 addAccErrorStr += "調整後不得小於0 or 大於20000";
             }
@@ -444,7 +466,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             SqlCommand cmd = null;
@@ -489,7 +515,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addMemLvErrorStr = "";//記錄錯誤訊息
@@ -589,7 +619,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
@@ -678,7 +712,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
@@ -787,7 +825,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             SqlCommand cmd = null;
@@ -832,7 +874,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string ErrorStr = "";//記錄錯誤訊息
@@ -932,7 +978,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string ErrorStr = "";//記錄錯誤訊息
@@ -995,7 +1045,11 @@ namespace OnlineShopBack.Controllers
             //登入&身分檢查
             if (!loginValidate())
             {
-                return "未登入or無使用權限";
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
             }
 
             string addAccLVErrorStr = "";//記錄錯誤訊息
@@ -1077,14 +1131,12 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        //登入&權限檢查
+        //登入檢查
         private bool loginValidate()
         {
-            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
-            {
-                return false;
-            }
-            else if (!HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)       //判斷是否過期
             {
                 return false;
             }
@@ -1093,6 +1145,21 @@ namespace OnlineShopBack.Controllers
                 return true;
             }
         }
+        //權限檢查
+        private bool RolesValidate()
+        {
+
+            if (HttpContext.Session.GetString("Roles").Contains("canUseMember"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+
 
 
     }

@@ -74,7 +74,8 @@
 
                     if (result == "狀態新增成功") {
                         location.reload(); //新增成功才更新頁面
-
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {
@@ -123,6 +124,8 @@
 
                     if (result == "刪除成功") {
                         location.reload(); //刪除成功才更新頁面
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {
@@ -177,6 +180,8 @@ function Edit_Click(suspensionLv) {
 
                 if (result == "狀態更新成功") {
                     location.reload(); //新增成功才更新頁面
+                } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    location.reload();
                 }
             },
             error: function (error) {

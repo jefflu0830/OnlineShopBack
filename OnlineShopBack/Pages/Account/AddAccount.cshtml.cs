@@ -16,7 +16,19 @@ namespace OnlineShopBack.Pages.Account
 
         public void OnGet()
         {
-            AccountValidate();
+            //òž×CµÇÈë
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            //òž×CÄ_É«
+            if (!RolesValidate())
+            {
+                Response.Redirect("/index");
+                return;
+            }
+
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();

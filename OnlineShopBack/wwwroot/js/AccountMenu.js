@@ -107,6 +107,8 @@
 
                     if (result == "帳號刪除成功") {
                         location.reload(); //刪除成功才更新頁面
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {
@@ -166,8 +168,10 @@ function EditPwd_Click(Id) {
                 success: function (result) {
                     alert(result)
 
-                    if (result == "密碼修改成功") {
+                    if (result === "密碼修改成功") {
                         location.reload(); //新增成功才更新頁面
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {
@@ -190,8 +194,10 @@ function EditAcc_Click(Id) {
         success: function (result) {
             alert(result)
 
-            if (result == "帳號更新成功") {
+            if (result === "帳號更新成功") {
                 location.reload(); //新增成功才更新頁面
+            } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                location.reload();
             }
         },
         error: function (error) {

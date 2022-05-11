@@ -54,6 +54,8 @@
 
                     if (result == "會員刪除成功") {
                         location.reload(); //刪除成功才更新頁面
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {
@@ -149,6 +151,8 @@ function EditMem_Click(Id) {
 
             if (result == "更新成功") {
                 location.reload(); //新增成功才更新頁面
+            } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                location.reload();
             }
         },
         error: function (error) {

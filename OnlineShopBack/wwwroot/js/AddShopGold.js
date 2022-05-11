@@ -39,7 +39,7 @@
 
                 failure: function (data) {
                 },
-                error: function (data) {                    
+                error: function (data) {   
                     $("#CfmAcc").html("")
                     $("#CfmName").html("")
                     $("#CfmEmail").html("")
@@ -68,6 +68,8 @@
 
                     if (result == "更新成功") {
                         location.reload(); //新增成功才更新頁面
+                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        location.reload();
                     }
                 },
                 error: function (error) {

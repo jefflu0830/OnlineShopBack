@@ -17,7 +17,19 @@ namespace OnlineShopBack.Pages.Member
         public string SuspensionName;
         public void OnGet()
         {
-            MemberValidate();
+            //òž×CµÇÈë
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            //òž×CÄ_É«
+            if (!RolesValidate())
+            {
+                Response.Redirect("/index");
+                return;
+            }
+
 
             SqlCommand cmd = null;
             DataSet ds = new DataSet();

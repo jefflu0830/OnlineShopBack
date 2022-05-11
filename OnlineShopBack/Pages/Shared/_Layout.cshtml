@@ -13,7 +13,8 @@
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")))
+                @{ if (!string.IsNullOrWhiteSpace(Accessor.HttpContext.Session.GetString("Account")) &&
+                        SessionDB.sessionDB[Accessor.HttpContext.Session.GetString("Account")].SId == Accessor.HttpContext.Session.Id)
                     {
                         <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                             <ul class="navbar-nav flex-grow-1">

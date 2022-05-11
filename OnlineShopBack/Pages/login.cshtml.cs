@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using OnlineShopBack.Tool;
 
 namespace OnlineShopBack.Pages
 {
@@ -16,9 +17,9 @@ namespace OnlineShopBack.Pages
 
         public void OnGet()
         {
-
-            if (HttpContext.Session.GetString("Account") != null ||
-               !string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")))
+            
+            if (!string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) &&
+                SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId == HttpContext.Session.Id)
             {
                 Response.Redirect("/index");
             }

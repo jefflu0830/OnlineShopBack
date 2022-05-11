@@ -10,7 +10,6 @@
 <script src="./lib/jquery-validation/dist/additional-methods.min.js"></script>
 <link rel="stylesheet" href="~/css/index.css" />
 
-
 <h5>帳號登入</h5>
 <div id="body" style="padding: 10px;">
     <form id="form" method="post" action="">
@@ -30,4 +29,8 @@
 
 <script src="./js/login.js"></script>
 
+@if (TempData["message"] != null)
+{
+    <script>alert('@Html.Raw(TempData["message"])');</script>
+}
 
