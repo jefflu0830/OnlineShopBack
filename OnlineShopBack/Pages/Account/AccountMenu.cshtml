@@ -12,16 +12,17 @@
     <button id="AddAccountLevel">新增權限</button>
 
 </div>
-
+搜尋：
+<input type="search" class="light-table-filter" data-table="order-table" placeholder="請輸入關鍵字">
 <div class="panel panel-primary">
     <div class="panel-body">
-        <table class="table table-bordered" id="Table">
+        <table class="table table-bordered order-table" id="Table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>帳號</th>
-                    <th>權限</th>
-                    <th>創建時間</th>
+                    <th id="a">ID</th>
+                    <th id="b">帳號</th>
+                    <th id="c">權限</thid="d">
+                    <th id="d">創建時間</th>
                 </tr>
             </thead>
             <tbody id="TableBody">
@@ -29,6 +30,79 @@
         </table>
     </div>
 </div>
+
+<script>
+    $(document).on('click', 'th', function () {
+        var table = $(this).parents('table').eq(0);
+        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+        this.asc = !this.asc;
+        if (!this.asc) {
+            rows = rows.reverse();
+        }
+        table.children('tbody').empty().html(rows);
+    });
+
+    function comparer(index) {
+        return function (a, b) {
+            var valA = getCellValue(a, index),
+                valB = getCellValue(b, index);
+            return $.isNumeric(valA) && $.isNumeric(valB) ?
+                valA - valB : valA.localeCompare(valB);
+        };
+    }
+
+    function getCellValue(row, index) {
+        return $(row).children('td').eq(index).text();
+    }
+</script>
+
+
+@*<script>
+    (function (document) {
+        'use strict';
+
+        // 建立 LightTableFilter
+        var LightTableFilter = (function (Arr) {
+
+            var _input;
+
+            // 資料輸入事件處理函數
+            function _onInputEvent(e) {
+                _input = e.target;
+                var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
+                Arr.forEach.call(tables, function (table) {
+                    Arr.forEach.call(table.tBodies, function (tbody) {
+                        Arr.forEach.call(tbody.rows, _filter);
+                    });
+                });
+            }
+
+            // 資料篩選函數，顯示包含關鍵字的列，其餘隱藏
+            function _filter(row) {
+                var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
+                row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+            }
+
+            return {
+                // 初始化函數
+                init: function () {
+                    var inputs = document.getElementsByClassName('light-table-filter');
+                    Arr.forEach.call(inputs, function (input) {
+                        input.oninput = _onInputEvent;
+                    });
+                }
+            };
+        })(Array.prototype);
+
+        // 網頁載入完成後，啟動 LightTableFilter
+        document.addEventListener('readystatechange', function () {
+            if (document.readyState === 'complete') {
+                LightTableFilter.init();
+            }
+        });
+
+    })(document);
+</script>*@
 
 <div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <form id="Editform" method="post" action="">

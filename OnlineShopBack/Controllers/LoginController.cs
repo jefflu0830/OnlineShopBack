@@ -232,6 +232,8 @@ namespace OnlineShopBack.Controllers
 
         }
 
+
+        //登出
         [HttpDelete("Logout")]
         public void logout()
         {
@@ -268,7 +270,8 @@ namespace OnlineShopBack.Controllers
             }
 
             //清空Dictionary & Session[Account]中的值
-            //SessionDB.sessionDB.Remove(HttpContext.Session.GetString("Account"));
+
+            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"),out _);
             HttpContext.Session.Clear();
 
         }
@@ -277,8 +280,6 @@ namespace OnlineShopBack.Controllers
         {
             return "未登入";
         }
-
-
         private bool loginValidate()
         {
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空
