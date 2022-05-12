@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
 
+
     //取得帳號列表
     $.ajax({
         type: "GET",
@@ -7,6 +8,8 @@
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            AccJson = data;
+
             for (var i in data) {
                 if (data[i].f_id == 0) {//預設帳號不可刪除
                     var rows = rows + "<tr>" +

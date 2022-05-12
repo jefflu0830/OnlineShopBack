@@ -12,17 +12,21 @@
     <button id="AddAccountLevel">新增權限</button>
 
 </div>
-搜尋：
-<input type="search" class="light-table-filter" data-table="order-table" placeholder="請輸入關鍵字">
+<div>
+    @*搜尋：
+        <input id="Search" type="search" class="light-table-filter" data-table="order-table" placeholder="請輸入關鍵字">*@
+    搜尋：
+    <input id="Search" onkeyup="AccListSerch(this.value)"> 
+</div>
 <div class="panel panel-primary">
     <div class="panel-body">
         <table class="table table-bordered order-table" id="Table">
             <thead>
-                <tr>
-                    <th id="a">ID</th>
-                    <th id="b">帳號</th>
-                    <th id="c">權限</thid="d">
-                    <th id="d">創建時間</th>
+                <tr class="Tbheader" id="Tbheader">
+                    <th id="f_id">ID</th>
+                    <th id="f_acc">帳號</th>
+                    <th id="f_accPosition">權限</th>
+                    <th id="f_createDate">創建時間</th>
                 </tr>
             </thead>
             <tbody id="TableBody">
@@ -32,77 +36,151 @@
 </div>
 
 <script>
+
     $(document).on('click', 'th', function () {
-        var table = $(this).parents('table').eq(0);
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
-        this.asc = !this.asc;
-        if (!this.asc) {
-            rows = rows.reverse();
+        //var table = $(this).parents('table').eq(0);
+        var sortKey = event.target.id; //記錄所點選 th的 Id
+        this.Reverse = !this.Reverse
+
+        
+        if (sortKey === "f_id") {  //判斷如果為 f_id 則用數字排序
+            if (!this.Reverse) {
+                AccJson.sort(function (a, b) {
+                    return a[sortKey] - b[sortKey]
+                })
+            } else {
+                AccJson.sort(function (a, b) {
+                    return a[sortKey] - b[sortKey]
+                })
+                AccJson.reverse();
+            }
+        } else {  //字串排序
+
+            if (!this.Reverse) {
+                AccJson.sort(function (a, b) {
+                    //if (a[sortKey] > b[sortKey])
+                    //    return -1
+                    return a[sortKey].localeCompare(b[sortKey], "zh-hant");
+                })
+            }
+            else {
+                AccJson.sort(function (a, b) {
+                    //if (a[sortKey] < b[sortKey])
+                    //    return -1
+                    return a[sortKey].localeCompare(b[sortKey], "zh-hant");
+                })
+                AccJson.reverse();
+            }
         }
-        table.children('tbody').empty().html(rows);
+
+        //拿排好的 Json資料組html標籤
+        for (var i in AccJson) {
+            if (AccJson[i].f_id == 0) {//預設帳號不可刪除
+                var rows = rows + "<tr>" +
+                    "<td name='fid' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_id + "</td>" +
+                    "<td name='facc' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_acc + "</td>" +
+                    "<td name='faccPosition' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_createDate + "</td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "</tr>";
+            }
+            else {
+                var rows = rows + "<tr>" +
+                    "<td name='fid'>" + AccJson[i].f_id + "</td>" +
+                    "<td name='facc'>" + AccJson[i].f_acc + "</td>" +
+                    "<td name='faccPosition' >" + AccJson[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate'>" + AccJson[i].f_createDate + "</td>" +
+                    "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ ></td>" +
+                    "<td align='center'> <input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>" +
+                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
+                    "</tr>";
+            }
+        }
+
+        //將組好的html標籤 , 更新到 table下的tbody標籤
+        $("#TableBody").empty().html(rows);
     });
-
-    function comparer(index) {
-        return function (a, b) {
-            var valA = getCellValue(a, index),
-                valB = getCellValue(b, index);
-            return $.isNumeric(valA) && $.isNumeric(valB) ?
-                valA - valB : valA.localeCompare(valB);
-        };
-    }
-
-    function getCellValue(row, index) {
-        return $(row).children('td').eq(index).text();
+</script>
+<script>
+    function AccListSerch(aa) {
     }
 </script>
 
 
 @*<script>
-    (function (document) {
-        'use strict';
-
-        // 建立 LightTableFilter
-        var LightTableFilter = (function (Arr) {
-
-            var _input;
-
-            // 資料輸入事件處理函數
-            function _onInputEvent(e) {
-                _input = e.target;
-                var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
-                Arr.forEach.call(tables, function (table) {
-                    Arr.forEach.call(table.tBodies, function (tbody) {
-                        Arr.forEach.call(tbody.rows, _filter);
-                    });
-                });
+        $(document).on('click', 'th', function () {
+            var table = $(this).parents('table').eq(0);
+            var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+            this.asc = !this.asc;
+            if (!this.asc) {
+                rows = rows.reverse();
             }
-
-            // 資料篩選函數，顯示包含關鍵字的列，其餘隱藏
-            function _filter(row) {
-                var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
-                row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
-            }
-
-            return {
-                // 初始化函數
-                init: function () {
-                    var inputs = document.getElementsByClassName('light-table-filter');
-                    Arr.forEach.call(inputs, function (input) {
-                        input.oninput = _onInputEvent;
-                    });
-                }
-            };
-        })(Array.prototype);
-
-        // 網頁載入完成後，啟動 LightTableFilter
-        document.addEventListener('readystatechange', function () {
-            if (document.readyState === 'complete') {
-                LightTableFilter.init();
-            }
+            table.children('tbody').empty().html(rows);
         });
 
-    })(document);
-</script>*@
+        function comparer(index) {
+            return function (a, b) {
+                var valA = getCellValue(a, index),
+                    valB = getCellValue(b, index);
+                return $.isNumeric(valA) && $.isNumeric(valB) ?
+                    valA - valB : valA.localeCompare(valB);
+            };
+        }
+
+        function getCellValue(row, index) {
+            return $(row).children('td').eq(index).text();
+        }
+    </script>*@
+
+
+@*<script>
+        (function (document) {
+            'use strict';
+
+            // 建立 LightTableFilter
+            var LightTableFilter = (function (Arr) {
+
+                var _input;
+
+                // 資料輸入事件處理函數
+                function _onInputEvent(e) {
+                    _input = e.target;
+                    var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
+                    Arr.forEach.call(tables, function (table) {
+                        Arr.forEach.call(table.tBodies, function (tbody) {
+                            Arr.forEach.call(tbody.rows, _filter);
+                        });
+                    });
+                }
+
+                // 資料篩選函數，顯示包含關鍵字的列，其餘隱藏
+                function _filter(row) {
+                    var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
+                    row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+                }
+
+                return {
+                    // 初始化函數
+                    init: function () {
+                        var inputs = document.getElementsByClassName('light-table-filter');
+                        Arr.forEach.call(inputs, function (input) {
+                            input.oninput = _onInputEvent;
+                        });
+                    }
+                };
+            })(Array.prototype);
+
+            // 網頁載入完成後，啟動 LightTableFilter
+            document.addEventListener('readystatechange', function () {
+                if (document.readyState === 'complete') {
+                    LightTableFilter.init();
+                }
+            });
+
+        })(document);
+    </script>*@
 
 <div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
     <form id="Editform" method="post" action="">
@@ -116,5 +194,7 @@
     var accLevel = "@Html.Raw(Model.AccLevel)".split('/');
     var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
     $("#getSelect").remove();
+
+    var AccJson = ""
 </script>
 

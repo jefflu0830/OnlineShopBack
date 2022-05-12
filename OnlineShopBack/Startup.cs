@@ -33,19 +33,6 @@ namespace OnlineShopBack
             services.AddDbContext<OnlineShopContext>(options =>
                                                      options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
 
-
-            ////Cookie 驗證
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(option =>
-            {
-                //未登入時會自動導到這個網址
-                option.LoginPath = new PathString("/login");
-                //沒有權限時會自動導到這個網址
-                option.AccessDeniedPath = new PathString("/index");
-                //設定時間失效
-                //option.ExpireTimeSpan = TimeSpan.FromHours(5);
-                option.ExpireTimeSpan = TimeSpan.FromSeconds(3000);
-            });
-
             services.AddAuthentication();
 
             //session設定

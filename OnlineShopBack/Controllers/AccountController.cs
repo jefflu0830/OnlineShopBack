@@ -124,7 +124,7 @@ namespace OnlineShopBack.Controllers
 
         #endregion
 
-        //Select帳號資料Left join權限資料
+        //帳號資料left join權限資料
         [HttpGet("GetAcc")]
         public string GetAcc()
         {
