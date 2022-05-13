@@ -9,7 +9,12 @@ namespace OnlineShopBack.Tool
 
         //public static Dictionary<string, string> sessionDB = new Dictionary<string, string>();        
 
-        //public static Dictionary<string, SessionInfo> sessionDB = new Dictionary<string, SessionInfo>();  //Modi@ String -> SessionInfo
+        public static Dictionary<string, SessionInfo> sessionDB01 = new Dictionary<string, SessionInfo>();  //Modi@ String -> SessionInfo
+
+
+
+
+
 
         public static ConcurrentDictionary<string, SessionInfo> sessionDB = new ConcurrentDictionary<string, SessionInfo>();//Modi@ Dictionary -> ConcurrentDictionary
 
@@ -19,5 +24,9 @@ namespace OnlineShopBack.Tool
 
             public DateTime ValidTime{ get; set; } = DateTime.Now.AddMinutes(30);
         }
+
+
+
+        
     }
 }

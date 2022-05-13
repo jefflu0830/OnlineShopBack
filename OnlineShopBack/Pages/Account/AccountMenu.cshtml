@@ -12,11 +12,30 @@
     <button id="AddAccountLevel">新增權限</button>
 
 </div>
-<div>
+<div style="margin:15px">
     @*搜尋：
         <input id="Search" type="search" class="light-table-filter" data-table="order-table" placeholder="請輸入關鍵字">*@
     搜尋：
-    <input id="Search" onkeyup="AccListSerch(this.value)"> 
+    <input id="Search" oninput="AccListSerch()">
+    <select id="SearchClass" onchange="AccListSerch()">
+        <option value="0">Id</option>
+        <option value="1">帳號</option>
+        <option value="2">權限</option>
+        <option value="3">創建時間</option>
+    </select>
+</div>
+<div style="margin:15px">
+    排序:
+    <select id="OrderClass" onchange="AccListOrder(this.value)">
+        <option value="0">Id(小->大)</option>
+        <option value="1">Id(大->小)</option>
+        <option value="2">帳號(小->大)</option>
+        <option value="3">帳號(大->小)</option>
+        <option value="4">權限(小->大)</option>
+        <option value="5">權限(大->小)</option>
+        <option value="6">創建時間(小->大)</option>
+        <option value="7">創建時間(大->小)</option>
+    </select>
 </div>
 <div class="panel panel-primary">
     <div class="panel-body">
@@ -34,80 +53,6 @@
         </table>
     </div>
 </div>
-
-<script>
-
-    $(document).on('click', 'th', function () {
-        //var table = $(this).parents('table').eq(0);
-        var sortKey = event.target.id; //記錄所點選 th的 Id
-        this.Reverse = !this.Reverse
-
-        
-        if (sortKey === "f_id") {  //判斷如果為 f_id 則用數字排序
-            if (!this.Reverse) {
-                AccJson.sort(function (a, b) {
-                    return a[sortKey] - b[sortKey]
-                })
-            } else {
-                AccJson.sort(function (a, b) {
-                    return a[sortKey] - b[sortKey]
-                })
-                AccJson.reverse();
-            }
-        } else {  //字串排序
-
-            if (!this.Reverse) {
-                AccJson.sort(function (a, b) {
-                    //if (a[sortKey] > b[sortKey])
-                    //    return -1
-                    return a[sortKey].localeCompare(b[sortKey], "zh-hant");
-                })
-            }
-            else {
-                AccJson.sort(function (a, b) {
-                    //if (a[sortKey] < b[sortKey])
-                    //    return -1
-                    return a[sortKey].localeCompare(b[sortKey], "zh-hant");
-                })
-                AccJson.reverse();
-            }
-        }
-
-        //拿排好的 Json資料組html標籤
-        for (var i in AccJson) {
-            if (AccJson[i].f_id == 0) {//預設帳號不可刪除
-                var rows = rows + "<tr>" +
-                    "<td name='fid' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_id + "</td>" +
-                    "<td name='facc' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_acc + "</td>" +
-                    "<td name='faccPosition' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_accPosition + "</td>" +
-                    "<td name='fcreateDate' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_createDate + "</td>" +
-                    "<td align='center'></td>" +
-                    "<td align='center'></td>" +
-                    "<td align='center'></td>" +
-                    "</tr>";
-            }
-            else {
-                var rows = rows + "<tr>" +
-                    "<td name='fid'>" + AccJson[i].f_id + "</td>" +
-                    "<td name='facc'>" + AccJson[i].f_acc + "</td>" +
-                    "<td name='faccPosition' >" + AccJson[i].f_accPosition + "</td>" +
-                    "<td name='fcreateDate'>" + AccJson[i].f_createDate + "</td>" +
-                    "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ ></td>" +
-                    "<td align='center'> <input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>" +
-                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
-                    "</tr>";
-            }
-        }
-
-        //將組好的html標籤 , 更新到 table下的tbody標籤
-        $("#TableBody").empty().html(rows);
-    });
-</script>
-<script>
-    function AccListSerch(aa) {
-    }
-</script>
-
 
 @*<script>
         $(document).on('click', 'th', function () {
@@ -132,7 +77,7 @@
         function getCellValue(row, index) {
             return $(row).children('td').eq(index).text();
         }
-    </script>*@
+</script>*@
 
 
 @*<script>

@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-
+    var tempTable = AccJson;
 
     //取得帳號列表
     $.ajax({
@@ -213,5 +213,269 @@ function EditCancel_Click() {
     if ($("#EditBox").css("display") !== "none") {
         $("#EditBox").hide();
         $("#Editform > div,#Editform >h5").remove();
+    }
+}
+//排序下拉選單
+function AccListOrder(OrderClass) {
+    //id
+    if (OrderClass == "0") {
+        tempTable.sort(function (a, b) {
+            return a["f_id"] - b["f_id"]  //升序
+        })
+
+    } else if (OrderClass == "1") {
+        tempTable.sort(function (a, b) {
+            return b["f_id"] - a["f_id"]  //降序
+        })
+
+    }
+    //帳號
+    else if (OrderClass == "2") {
+        tempTable.sort(function (a, b) {
+            return a["f_acc"].localeCompare(b["f_acc"], "zh-hant"); //升序
+        })
+
+
+    } else if (OrderClass == "3") {
+        tempTable.sort(function (a, b) {
+            return a["f_acc"].localeCompare(b["f_acc"], "zh-hant");
+        })
+        tempTable.reverse();//降序
+
+    }
+    //權限
+    else if (OrderClass == "4") {
+        tempTable.sort(function (a, b) {
+            return a["f_accPosition"].localeCompare(b["f_accPosition"], "zh-hant"); //升序
+        })
+
+    } else if (OrderClass == "5") {
+        tempTable.sort(function (a, b) {
+            return a["f_accPosition"].localeCompare(b["f_accPosition"], "zh-hant");
+        })
+        tempTable.reverse();//降序
+    }
+    //日期
+    else if (OrderClass == "6") {
+        tempTable.sort(function (a, b) {
+            return a["f_createDate"].localeCompare(b["f_createDate"], "zh-hant"); //正序
+        })
+
+        //list.sort(function (a, b) {
+        //    return a.createTime - b.createTime 
+        //})
+
+    } else if (OrderClass == "7") {
+        tempTable.sort(function (a, b) {
+            return a["f_createDate"].localeCompare(b["f_createDate"], "zh-hant");
+        })
+        tempTable.reverse();//反序
+
+        //list.sort(function (a, b) {
+        //    return b.createTime - a.createTime
+        //})
+    }
+
+    //拿排好的 Json資料組html標籤
+    for (var i in tempTable) {
+        if (tempTable[i].f_id == 0) {//預設帳號不可刪除
+            var rows = rows + "<tr>" +
+                "<td name='fid' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_id + "</td>" +
+                "<td name='facc' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_acc + "</td>" +
+                "<td name='faccPosition' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_accPosition + "</td>" +
+                "<td name='fcreateDate' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_createDate + "</td>" +
+                "<td align='center'></td>" +
+                "<td align='center'></td>" +
+                "<td align='center'></td>" +
+                "</tr>";
+        }
+        else {
+            var rows = rows + "<tr>" +
+                "<td name='fid'>" + tempTable[i].f_id + "</td>" +
+                "<td name='facc'>" + tempTable[i].f_acc + "</td>" +
+                "<td name='faccPosition' >" + tempTable[i].f_accPosition + "</td>" +
+                "<td name='fcreateDate'>" + tempTable[i].f_createDate + "</td>" +
+                "<td align='center'> <input type='button' class='EditAccBtn' name='EditAccBtn' value='編輯帳號' /></td>" +
+                "<td align='center'> <input type='button' class='EditPwdBtn' name='EditPwdBtn' value='修改密碼' /></td>" +
+                "<td align='center'> <input type='button' class='DeleteBtn' name='DeleteBtn' value='刪除' /></td>" +
+                "</tr>";
+        }
+    }
+
+    //將組好的html標籤 , 更新到 table下的tbody標籤
+
+
+    $("#TableBody").empty().html(rows);
+}
+
+//點擊表頭排序
+$(document).on('click', 'th', function () {
+    //var table = $(this).parents('table').eq(0);
+    var sortKey = event.target.id; //記錄所點選 th的 Id
+    this.Reverse = !this.Reverse
+
+
+    if (sortKey === "f_id") {  //判斷如果為 f_id 則用數字排序
+        if (!this.Reverse) {
+            tempTable.sort(function (a, b) {
+                return a[sortKey] - b[sortKey]  //升序
+            })
+        } else {
+            tempTable.sort(function (a, b) {
+                return b[sortKey] - a[sortKey]  //降序
+            })
+        }
+    } else if (sortKey === "f_acc" || sortKey === "f_accPosition") {  //字串排序
+
+        if (!this.Reverse) {
+            tempTable.sort(function (a, b) {
+                return a[sortKey].localeCompare(b[sortKey], "zh-hant"); //升序
+            })
+        }
+        else {
+            tempTable.sort(function (a, b) {
+                return a[sortKey].localeCompare(b[sortKey], "zh-hant"); //降序
+            })
+            tempTable.reverse();
+        }
+    } else if (sortKey === "f_createDate") {  //日期排序
+        if (!this.Reverse) {
+            tempTable.sort(function (a, b) {
+                return tempTable.parse(a[sortKey]) - tempTable.parse(b[sortKey]);//升序
+            });
+        } else {
+            tempTable.sort(function (a, b) {
+                return tempTable.parse(b[sortKey]) - tempTable.parse(a[sortKey]);//降序
+            });
+        }
+    }
+
+    //拿排好的 Json資料組html標籤
+    for (var i in tempTable) {
+        if (tempTable[i].f_id == 0) {//預設帳號不可刪除
+            var rows = rows + "<tr>" +
+                "<td name='fid' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_id + "</td>" +
+                "<td name='facc' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_acc + "</td>" +
+                "<td name='faccPosition' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_accPosition + "</td>" +
+                "<td name='fcreateDate' id='" + tempTable[i].f_id + "'>" + tempTable[i].f_createDate + "</td>" +
+                "<td align='center'></td>" +
+                "<td align='center'></td>" +
+                "<td align='center'></td>" +
+                "</tr>";
+        }
+        else {
+            var rows = rows + "<tr>" +
+                "<td name='fid'>" + tempTable[i].f_id + "</td>" +
+                "<td name='facc'>" + tempTable[i].f_acc + "</td>" +
+                "<td name='faccPosition' >" + tempTable[i].f_accPosition + "</td>" +
+                "<td name='fcreateDate'>" + tempTable[i].f_createDate + "</td>" +
+                "<td align='center'> <input type='button' class='EditAccBtn' name='EditAccBtn' value='編輯帳號' /></td>" +
+                "<td align='center'> <input type='button' class='EditPwdBtn' name='EditPwdBtn' value='修改密碼' /></td>" +
+                "<td align='center'> <input type='button' class='DeleteBtn' name='DeleteBtn' value='刪除' /></td>" +
+                "</tr>";
+        }
+    }
+
+    //將組好的html標籤 , 更新到 table下的tbody標籤
+    $("#TableBody").empty().html(rows);
+});
+
+//搜尋
+function AccListSerch() {
+
+    serchvalue = $("#Search").val()
+
+    if (serchvalue === "") {
+        tempTable = AccJson;
+
+        //拿排好的 Json資料組html標籤
+        for (var i in AccJson) {
+            if (AccJson[i].f_id == 0) {//預設帳號不可刪除
+                var rows = rows + "<tr>" +
+                    "<td name='fid' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_id + "</td>" +
+                    "<td name='facc' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_acc + "</td>" +
+                    "<td name='faccPosition' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate' id='" + AccJson[i].f_id + "'>" + AccJson[i].f_createDate + "</td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "</tr>";
+            }
+            else {
+                var rows = rows + "<tr>" +
+                    "<td name='fid'>" + AccJson[i].f_id + "</td>" +
+                    "<td name='facc'>" + AccJson[i].f_acc + "</td>" +
+                    "<td name='faccPosition' >" + AccJson[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate'>" + AccJson[i].f_createDate + "</td>" +
+                    "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ ></td>" +
+                    "<td align='center'> <input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>" +
+                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
+                    "</tr>";
+            }
+        }
+        //將組好的html標籤 , 更新到 table下的tbody標籤
+        $("#TableBody").empty().html(rows);
+
+        AccListOrder($("#OrderClass").val)
+
+    } else {
+        if ($("#SearchClass").val() === "0") {//Id搜尋
+            tempTable = AccJson.filter((item) => {  //filter搜尋json
+                if (item["f_id"].indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
+                    return item      //大於等於0則 return item
+                }
+            })
+        } else if ($("#SearchClass").val() === "1") {//帳號搜尋
+            tempTable = AccJson.filter((item) => {
+                if (item["f_acc"].indexOf(serchvalue) >= 0) {
+                    return item
+                }
+            })
+        }
+        else if ($("#SearchClass").val() === "2") {//權限搜尋
+            tempTable = AccJson.filter((item) => {
+                if (item["f_accPosition"].indexOf(serchvalue) >= 0) {
+                    return item
+                }
+            })
+        }
+        else if ($("#SearchClass").val() === "3") {//時間搜尋
+            tempTable = AccJson.filter((item) => {
+                if (item["f_createDate"].indexOf(serchvalue) >= 0) {
+                    return item
+                }
+            })
+        }
+
+
+
+        for (var i in tempTable) {
+            if (tempTable[i].f_id == 0) {//預設帳號不可刪除
+                var rows = rows + "<tr>" +
+                    "<td name='fid'>" + tempTable[i].f_id + "</td>" +
+                    "<td name='facc'>" + tempTable[i].f_acc + "</td>" +
+                    "<td name='faccPosition'>" + tempTable[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate'>" + tempTable[i].f_createDate + "</td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "<td align='center'></td>" +
+                    "</tr>";
+            }
+            else {
+                var rows = rows + "<tr>" +
+                    "<td name='fid'>" + tempTable[i].f_id + "</td>" +
+                    "<td name='facc'>" + tempTable[i].f_acc + "</td>" +
+                    "<td name='faccPosition' >" + tempTable[i].f_accPosition + "</td>" +
+                    "<td name='fcreateDate'>" + tempTable[i].f_createDate + "</td>" +
+                    "<td align='center'> <input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ ></td>" +
+                    "<td align='center'> <input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>" +
+                    "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
+                    "</tr>";
+            }
+        }
+
+        //將組好的html標籤 , 更新到 table下的tbody標籤
+        $("#TableBody").empty().html(rows);
+
     }
 }

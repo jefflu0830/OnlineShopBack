@@ -141,6 +141,7 @@ namespace OnlineShopBack.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            DataSet ds = new DataSet();
             try
             {
                 // 資料庫連線&SQL指令
@@ -153,6 +154,10 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
                 da.Fill(dt);
+
+                da.Fill(ds);
+
+
             }
             catch (Exception e)
             {
@@ -167,6 +172,13 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+
+            for (var i = 0; i < dt.Rows.Count; i++)
+            {
+                dt.Rows[i]["f_createDate"] = string.Format("{0:yyyy-MM-dd HH:mm:ss}", dt.Rows[i]["f_createDate"]);   //重新格式化日期
+            }
+
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 
