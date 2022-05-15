@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    var tempTable = AccJson;
+    
 
     //取得帳號列表
     $.ajax({
@@ -217,6 +217,7 @@ function EditCancel_Click() {
 }
 //排序下拉選單
 function AccListOrder(OrderClass) {
+    var tempTable = AccJson;
     //id
     if (OrderClass == "0") {
         tempTable.sort(function (a, b) {
@@ -311,6 +312,7 @@ function AccListOrder(OrderClass) {
 //點擊表頭排序
 $(document).on('click', 'th', function () {
     //var table = $(this).parents('table').eq(0);
+    var tempTable = AccJson;
     var sortKey = event.target.id; //記錄所點選 th的 Id
     this.Reverse = !this.Reverse
 
