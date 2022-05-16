@@ -1,25 +1,20 @@
 ﻿@page
-@model OnlineShopBack.Pages.Account.AddSuspensionModel
+@model OnlineShopBack.Pages.Product.AddCategoryModel
 @{
-    ViewData["Title"] = "新增帳號權限";
+    ViewData["Title"] = "新增商品類別";
 }
-
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-@*JQuery 資料驗證*@
-<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-<script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
-
 
 <h5>新增會員狀態</h5>
 <div id="body" style="padding: 10px;">
     <form id="Addform" method="post" action="">
         <div>
-            <label>會員狀態編號:</label>
-            <input type="text" id="suspensionLevel" name="suspensionLevel" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
+            <label>商品類別編號:</label>
+            <input type="text" id="CategoryNum" name="CategoryNum" maxlength="20" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
-            <label for="LevelName">會員狀態名稱:</label>
-            <input type="text" id="suspensionName" name="suspensionName" maxlength="10" />
+            <label for="LevelName">商品類別名稱:</label>
+            <input type="text" id="CategoryName" name="CategoryName" maxlength="20" />
         </div>
         <div>
             <input id="post" type="button" value="ADD" />
@@ -32,8 +27,8 @@
         <table class="table table-bordered" id="Table">
             <thead>
                 <tr>
-                    <th>狀態編號</th>
-                    <th>狀態名稱</th>
+                    <th>類別編號</th>
+                    <th>類別名稱</th>
                 </tr>
             </thead>
             <tbody id="TableBody">
@@ -50,8 +45,8 @@
 </div>
 <div>
     <div>
-        <button id="GoMemMenu">上一頁</button>
+        <button id="NextPage">上一頁</button>
     </div>
 </div>
 
-<script src="~/js/Member/AddSuspension.js" ></script>
+<script src="~/js/Product/AddCategory.js" ></script>

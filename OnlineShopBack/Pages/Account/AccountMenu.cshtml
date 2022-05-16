@@ -18,10 +18,10 @@
     搜尋：
     <input id="Search" oninput="AccountMenufun.AccListSerch()">
     <select id="SearchClass" onchange="AccountMenufun.AccListSerch()">
-        <option value="0">Id</option>
-        <option value="1">帳號</option>
-        <option value="2">權限</option>
-        <option value="3">創建時間</option>
+        <option value="f_id">Id</option>
+        <option value="f_acc">帳號</option>
+        <option value="f_accPosition">權限</option>
+        <option value="f_createDate">創建時間</option>
     </select>
 </div>
 <div style="margin:15px">
@@ -58,14 +58,13 @@
     </form>
 </div>
 
-<script src="~/js/AccountMenu.js"></script>
+<script src="~/js/Account/AccountMenu.js"></script>
 
 <script id="getSelect">
     //取得權限下拉選單資料
     var accLevel = "@Html.Raw(Model.AccLevel)".split('/');
     var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
-    $("#getSelect").remove();
-
-    var AccJson = ""
+    var AccJson = "";
+    $("#getSelect").remove();    
 </script>
 

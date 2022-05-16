@@ -189,7 +189,6 @@ var AccountMenu = {
             }
         }
     },
-
     //確認編輯帳號
     EditAcc_Click = function (Id) {
         $.ajax({
@@ -221,6 +220,7 @@ var AccountMenu = {
             $("#Editform > div,#Editform >h5").remove();
         }
     },
+
     //排序下拉選單
     AccListOrder = function (OrderClass) {
         //id
@@ -324,6 +324,7 @@ var AccountMenu = {
         DrawAccountList(result);
     },
 
+
     SetEvent = function () {
         $("#Table > thead > th").click(function (e) {
             var sortKey = $(e.target).attr('id');
@@ -408,8 +409,6 @@ var AccountMenu = {
         });
     },
     //點擊表頭排序
-
-
     DrawAccountList = function (accArray) {
         var htmlText = '';
 

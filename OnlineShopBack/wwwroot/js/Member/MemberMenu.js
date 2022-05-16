@@ -3,17 +3,19 @@
     //取得會員列表
     $.ajax({
         type: "GET",
-        url: "/api/member/getmember",             
+        url: "/api/member/getmember",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             //$("#DIV").html('');
             //var DIV = '';
+            memJson = data;
+
             for (var i in data) {
-                var rows = rows + "<tr id='istr'>" +
-                    "<td id='RegdNo'>" + data[i].f_id + "</td>" +
-                    "<td id='RegdNo'>" + data[i].f_acc + "</td>" +
-                    "<td id='Name'>" + data[i].f_name + "</td>" +
+                var rows = rows + "<tr>" +
+                    "<td id='id'>" + data[i].f_id + "</td>" +
+                    "<td id='acc'>" + data[i].f_acc + "</td>" +
+                    "<td id='name'>" + data[i].f_name + "</td>" +
                     "<td id='phone'>" + data[i].f_phone + "</td>" +
                     "<td id='mail'>" + data[i].f_mail + "</td>" +
                     "<td id='address'>" + data[i].f_address + "</td>" +
@@ -23,16 +25,15 @@
                     "<td id='createDate'>" + data[i].f_createDate + "</td>" +
                     "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn' value='編輯'/ ></td>" +
                     "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
-
-                    "</tr>";                 
+                    "</tr>";
             }
-            $('#Table').append(rows);     
-        }, 
+            $('#Table').append(rows);
+        },
 
-        failure: function (data) {           
-        }, 
-        error: function (data) {            
-        } 
+        failure: function (data) {
+        },
+        error: function (data) {
+        }
 
     });
 
@@ -79,10 +80,10 @@
         var col9 = currentRow.find("td:eq(8)").text();
         //var data = col1 + "\n" + col8 + "\n" + col9;
         //alert(data);
-        
+
         for (var i = 0; i < memLevel.length - 1; i++) {
             if (memLevelName[i] === col8) {
-                
+
                 LvRows += "<option selected value='" + memLevel[i] + "'>" + memLevelName[i] + "</option>"
             } else {
                 LvRows += "<option value='" + memLevel[i] + "'>" + memLevelName[i] + "</option>"
@@ -101,7 +102,7 @@
                 "<div><label> 帳號:</label><label id='Editfacc'>" + col2 + "</label></div>" +
                 "<div><label for='Level'>Level:</label><select id='Editlevel'>" + LvRows + "</select></div>" +
                 "<div><label for='Level'>Suspension:</label><select id='EditSuspension'>" + SuspensionRows + "</select></div>" +
-                "<div id='Editbutton'><input name='EditAcc' onclick ='EditMem_Click(" + col1 + ")' type='Button' value='確認編輯' />" +
+                "<div id='Editbutton'><input name='EditAcc' onclick ='memMenufun.EditMem_Click(" + col1 + ")' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'EditCancel_Click()' value = '取消編輯' /></div > "
             $('#Editform').append(EditData);
             $("#EditBox").show();
@@ -135,28 +136,111 @@
     });
 })
 
-//確認編輯帳號
-function EditMem_Click(Id) {
-    $.ajax({
-        url: "/api/Member/PutMember?id=" + Id,
-        type: "put",
-        contentType: "application/json",
-        dataType: "text",
-        data: JSON.stringify({
-            "Level": parseInt($("#Editlevel").val()),
-            "Suspension": parseInt($("#EditSuspension").val())
-        }),
-        success: function (result) {
-            alert(result)
 
-            if (result == "更新成功") {
-                location.reload(); //新增成功才更新頁面
-            } else if (result === "已從另一地點登入,轉跳至登入頁面") {
-                location.reload();
+var memMenufun = {
+    //確認編輯帳號
+    EditMem_Click: function (Id) {
+        $.ajax({
+            url: "/api/Member/PutMember?id=" + Id,
+            type: "put",
+            contentType: "application/json",
+            dataType: "text",
+            data: JSON.stringify({
+                "Level": parseInt($("#Editlevel").val()),
+                "Suspension": parseInt($("#EditSuspension").val())
+            }),
+            success: function (result) {
+                alert(result)
+
+                if (result == "更新成功") {
+                    location.reload(); //新增成功才更新頁面
+                } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    location.reload();
+                }
+            },
+            error: function (error) {
+                alert(error);
             }
-        },
-        error: function (error) {
-            alert(error);
+        })
+    },
+    //組html標籤
+    DrawMemList: function (memArray) {
+        var htmlText = '';
+
+        for (var i = 0; i < memArray.length; i++) {
+            var memEdit = memArray[i].f_id == 0 ? '' : "<input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ >";
+            var memDel = memArray[i].f_id == 0 ? '' : "<input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ >";
+
+            htmlText += "<tr>" +
+                "<td id='RegdNo'>" + memArray[i].f_id + "</td>" +
+                "<td id='RegdNo'>" + memArray[i].f_acc + "</td>" +
+                "<td id='Name'>" + memArray[i].f_name + "</td>" +
+                "<td id='phone'>" + memArray[i].f_phone + "</td>" +
+                "<td id='mail'>" + memArray[i].f_mail + "</td>" +
+                "<td id='address'>" + memArray[i].f_address + "</td>" +
+                "<td id='shopGold'>" + memArray[i].f_shopGold + "</td>" +
+                "<td id='level'>" + memArray[i].f_LevelName + "</td>" +
+                "<td id='suspension'>" + memArray[i].f_suspensionName + "</td>" +
+                "<td id='createDate'>" + memArray[i].f_createDate + "</td>" +
+                "<td align='center'>" + memEdit + "</td>" +
+                "<td align='center'>" + memDel + "</td>" +
+                "</tr>";
         }
-    })
+
+        htmlText += "</tr>";
+
+        $("#TableBody").html(htmlText);
+    },
+    //搜尋
+    memListSerch: function () {
+        //extend  深複製暫存檔來操作;
+        var tempTable = $.extend(true, [], memJson);
+
+        var serchvalue = $("#Search").val();
+
+        var StrClassArr = ["f_id", "f_acc", "f_name", "f_phone", "f_mail", "f_address", "f_LevelName", "f_suspensionName", "f_createDate"]
+        var IntClassArr = ["f_shopGold"]
+
+        if (serchvalue === "") {
+
+            //組HTML,覆蓋
+            memMenufun.DrawMemList(memJson);
+
+        } else {
+
+            //字串搜尋
+            var searchStr = function (searchClass) {
+                tempTable = tempTable.filter((item) => {//filter搜尋json
+                    if (item[searchClass].indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
+                        return item //大於等於0則 return item
+                    }
+                })
+            }  
+
+            //數字搜尋
+            var searchInt = function (searchClass) {
+                tempTable = tempTable.filter((item) => {
+                    if (item[searchClass] == serchvalue) {
+                        return item 
+                    }
+                })
+            }  
+
+
+            //字串搜尋
+            if (StrClassArr.indexOf($("#SearchClass").val())>=0) {
+                searchStr($("#SearchClass").val());
+            }
+            //數字搜尋
+            else if (IntClassArr.indexOf($("#SearchClass").val()) >= 0) {
+                searchInt($("#SearchClass").val());
+            }
+
+            //組HTML,覆蓋
+            memMenufun.DrawMemList(tempTable);
+
+        }
+    }
+
+
 }

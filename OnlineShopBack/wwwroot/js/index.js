@@ -6,4 +6,7 @@
     $("#Account").click(function () {
         location.href = "/Account/AccountMenu"
     });
+    $("#Product").click(function () {
+        location.href = "/Product/ProductMenu"
+    });
 });

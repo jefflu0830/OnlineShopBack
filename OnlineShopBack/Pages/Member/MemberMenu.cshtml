@@ -13,7 +13,22 @@
 
     <button id="ShopGoldBtn">購物金管理</button>
 </div>
-
+<div style="margin:15px">
+    搜尋：
+    <input id="Search" oninput="memMenufun.memListSerch()">
+    <select id="SearchClass" onchange="memMenufun.memListSerch()">
+        <option value="f_id">Id</option>
+        <option value="f_acc">帳號</option>
+        <option value="f_name">姓名</option>
+        <option value="f_phone">電話</option>
+        <option value="f_mail">Email</option>
+        <option value="f_address">地址</option>
+        <option value="f_shopGold">購物金</option>
+        <option value="f_LevelName">會員等級</option>
+        <option value="f_suspensionName">會員狀態</option>
+        <option value="f_createDate">創建時間</option>
+    </select>
+</div>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -49,7 +64,7 @@
     </form>
 </div>
 
-<script src="~/js/MemberMenu.js" ></script>  
+<script src="~/js/Member/MemberMenu.js" ></script>  
 
 <script id="getSelect">
     //取得權限下拉選單資料
@@ -57,5 +72,6 @@
     var memLevelName = "@Html.Raw(Model.LevelName)".split('/');
     var Suspension = "@Html.Raw(Model.Suspension)".split('/');
     var SuspensionName = "@Html.Raw(Model.SuspensionName)".split('/');
+    var memJson = "";
     $("#getSelect").remove();
 </script>

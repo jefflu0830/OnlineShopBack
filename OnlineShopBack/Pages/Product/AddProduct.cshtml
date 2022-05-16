@@ -1,0 +1,36 @@
+﻿@page
+@model OnlineShopBack.Pages.Product.AddProductModel
+@{
+    ViewData["Title"] = "新增商品";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<h5>新增商品</h5>
+<h5 class=innertest></h5>
+<div id="body" style="padding: 10px;">
+    <form id="form" method="post" action="">
+        <div>
+            <label for="num">商品代號:</label>
+            <input type="text" id="num" name="num" maxlength="20" />
+        </div>
+        <div>
+            <label for="category">商品類型:</label>
+            <input type="text" id="category" name="category" maxlength="20" />
+        </div>
+        <div>
+            <label for="Level">Level:</label>
+            <select id="level">
+                @*Script 動態插入select選項*@
+            </select>
+        </div>
+        <div>
+            <input id="post" type="submit" value="Add" />
+        </div>
+    </form>
+</div>
+<div>
+    <div>
+        <button id="GoAccMenu">上一頁</button>
+    </div>
+</div>

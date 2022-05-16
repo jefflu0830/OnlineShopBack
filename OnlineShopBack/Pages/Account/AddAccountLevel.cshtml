@@ -14,21 +14,25 @@
 <div id="body" style="padding: 10px;">
     <form id="Addform" method="post" action="">
         <div>
-            <label for="AccLevel">AccLevel:</label>
+            <label>AccLevel:</label>
             <input type="text" id="AccLevel" name="AccLevel" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
-            <label for="AccPosission">AccPosission:</label>
+            <label>AccPosission:</label>
             <input type="text" id="AccPosission" name="AccPosission" maxlength="10" />
         </div>
         <div>
             <input type="checkbox" id="canUseAccount" value="是否有後台帳號管理權限" />
-            <label for="canUseAccount">是否有後台帳號管理權限</label>
+            <label>是否有後台帳號管理權限</label>
 
         </div>
         <div>
             <input type="checkbox" id="canUseMember" value="是否有會員管理權限" />
-            <label for="canUseMember">是否有會員管理權限</label>
+            <label>是否有會員管理權限</label>
+        </div>
+        <div>
+            <input type="checkbox" id="canUseProduct" value="是否有商品管理權限" />
+            <label>是否有商品管理權限</label>
         </div>
         <div>
             <input id="post" type="submit" value="ADD" />
@@ -60,4 +64,4 @@
     </form>
 </div>
 
-<script src="~/js/AddAccountLevel.js"></script>
+<script src="~/js/Account/AddAccountLevel.js"></script>

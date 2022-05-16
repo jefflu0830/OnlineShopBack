@@ -867,12 +867,13 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
                 //重複驗證寫在SP中
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct";
 
                 cmd.Parameters.AddWithValue("@accLevel", value.accLevel);
                 cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
                 cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
                 cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
+                cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
 
                 //開啟連線
 
@@ -956,7 +957,8 @@ namespace OnlineShopBack.Controllers
             //是否有權使用帳號管理 or 會員管理
             if (value.canUseAccount == null || value.canUseMember == null ||
                (value.canUseAccount > 1 || value.canUseAccount < 0) ||
-               (value.canUseMember > 1 || value.canUseMember < 0))
+               (value.canUseMember > 1 || value.canUseMember < 0) ||
+               (value.canUseProduct > 1 || value.canUseProduct < 0))
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
             }
@@ -974,12 +976,13 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember ";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct ";
 
                 cmd.Parameters.AddWithValue("@accLevel", id);
                 cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
                 cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
                 cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
+                cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
 
                 //開啟連線
                 cmd.Connection.Open();

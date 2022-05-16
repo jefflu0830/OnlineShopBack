@@ -131,6 +131,11 @@ namespace OnlineShopBack.Controllers
                         {
                             Roles += "canUseMember/";
                         };
+                        //添加 可使用商品管理
+                        if ((bool)dt.Rows[0]["f_canUseProduct"])
+                        {
+                            Roles += "canUseProduct/";
+                        };
 
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
