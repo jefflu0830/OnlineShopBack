@@ -11,26 +11,62 @@
 <div id="body" style="padding: 10px;">
     <form id="form" method="post" action="">
         <div>
-            <label for="num">商品代號:</label>
-            <input type="text" id="num" name="num" maxlength="20" />
+            <label for="Num">商品代號:</label>
+            <input type="text" id="Num" name="Num" maxlength="20" />
         </div>
         <div>
-            <label for="category">商品類型:</label>
-            <input type="text" id="category" name="category" maxlength="20" />
+            <label for="Category">商品主類型:</label>
+            <select id="Category" onchange="AddProductFun.SelectSubCategory()">
+                <option value="10">3C</option>
+                <option value="20">電腦周邊</option>
+                <option value="30">軟體</option>
+            </select>
         </div>
         <div>
-            <label for="Level">Level:</label>
-            <select id="level">
+            <label for="SubCategory">商品子類型:</label>
+            <select id="SubCategory">
                 @*Script 動態插入select選項*@
             </select>
         </div>
         <div>
-            <input id="post" type="submit" value="Add" />
+            <label for="Name">商品名稱:</label>
+            <input type="text" id="Name" name="Name" maxlength="20" />
+        </div>
+        <div>
+            <label for="Img">商品圖片:</label>
+            <input type="text" id="Img" name="Img" maxlength="20" />
+        </div>
+        <div>
+            <label for="Price">價格:</label>
+            <input type="text" id="Price" name="Price" maxlength="7" />
+        </div>
+        <div>
+            <label for="Status">是否開放:</label>
+            <select id="Status">
+                <option value="0">開放</option>
+                <option value="100">不開放</option>
+            </select>
+        </div>
+        <div>
+            <label for="Content">商品細項描述:</label>
+            <input type="text" id="Content" name="Content" maxlength="500" />
+        </div>
+        <div>
+            <label for="Stock">庫存量:</label>
+            <input type="text" id="Stock" name="Stock" maxlength="4" />
+        </div>
+        <div>
+            <input id="AddButton" type="submit" value="Add" />
         </div>
     </form>
 </div>
 <div>
     <div>
-        <button id="GoAccMenu">上一頁</button>
+        <button id="GoMenu">上一頁</button>
     </div>
 </div>
+<script src="~/js/Product/AddProduct.js" ></script>
+<script id="getSelect">
+    var CategoryJson = "";
+    $("#getSelect").remove();   
+</script>

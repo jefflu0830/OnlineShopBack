@@ -120,7 +120,6 @@
             })
         }
     });
-
     //前往新增帳號
     $("#AddAccount").click(function () {
         location.href = "/Account/AddAccount"
@@ -350,7 +349,7 @@ var AccountMenufun = {
 
             //字串搜尋
             var searchStr = function (searchClass) {
-                tempTable = tempTable.filter((item) => {//filter搜尋json
+                tempTable = tempTable.filter(function (item) {//filter搜尋json
                     if (item[searchClass].indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
                         return item //大於等於0則 return item
                     }

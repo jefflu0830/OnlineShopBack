@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OnlineShopBack.Controllers
 {
-    public class ProductCategory
+    public class ProductCategoryDto
     {
         public int CategoryNum { get; set; }
         public int SubCategoryNum { get; set; }

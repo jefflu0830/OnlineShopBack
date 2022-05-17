@@ -5,21 +5,39 @@
 }
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<h5>新增會員狀態</h5>
+<h5>新增商品類別</h5>
 <div id="body" style="padding: 10px;">
     <form id="Addform" method="post" action="">
         <div>
-            <label>商品類別編號:</label>
-            <input type="text" id="CategoryNum" name="CategoryNum" maxlength="20" oninput="value=value.replace(/[^\d]/g,'')" />
+            <label>主類別:</label>
+            <select id="CategoryNum">
+                <option value="10">3C</option>
+                <option value="20">電腦周邊</option>
+                <option value="30">軟體</option>
+            </select>
         </div>
         <div>
-            <label for="LevelName">商品類別名稱:</label>
-            <input type="text" id="CategoryName" name="CategoryName" maxlength="20" />
+            <label>商品子類別編號:</label>
+            <input type="text" id="SubCategoryNum" name="SubCategoryNum" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
-            <input id="post" type="button" value="ADD" />
+            <label for="LevelName">商品子類別名稱:</label>
+            <input type="text" id="SubCategoryName" name="SubCategoryName" maxlength="20" />
+        </div>
+        <div>
+            <input id="AddButton" type="button" value="ADD" />
         </div>
     </form>
+</div>
+
+<div>
+    <label>主類別:</label>
+    <select id="CategoryGroup" onchange="AddCategoryFun.SelectCategory()">
+        <option value="0">全部</option>
+        <option value="10">3C</option>
+        <option value="20">電腦周邊</option>
+        <option value="30">軟體</option>
+    </select>
 </div>
 
 <div class="panel panel-primary">
@@ -27,8 +45,9 @@
         <table class="table table-bordered" id="Table">
             <thead>
                 <tr>
-                    <th>類別編號</th>
-                    <th>類別名稱</th>
+                    <th>主類別</th>
+                    <th>子類別編號</th>
+                    <th>子類別名稱</th>
                 </tr>
             </thead>
             <tbody id="TableBody">
@@ -43,10 +62,14 @@
         @* 用append放入*@
     </form>
 </div>
+
 <div>
     <div>
         <button id="NextPage">上一頁</button>
     </div>
 </div>
 
-<script src="~/js/Product/AddCategory.js" ></script>
+<script src="~/js/Product/AddCategory.js"></script>
+<script>
+    var CategoryJson = "";
+</script>

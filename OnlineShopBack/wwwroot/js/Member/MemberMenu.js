@@ -78,8 +78,7 @@
         var col2 = currentRow.find("td:eq(1)").text();
         var col8 = currentRow.find("td:eq(7)").text();
         var col9 = currentRow.find("td:eq(8)").text();
-        //var data = col1 + "\n" + col8 + "\n" + col9;
-        //alert(data);
+
 
         for (var i = 0; i < memLevel.length - 1; i++) {
             if (memLevelName[i] === col8) {

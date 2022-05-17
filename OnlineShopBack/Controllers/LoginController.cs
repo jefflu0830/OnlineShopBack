@@ -27,7 +27,7 @@ namespace OnlineShopBack.Controllers
 
         //登入
         [HttpPost]
-        public string login(AccountDto value)
+        public string login(LoginDto value)
         {
 
             //查詢伺服器狀態是否正常
