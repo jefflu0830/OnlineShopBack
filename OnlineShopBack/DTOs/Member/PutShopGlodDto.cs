@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace OnlineShopBack.Controllers
+﻿namespace OnlineShopBack.Controllers
 {
     public class PutShopGlodDto
     {

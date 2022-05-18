@@ -136,7 +136,6 @@
             })
         }
     });
-
     //上一頁
     $("#NextPage").click(function () {
         location.href = "/Product/ProductMenu"
@@ -146,8 +145,6 @@
 var AddCategoryFun = {
     //確認編輯
     EditAcc_Click: function (Num, SubNum) {
-        alert(Num + '-' + SubNum)
-
         $.ajax({
             url: "/api/Product/PutCategory?Num=" + Num + "&SubNum=" + SubNum,
             type: "put",

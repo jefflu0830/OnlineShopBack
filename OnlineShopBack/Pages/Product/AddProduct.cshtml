@@ -33,12 +33,12 @@
             <input type="text" id="Name" name="Name" maxlength="20" />
         </div>
         <div>
-            <label for="Img">商品圖片:</label>
-            <input type="text" id="Img" name="Img" maxlength="20" />
+            <label for="ImgPath">商品圖片:</label>
+            <input type="text" id="ImgPath" name="ImgPath" maxlength="100" />
         </div>
         <div>
             <label for="Price">價格:</label>
-            <input type="text" id="Price" name="Price" maxlength="7" />
+            <input type="text" id="Price" name="Price" maxlength="7" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
             <label for="Status">是否開放:</label>
@@ -53,10 +53,10 @@
         </div>
         <div>
             <label for="Stock">庫存量:</label>
-            <input type="text" id="Stock" name="Stock" maxlength="4" />
+            <input type="text" id="Stock" name="Stock" maxlength="4" oninput="value=value.replace(/[^\d]/g,'')"/>
         </div>
         <div>
-            <input id="AddButton" type="submit" value="Add" />
+            <input id="AddButton" type="button" value="Add" />
         </div>
     </form>
 </div>
@@ -66,7 +66,3 @@
     </div>
 </div>
 <script src="~/js/Product/AddProduct.js" ></script>
-<script id="getSelect">
-    var CategoryJson = "";
-    $("#getSelect").remove();   
-</script>

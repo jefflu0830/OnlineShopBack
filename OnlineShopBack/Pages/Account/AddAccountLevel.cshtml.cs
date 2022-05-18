@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using static OnlineShopBack.Pages.Account.BasePage;
 
 namespace OnlineShopBack.Pages.Account

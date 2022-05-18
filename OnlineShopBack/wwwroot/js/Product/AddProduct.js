@@ -1,4 +1,9 @@
-﻿$(document).ready(function () {
+﻿var subCategorySelect = {
+    Category10: "",
+    Category20: "",
+    Category30: ""
+}
+$(document).ready(function () {
     //取得類型列表
     $.ajax({
         type: "GET",
@@ -6,8 +11,24 @@
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            CategoryJson = data;
-            AddProductFun.SelectSubCategory();
+
+            Category10 = AddProductFun.MakeSelectHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(10) >= 0) {
+                    return item
+                }
+            }));
+            Category20 = AddProductFun.MakeSelectHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(20) >= 0) {
+                    return item
+                }
+            }));
+            Category30 = AddProductFun.MakeSelectHtml(data.filter(function (item) {
+                if (item["f_categoryNum"].indexOf(30) >= 0) {
+                    return item
+                }
+            }));
+            
+            AddProductFun.SelectSubCategory();//初始值 先執行一次 
         },
         failure: function (data) {
             alert(data);
@@ -16,11 +37,10 @@
             alert(data);
         }
     });
-
-
     //點擊新增
     $("#AddButton").click(function () {
-        var ErrorCode = "";
+        var ErrorCode = '';   
+
 
 
         if (ErrorCode !== "") {
@@ -29,58 +49,77 @@
         else {
             $.ajax({
                 type: "post",
-                url: "/api/Product/AddCategory",
+                url: "/api/Product/AddProduct",
                 contentType: "application/json",
                 dataType: "text",
                 data: JSON.stringify({
-                    "CategoryNum": parseInt($("#CategoryNum").val()),
-                    "SubCategoryNum": parseInt($("#SubCategoryNum").val()),
-                    "SubCategoryName": $("#SubCategoryName").val(),
+                    "Num": $("#Num").val(),
+                    "Category": parseInt($("#Category").val()),
+                    "SubCategory": parseInt($("#SubCategory").val()),
+                    "Name": $("#Name").val(),
+                    "ImgPath": "TestPath/TestPath/TestPath",//$("#ImgPath").val(),
+                    "Price": parseInt($("#Price").val()),
+                    "Status": parseInt($("#Status").val()),
+                    "Content": $("#Content").val(),
+                    "Stock": parseInt($("#Stock").val())
                 }),
                 success: function (result) {
                     alert(result)
 
-                    if (result == "新增成功") {
-                        location.href = "/Product/ProductMenu" 
+                    if (result == "商品新增成功") {
+                        location.href = "/Product/ProductMenu"
                     } else if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
+                },
+                failure: function (data) {
+                    alert(data);
                 },
                 error: function (error) {
                     alert(error);
                 }
             })
         }
-
     });
-
     //上一頁
     $("#GoMenu").click(function () {
         location.href = "/Product/ProductMenu"
     });
-
-
-
 })
 
 var AddProductFun = {
-    SelectSubCategory: function () {
-        $("#SubCategory > option").remove();
-        var CategoryValue = $("#Category").val();//取主類別值
-        var tempTable = $.extend(true, [], CategoryJson);//複製到暫存
-
-        tempTable = tempTable.filter(function (item) {//filter搜尋json
-            if (item["f_categoryNum"].indexOf(CategoryValue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
-                return item  //大於等於0則 return item
-            }
-        })
-        //組子類別下拉選單
-        for (var i = 0; i < tempTable.length; i++) {
-            var Rows = Rows + "<option value='" + tempTable[i].f_subCategoryNum + "'>" + tempTable[i].f_subCategoryName + "</option>";
-            
+    //組子類別select標籤
+    MakeSelectHtml: function (CategoryJson) {
+        var Rows = '';
+        for (var i = 0; i < CategoryJson.length; i++) {
+            Rows += "<option value='" + CategoryJson[i].f_subCategoryNum + "'>" + CategoryJson[i].f_subCategoryName + "</option>";
         }
-        $('#SubCategory').append(Rows);
-        //將組好的標籤append至 #level
+        return Rows
+    },
+    //主類別select onchange事件
+    SelectSubCategory: function () {
+        //$("#SubCategory > option").remove();
+        var CategoryValue = $("#Category").val();//取主類別值
        
+        switch (CategoryValue) {
+            case ('10'):
+                $('#SubCategory').html(Category10);
+                break;
+            case ('20'):
+                $('#SubCategory').html(Category20);
+                break;
+            case ('30'):
+                $('#SubCategory').html(Category30);
+                break;
+        }
+
+
+        //map深複製 第一名
+        //var array = [1, 2, 3, 4, 5];
+        //var array_2 = array.map(function (item) {
+        //    return { a: item, b: item.toString() };
+        //});
+        //var tempTable = $.extend(true, [], CategoryJson);//複製到暫存 //第二名
+        //var tempTable = $.assign([], CategoryJson);//assign深複製  第三名
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnlineShopBack.Controllers
+﻿namespace OnlineShopBack.Controllers
 {
     public class PutPwdDto
     {

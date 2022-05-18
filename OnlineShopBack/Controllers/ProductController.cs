@@ -36,10 +36,62 @@ namespace OnlineShopBack.Controllers
             //商品類型不存在
             //</summary >
             CategoryIsNull = 101
-
-
         }
         #endregion
+
+        //取得商品List
+        [HttpGet("GetProduct")]
+        public string GetProduct()
+        {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "未有使用權限";
+            }
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            DataSet ds = new DataSet();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductCategory ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+
+                da.Fill(ds);
+
+
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            //DataTable轉Json;
+            var result = MyTool.DataTableJson(dt);
+
+            return result;
+        }
 
         //新增商品 
         [HttpPost("AddProduct")]
@@ -55,9 +107,7 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-
-
-            //資料驗證
+            //資料驗證-----------------------------------------------
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
@@ -110,29 +160,31 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //圖片
-            if (value.Img.Length>100 || value.Img.Length < 0)
+            if (value.ImgPath.Length > 100 || value.ImgPath.Length < 0)
             {
                 ErrorStr += "[圖片地址長度應介於1～100個字之間]\n";
             }
-            //庫存量
+            //價格
             if (value.Price < 0 || value.Price > 999999999)
             {
                 ErrorStr += "[價格不得為負或大於999999999]\n";
             }
             //是否開放商品
-            if (value.Status>255 || value.Status<0)
+            if ((value.Status != 0 && value.Status != 100) )//|| (value.Status != 0))
             {
-                ErrorStr += "[狀態碼應介於0～255之間]\n";
+                ErrorStr += "[狀態碼應為0(開放)或100(不開放)]\n";
             }
             //商品描述
-            if (value.Content.Length > 500 || value.Content.Length < 0)
-            {
-                ErrorStr += "[商品描述應在500字內]\n";
-            }
+            if (!string.IsNullOrWhiteSpace(value.Name)) {//不為空才要做字數判斷
+                if (value.Content.Length > 500 || value.Content.Length < 0)
+                {
+                    ErrorStr += "[商品描述應在500字內]\n";
+                }
+            }            
             //庫存量
-            if ( value.Stock < 0 || value.Stock > 99999)
+            if (value.Stock < 1 || value.Stock > 99999)
             {
-                ErrorStr += "[庫存量不得為負或大於99999]\n";
+                ErrorStr += "[庫存量應介於1-99之間]\n";
             }
 
 
@@ -149,13 +201,13 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addProduct @num, @category, @subCategory, @name, @img, @price, @status, @contnet, @stock";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addProduct @num, @category, @subCategory, @name, @ImgPath, @price, @status, @contnet, @stock";
 
                 cmd.Parameters.AddWithValue("@num", value.Num);                //商品代號
                 cmd.Parameters.AddWithValue("@category", value.Category);      //商品類型
                 cmd.Parameters.AddWithValue("@subCategory", value.SubCategory);//商品子類型
                 cmd.Parameters.AddWithValue("@name", value.Name);              //商品名稱
-                cmd.Parameters.AddWithValue("@img", value.Img);                //圖片
+                cmd.Parameters.AddWithValue("@ImgPath", value.ImgPath);        //圖片
                 cmd.Parameters.AddWithValue("@price", value.Price);            //價格
                 cmd.Parameters.AddWithValue("@status", value.Status);          //開放狀態
                 cmd.Parameters.AddWithValue("@contnet", value.Content);        //商品描述     

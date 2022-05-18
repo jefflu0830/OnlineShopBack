@@ -1,5 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region 功能與歷史修改描述
+/*
+    描述:工具存放處
+    日期:2022-05-09
+*/
+#endregion
+
+using System;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;

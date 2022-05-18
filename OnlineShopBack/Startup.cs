@@ -1,12 +1,9 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OnlineShopBack.Models;
 using System;
 
 namespace OnlineShopBack
@@ -30,8 +27,10 @@ namespace OnlineShopBack
 
             services.AddControllersWithViews();
             services.AddControllers();
-            services.AddDbContext<OnlineShopContext>(options =>
-                                                     options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
+
+            //EntityFramework  要使用把MODEL加回項目
+            //services.AddDbContext<OnlineShopContext>(options =>
+            //                                         options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
 
             services.AddAuthentication();
 

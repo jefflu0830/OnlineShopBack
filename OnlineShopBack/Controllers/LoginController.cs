@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Models;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
 
 namespace OnlineShopBack.Controllers
@@ -17,11 +14,13 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly OnlineShopContext _OnlineShopContext;
-        public LoginController(OnlineShopContext onlineShopContext)
-        {
-            _OnlineShopContext = onlineShopContext;
-        }
+
+        //EntityFramework  要使用把MODEL加回項目
+        //private readonly OnlineShopContext _OnlineShopContext;
+        //public LoginController(OnlineShopContext onlineShopContext)
+        //{
+        //    _OnlineShopContext = onlineShopContext;
+        //}
 
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 

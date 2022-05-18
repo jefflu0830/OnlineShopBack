@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
+using OnlineShopBack.Tool;
 using System;
 using System.Data;
-using OnlineShopBack.Tool;
-using System.Text;
-using Microsoft.AspNetCore.Http;
 
 namespace OnlineShopBack.Controllers
 {

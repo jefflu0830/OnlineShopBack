@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Models;
-using OnlineShopBack.Pages.Account;
 using OnlineShopBack.Services;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using OnlineShopBack.Tool;
-using Microsoft.AspNetCore.Authorization;
 using System;
-using Microsoft.AspNetCore.Http;
+using System.Data;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

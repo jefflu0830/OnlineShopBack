@@ -1,7 +1,7 @@
 ﻿@page
 @model OnlineShopBack.Pages.Product.ProductMenuModel
 @{
-    ViewData["Title"] = "新增商品";
+    ViewData["Title"] = "商品列表";
 }
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -15,3 +15,23 @@
 </div>
 
 <script src="~/js/Product/ProductMenu.js" ></script>
+
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <thead>
+                <tr>
+                    <th>代號</th>
+                    <th>主類別</th>
+                    <th>子類別</th>
+                    <th>名稱</th>
+                    <th>價格</th>
+                    <th>開放狀態</th>
+                    <th>庫存量</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
