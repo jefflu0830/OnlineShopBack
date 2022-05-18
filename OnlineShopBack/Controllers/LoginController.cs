@@ -107,6 +107,7 @@ namespace OnlineShopBack.Controllers
                     //開啟連線
                     cmd.Connection.Open();
 
+                    ///TODO 重複執行資料庫查詢
                     if (cmd.ExecuteScalar() == null)
                     {
                         return "loginFail"; //登入失敗
@@ -121,6 +122,8 @@ namespace OnlineShopBack.Controllers
 
                         string Roles = "";
 
+                        ///TODO 轉型盡量都 先TryParse後 再判斷其內容
+                        ///TODO 資料結構 建議多一個Class Rule
                         //添加 可使用帳號管理
                         if ((bool)dt.Rows[0]["f_canUseAccount"])
                         {
@@ -142,28 +145,49 @@ namespace OnlineShopBack.Controllers
                         HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
                         HttpContext.Session.SetString("Roles", Roles);
 
+                        // JsonSerializer.Serialize(value);
 
 
+                        cmd.Parameters.Clear();
+                        cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
+                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
+                        cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                        cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                        
+                        SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                        SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
+                        SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
+
+
+                        SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                        SessionInfo,
+                                                       (key, oldValue) => oldValue = SessionInfo);
+
+                        if(!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()))
+                        {
+                            result = SomeEnum.KickExMan; 
+                        }
+
+                        ///TODO 整個判斷 可以放到SP
+                        ///TODO 再為Close、Dispose前 不重複使用SqlCommand
                         //資料庫中 Account為空 or 存的sessionId與現在的不符
                         if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
                             dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
                         {
-                            cmd.Parameters.Clear();
-                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
-                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
-                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
-                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                            //cmd.Parameters.Clear();
+                            //cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
+                            //                    SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
+                            //cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                            //cmd.Parameters.AddWithValue("@f_acc", value.Account);
 
-                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
-                            SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
-                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
+                            //SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                            //SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
+                            //SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
 
 
-                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
-                                                            SessionInfo,
-                                                           (key, oldValue) => oldValue=SessionInfo);
+                            //SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                            //                                SessionInfo,
+                            //                               (key, oldValue) => oldValue = SessionInfo);
 
                             return "重複登入";  //重複登入
                         }
@@ -182,7 +206,7 @@ namespace OnlineShopBack.Controllers
 
                             SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
                                                             SessionInfo,
-                                                           (key, oldValue) => oldValue= SessionInfo);
+                                                           (key, oldValue) => oldValue = SessionInfo);
 
                             return "loginOK";  //登入OK
                         }
@@ -247,8 +271,8 @@ namespace OnlineShopBack.Controllers
             {
                 return;
             }
-           
 
+            ///TODO 沒有catch
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -266,7 +290,7 @@ namespace OnlineShopBack.Controllers
                 cmd.ExecuteScalar();
             }
             finally
-            {                
+            {
                 if (cmd != null)
                 {
                     cmd.Connection.Close();
@@ -276,7 +300,7 @@ namespace OnlineShopBack.Controllers
 
             //清空Dictionary & Session[Account]中的值
 
-            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"),out _);
+            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"), out _);
             HttpContext.Session.Clear();
 
         }

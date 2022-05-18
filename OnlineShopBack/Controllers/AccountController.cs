@@ -150,6 +150,7 @@ namespace OnlineShopBack.Controllers
                 //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
                 cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
 
+                ///TODO 重複執行資料庫查詢
                 //開啟連線
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
@@ -185,6 +186,7 @@ namespace OnlineShopBack.Controllers
             return result;
         }
 
+        ///TODO GetAccountById
         //Select帳號資料Left join權限資料where ID
         [HttpGet("IdGetAcc")]
         public string IdGetAccount([FromQuery] int id)
@@ -204,7 +206,7 @@ namespace OnlineShopBack.Controllers
             SqlDataAdapter da = new SqlDataAdapter();
             try
             {
-
+                ///TODO 測試用code?
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
@@ -1116,13 +1118,14 @@ namespace OnlineShopBack.Controllers
             if (HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
             {
                 return false;
-            }else
+            }
+            else
             {
                 return true;
             }
         }
     }
-    
+
 
 }
 

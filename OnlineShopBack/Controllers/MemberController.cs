@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿#region
+
+#endregion
+
+using Microsoft.AspNetCore.Http;
+///TODO 功能描述、移除不需要的using
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
+using OnlineShopBack.Tool;
 using System;
 using System.Data;
-using OnlineShopBack.Tool;
-using System.Text;
-using Microsoft.AspNetCore.Http;
 
 namespace OnlineShopBack.Controllers
 {
@@ -17,10 +20,10 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-
+        ///TODO 避免過多不需要的空行
 
         //會員相關--------------------------------------------------
-
+        ///TODO 列舉應該獨立放置
         #region 會員相關列舉(Enum)
         private enum DelMemberErrorCode //刪除會員
         {
@@ -80,6 +83,7 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetMember")]
         public string GetMember()
         {
+            ///TODO 設定成Middleware、繼承或Filter
             //登入&身分檢查
             if (!loginValidate())
             {
@@ -90,6 +94,7 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
+            ///TODO 沒有try-catch
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -107,6 +112,7 @@ namespace OnlineShopBack.Controllers
             //關閉連線
             cmd.Connection.Close();
 
+            ///TODO 避免使用var
             //DataTable轉Json;
             var result = Tool.MyTool.DataTableJson(dt);
 
@@ -117,9 +123,12 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetMemberByAcc")]
         public string GetMemberByAcc([FromQuery] string acc)
         {
+            int result = -1;
+            
             //登入&身分檢查
             if (!loginValidate())
             {
+                ///TODO 統一化返回訊息
                 return "已從另一地點登入,轉跳至登入頁面";
             }
             else if (RolesValidate())
@@ -138,7 +147,7 @@ namespace OnlineShopBack.Controllers
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
                     cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @Acc";
-
+                    ///TODO SP參數 統一小駝峰
                     cmd.Parameters.AddWithValue("@Acc", acc);
 
                     //開啟連線
@@ -149,14 +158,17 @@ namespace OnlineShopBack.Controllers
                     //關閉連線
                     cmd.Connection.Close();
 
+                    ///TODO 應該位於try-catch外
                     //DataTable轉Json;
-                    var result = Tool.MyTool.DataTableJson(dt);
-
-                    return result;
+                    //var result = Tool.MyTool.DataTableJson(dt);
+                    result = 1;
+                    //return result;
                 }
                 catch (Exception e)
                 {
+                    ///TODO 記日誌
                     return e.Message;
+                    result = 0;
                 }
                 finally
                 {
@@ -164,6 +176,8 @@ namespace OnlineShopBack.Controllers
 
                 }
             }
+
+            return result;
         }
 
         //刪除會員
@@ -189,9 +203,10 @@ namespace OnlineShopBack.Controllers
             }
 
 
-
+            ///TODO 避免殘留 測試用代碼
             SqlCommand cmd = null;
             //DataTable dt = new DataTable();
+            DelMemberErrorCode result = DelMemberErrorCode.Default;
             try
             {
                 // 資料庫連線
@@ -205,20 +220,17 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
                 cmd.Connection.Open();
                 addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
 
-                switch (SQLReturnCode)
+                ///TODO 應該位於try-catch外
+                //int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                if (!DelMemberErrorCode.TryParse(addAccLVErrorStr, out result))
                 {
-                    case (int)DelMemberErrorCode.MemIsNull:
-                        return "無此會員";
-                    case (int)DelMemberErrorCode.DelOK:
-                        return "會員刪除成功";
-                    default:
-                        return "失敗";
+                    result = DelMemberErrorCode.SQLFail;
                 }
             }
             catch (Exception e)
             {
+                ///TODO 記日誌
                 return e.Message;
             }
             finally
@@ -229,8 +241,11 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            return "{st: " + result + "}";
         }
 
+        ///TODO Put容易誤會 意義不明
         //編輯會員(等級&狀態)
         [HttpPut("PutMember")]
         public string PutMember([FromQuery] int id, [FromBody] MemberDto value)
@@ -531,6 +546,7 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
+            ///TODO Class內 屬性、參(變)數、Func 都統一大駝峰
             //等級編號 
             if (value.memLv == null)
             {

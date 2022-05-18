@@ -33,6 +33,8 @@ namespace OnlineShopBack.Pages.Account
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
 
+            ///TODO try-catch呢?
+            ///TODO 避免使用*查詢語法
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
