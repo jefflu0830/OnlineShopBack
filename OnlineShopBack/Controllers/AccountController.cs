@@ -142,16 +142,12 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
                 cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
 
                 //開啟連線
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
                 da.Fill(dt);
-
-                da.Fill(ds);
-
 
             }
             catch (Exception e)

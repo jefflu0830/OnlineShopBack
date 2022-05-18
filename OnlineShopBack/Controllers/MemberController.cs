@@ -189,7 +189,6 @@ namespace OnlineShopBack.Controllers
 
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
             try
             {
                 // 資料庫連線

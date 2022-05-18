@@ -156,11 +156,6 @@ var AccountMenu = {
         //errorCode若不為空則,不進行修改
         if (errorCode !== "") {
             alert(errorCode);
-
-            return { a: 123 };
-            return {
-                a: 123
-            };
         } else {
             if (window.confirm("確定要修改密碼嗎?")) {
                 $.ajax({
