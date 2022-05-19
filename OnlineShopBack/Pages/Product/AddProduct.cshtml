@@ -9,7 +9,7 @@
 <h5>新增商品</h5>
 <h5 class=innertest></h5>
 <div id="body" style="padding: 10px;">
-    <form id="form" method="post" action="">
+    <form id="form" method="post" action="" enctype="multipart/form-data">
         <div>
             <label for="Num">商品代號:</label>
             <input type="text" id="Num" name="Num" maxlength="20" />
@@ -34,7 +34,8 @@
         </div>
         <div>
             <label for="ImgPath">商品圖片:</label>
-            <input type="text" id="ImgPath" name="ImgPath" maxlength="100" />
+            @*<input type="text" id="ImgPath" name="ImgPath" maxlength="100" />*@
+            <input type="file" name="ImgPath" id="ImgPath">
         </div>
         <div>
             <label for="Price">價格:</label>

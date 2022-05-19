@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#region 功能與歷史修改描述
+/*
+    描述:商品系統相關
+    日期:2022-05-09
+*/
+#endregion
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +29,7 @@ namespace OnlineShopBack.Controllers
         //商品相關---------------------------------------------
 
         #region 商品相關列舉(Enum)
-        private enum AddProductReturnCode //新增商品
+        private enum ProductReturnCode //新增商品
         {
             //<summary >
             //新增成功
@@ -62,17 +69,12 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductCategory ";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductAndCategory ";
 
                 //開啟連線
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
                 da.Fill(dt);
-
-                da.Fill(ds);
-
-
             }
             catch (Exception e)
             {
@@ -185,7 +187,7 @@ namespace OnlineShopBack.Controllers
             //庫存量
             if (value.Stock < 1 || value.Stock > 99999)
             {
-                ErrorStr += "[庫存量應介於1-99之間]\n";
+                ErrorStr += "[庫存量應介於1-99999]\n";
             }
 
 
@@ -196,6 +198,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            CategoryReturnCode result = CategoryReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -216,20 +219,12 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                string ReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(ReturnCode);
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
+
+                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
                 {
-
-                    case (int)AddProductReturnCode.AddOK:
-                        return "商品新增成功";
-                    case (int)AddProductReturnCode.DuplicateProduct:
-                        return "已有相同商品代號";
-                    case (int)AddProductReturnCode.CategoryIsNull:
-                        return "商品類型不存在";
-                    default:
-                        return "失敗";
+                    result = CategoryReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -244,51 +239,150 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+            return "[{\"st\": " + (int)result + "}]";
+        }
+
+        //刪除商品
+        [HttpDelete("DelProduct")]
+        public string DelCategory([FromQuery] int ProductId, string ProductNum)
+        {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
+            }
+
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            CategoryReturnCode result = CategoryReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @"EXEC pro_onlineShopBack_delProduct @productId, @productNum";
+
+                cmd.Parameters.AddWithValue("@productId", ProductId);
+                cmd.Parameters.AddWithValue("@productNum", ProductNum);
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+
+                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = CategoryReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            return "[{\"st\": " + (int)result + "}]";
+        }
+
+        //更新類別
+        [HttpPut("UpdateProduct")]
+        public string UpdateProduct([FromBody] ProductDto value)
+        {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
+            }
+
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            CategoryReturnCode result = CategoryReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putProduct @productNum, @category, @subCategory, @name, @ImgPath, @price, @status, @contnet, @stock";
+
+
+                cmd.Parameters.AddWithValue("@productNum", value.Num);          //id
+                cmd.Parameters.AddWithValue("@category", value.Category);      //商品類型
+                cmd.Parameters.AddWithValue("@subCategory", value.SubCategory);//商品子類型
+                cmd.Parameters.AddWithValue("@name", value.Name);              //商品名稱
+                cmd.Parameters.AddWithValue("@ImgPath", value.ImgPath);        //圖片
+                cmd.Parameters.AddWithValue("@price", value.Price);            //價格
+                cmd.Parameters.AddWithValue("@status", value.Status);          //開放狀態
+                cmd.Parameters.AddWithValue("@contnet", value.Content);        //商品描述     
+                cmd.Parameters.AddWithValue("@stock", value.Stock);            //庫存量
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
+
+                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = CategoryReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return "[{\"st\": " + (int)result + "}]";
+
         }
 
         //類別相關-----------------------------------------
 
         #region 類別相關列舉(Enum)
-        private enum AddCategoryReturnCode //新增類別
-        {
-            //<summary >
-            //新增成功
-            //</summary >
-            AddOK = 0,
-            //<summary >
-            //重複新增
-            //</summary >
-            DuplicateCategory = 100
-
-        }
-
-        private enum DelCategoryReturnCode //刪除類別
-        {
-            //<summary >
-            //刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //禁止刪除
-            //</summary >
-            ProhibitDel = 100,
-            //<summary >
-            //尚未建立
-            //</summary >
-            isNull = 101
-        }
-        private enum PutCategoryReturnCode //更新類別
-        {
-            //<summary >
-            //更新成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //尚未建立
-            //</summary >
-            isNull = 101
-        }
-
         private enum CategoryReturnCode//[類別]相關代號
         {
             //<summary >
@@ -421,35 +515,31 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            CategoryReturnCode result = CategoryReturnCode.Default;
             try
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addProductCategory @CategoryNum, @SubCategoryNum, @SubCategoryName";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addProductCategory @categoryNum, @subCategoryNum, @subCategoryName";
 
-                cmd.Parameters.AddWithValue("@CategoryNum", value.CategoryNum);
-                cmd.Parameters.AddWithValue("@SubCategoryNum", value.SubCategoryNum);
-                cmd.Parameters.AddWithValue("@SubCategoryName", value.SubCategoryName);
+                cmd.Parameters.AddWithValue("@categoryNum", value.CategoryNum);
+                cmd.Parameters.AddWithValue("@subCategoryNum", value.SubCategoryNum);
+                cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
                 //開啟連線
                 cmd.Connection.Open();
-                string ReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(ReturnCode);
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+                
 
-                switch (SQLReturnCode)
+                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
                 {
-
-                    case (int)AddCategoryReturnCode.AddOK:
-                        return "子類別新增成功";
-                    case (int)AddCategoryReturnCode.DuplicateCategory:
-                        return "子類別代號重複";
-                    default:
-                        return "失敗";
+                    result = CategoryReturnCode.Fail;
                 }
             }
             catch (Exception e)
             {
+                //TODO 要有log
                 return e.Message;
             }
             finally
@@ -460,6 +550,7 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+            return "[{\"st\": " + (int)result + "}]";
         }
 
         //刪除類別
@@ -504,41 +595,23 @@ namespace OnlineShopBack.Controllers
 
             SqlCommand cmd = null;
             CategoryReturnCode result = CategoryReturnCode.Default;
-
             try
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @"EXEC pro_onlineShopBack_delCategory @categoryNum, @subCategoryNum";
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_delCategory @CategoryNum, @SubCategoryNum";
-
-                //cmd.Parameters.AddWithValue("@CategoryNum", value.CategoryNum);
-                //cmd.Parameters.AddWithValue("@SubCategoryNum", value.SubCategoryNum);
-                cmd.Parameters.AddWithValue("@CategoryNum", Num);
-                cmd.Parameters.AddWithValue("@SubCategoryNum", SubNum);
+                cmd.Parameters.AddWithValue("@categoryNum", Num);
+                cmd.Parameters.AddWithValue("@subCategoryNum", SubNum);
                 //開啟連線
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
 
                 if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
                 {
                     result = CategoryReturnCode.Fail;
                 }
-
-                //switch (SQLReturnCode)
-                //{
-                //    case (int)DelCategoryReturnCode.ProhibitDel:
-                //        return "不可刪除";
-                //    case (int)DelCategoryReturnCode.DelOK:
-                //        return "刪除成功";
-                //    case (int)DelCategoryReturnCode.isNull:
-                //        return "尚未建立";
-                //    default:
-                //        return "失敗";
-                //}
-
             }
             catch (Exception e)
             {
@@ -552,13 +625,12 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
-
-            return "{st: " + (int)result + "}";
+            return "[{\"st\": " + (int)result + "}]";
         }
 
         //更新類別
-        [HttpPut("PutCategory")]
-        public string PutCategory([FromQuery] int Num, int SubNum, [FromBody] ProductCategoryDto value)
+        [HttpPut("UpdateCategory")]
+        public string UpdateCategory([FromQuery] int Num, int SubNum, [FromBody] ProductCategoryDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -615,31 +687,26 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            CategoryReturnCode result = CategoryReturnCode.Default;
             try
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putCategory @Num, @SubNum, @SubCategoryName";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putCategory @num, @subNum, @subCategoryName";
 
-                cmd.Parameters.AddWithValue("@Num", Num);
-                cmd.Parameters.AddWithValue("@SubNum", SubNum);
-                cmd.Parameters.AddWithValue("@SubCategoryName", value.SubCategoryName);
+                cmd.Parameters.AddWithValue("@num", Num);
+                cmd.Parameters.AddWithValue("@subNum", SubNum);
+                cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
 
                 //開啟連線
                 cmd.Connection.Open();
-                ErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(ErrorStr);
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                switch (SQLReturnCode)
+                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    case (int)PutCategoryReturnCode.isNull:
-                        return "尚未建立類別";
-                    case (int)PutCategoryReturnCode.PutOK:
-                        return "更新成功";
-                    default:
-                        return "失敗";
+                    result = CategoryReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -654,8 +721,11 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
-        }
 
+            return "[{\"st\": " + (int)result + "}]";
+
+        }
+       
         //---------------------------------------------------------
 
         //登入檢查

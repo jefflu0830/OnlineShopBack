@@ -31,6 +31,7 @@
   <ItemGroup>
     <None Include="Pages\Shared\_Layout.cshtml" />
     <None Include="Pages\Shared\_ValidationScriptsPartial.cshtml" />
+    <None Include="wwwroot\Img\Product\IMG0001.jpg" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,10 +7,9 @@
         dataType: "json",
         success: function (data) {
             CategoryJson = data;
-            for (var i in data) {
-                var categoryName = "";
+            for (var i in data) {                
 
-                categoryName = AddCategoryFun.TransCategoryNum(data[i].f_categoryNum);
+                var categoryName = AddCategoryFun.TransCategoryNum(data[i].f_categoryNum);
 
                 var rows = rows + "<tr>" +
                     "<td name='" + data[i].f_categoryNum + "'>" + categoryName + "</td>" +
@@ -33,7 +32,7 @@
     $("#AddButton").click(function () {
         var ErrorCode = "";
 
-        //檢測
+        //輸入驗證
         if ($("#SubCategoryNum").val() === "" || $("#SubCategoryName").val() === "") {
             ErrorCode += "[商品子類別編號] 或 [商品子類別名稱] 不可空白\n"
         } else {
@@ -51,7 +50,6 @@
             }
         }
 
-
         if (ErrorCode !== "") {
             alert(ErrorCode)
         }
@@ -67,11 +65,21 @@
                     "SubCategoryName": $("#SubCategoryName").val(),
                 }),
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result)//JSON字串轉物件
 
-                    if (result == "子類別新增成功") {
-                        location.reload(); //新增成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('新增成功');
+                            location.reload(); //新增成功才更新頁面
+                            break;
+                        }
+                        case 100:
+                            alert('已有相同類別');
+                            break;
+                    }
+
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },
@@ -93,7 +101,7 @@
         //alert(data);
 
 
-        if ($("#EditBox").css("display") == "none") {           
+        if ($("#EditBox").css("display") == "none") {
 
             categoryName = AddCategoryFun.TransCategoryNum(Num);
 
@@ -101,10 +109,10 @@
                 "<h5>名稱編輯</h5>" +
                 "<div><label> 主類別:</label>    <label>" + categoryName + "</label>    </div>" +
                 "<div><label> 子類別編號:</label>    <label>" + SubNum + "</label>    </div>" +
-                //f_accPosition
+                //子類別名稱
                 "<div><label for='EditCategroyName'>子類別名稱:</label>" +
                 "<input type='text' id='EditCategroyName' name='EditCategroyName' maxlength='20' value='" + SubName + "'/></div>" +
-                "<div id='Editbutton'><input name='EditCategroyName' onclick ='AddCategoryFun.EditAcc_Click(" + Num+","+SubNum+ ")' type='Button' value='確認編輯' />" +
+                "<div id='Editbutton'><input name='EditCategroyName' onclick ='AddCategoryFun.EditAcc_Click(" + Num + "," + SubNum + ")' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'AddCategoryFun.EditCancel_Click()' value = '取消編輯' /></div > "
             $('#Editform').append(EditData);
             $("#EditBox").show();
@@ -116,17 +124,25 @@
         var Num = currentRow.find("td:eq(0)").attr('name');
         var SubNum = currentRow.find("td:eq(1)").text();
 
-        if (window.confirm("確定要刪除此帳號嗎?")) {
+        if (window.confirm("確定要刪除此類別嗎?")) {
             $.ajax({
                 url: "/api/Product/DelCategory?Num=" + Num + "&SubNum=" + SubNum,
                 type: "DELETE",
                 data: {},
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result)//JSON字串轉物件
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('刪除成功');
+                            location.reload(); //新增成功才更新頁面
+                            break;
+                        }
+                        case 100:
+                            alert('無此帳號');
+                            break;
+                    }
 
-                    if (result == "刪除成功") {
-                        location.reload(); //刪除成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },
@@ -146,7 +162,7 @@ var AddCategoryFun = {
     //確認編輯
     EditAcc_Click: function (Num, SubNum) {
         $.ajax({
-            url: "/api/Product/PutCategory?Num=" + Num + "&SubNum=" + SubNum,
+            url: "/api/Product/UpdateCategory?Num=" + Num + "&SubNum=" + SubNum,
             type: "put",
             contentType: "application/json",
             dataType: "text",
@@ -154,7 +170,18 @@ var AddCategoryFun = {
                 "SubCategoryName": $("#EditCategroyName").val()
             }),
             success: function (result) {
-                alert(result)
+
+                var JsonResult = JSON.parse(result)//JSON字串轉物件
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('更新成功');
+                        location.reload(); //新增成功才更新頁面
+                        break;
+                    }
+                    case 100:
+                        alert('尚未建立此類別');
+                        break;
+                }
 
                 if (result == "更新成功") {
                     location.reload(); //新增成功才更新頁面
@@ -181,8 +208,8 @@ var AddCategoryFun = {
             case "20": {
                 return "電腦周邊";
             }
-            case "30": 
-                return "軟體";            
+            case "30":
+                return "軟體";
         };
 
     },
@@ -220,7 +247,7 @@ var AddCategoryFun = {
             AddCategoryFun.DrawCategoryList(CategoryJson);
 
         } else {
-            tempTable = tempTable.filter(function (item){//filter搜尋json
+            tempTable = tempTable.filter(function (item) {//filter搜尋json
                 if (item["f_categoryNum"].indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
                     return item //大於等於0則 return item
                 }

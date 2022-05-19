@@ -41,6 +41,22 @@ $(document).ready(function () {
     $("#AddButton").click(function () {
         var ErrorCode = '';   
 
+        if ($("#Num").val() == "") {
+            ErrorCode += "[商品編號]不可為空白\n"
+        } else {
+            if (/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test($("#Num").val()) == false) {
+                errorCode += "[商品編號] 只允許輸入英文及數字。\n"
+            }
+            if ($("#Num").val().length > 20 || $("#Num").val().length < 3) {
+                errorCode += "[商品編號] 字數介於3~20之間\n"
+            }
+        }
+        if (/^[0-9]*$/.test($("#Price").val()) == false ||
+            /^[0-9]*$/.test($("#Stock").val()) == false ) {
+            CheckAccError += "[價錢][庫存] 只允許輸入數字。\n"
+        }
+
+
 
 
         if (ErrorCode !== "") {
