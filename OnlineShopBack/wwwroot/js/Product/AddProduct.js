@@ -42,7 +42,7 @@ $(document).ready(function () {
         var ErrorCode = '';   
 
         if ($("#Num").val() == "") {
-            ErrorCode += "[商品編號]不可為空白\n"
+            ErrorCode += "[商品代號] [商品名稱]不可為空白\n"
         } else {
             if (/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test($("#Num").val()) == false) {
                 ErrorCode += "[商品編號] 只允許輸入英文及數字。\n"
@@ -51,36 +51,46 @@ $(document).ready(function () {
                 ErrorCode += "[商品編號] 字數介於3~20之間\n"
             }
         }
-        if (/^[0-9]*$/.test($("#Price").val()) == false ||
-            /^[0-9]*$/.test($("#Stock").val()) == false ) {
-            ErrorCode += "[價錢][庫存] 只允許輸入數字。\n"
+        if ($("#Price").val() == "" ||
+            $("#Stock").val() == "") {
+            ErrorCode += "[商品價格] [商品庫存]不可為空白\n"
+        } else {
+            if (/^[0-9]*$/.test($("#Price").val()) == false ||
+                /^[0-9]*$/.test($("#Stock").val()) == false) {
+                ErrorCode += "[價錢][庫存] 只允許輸入數字。\n"
+            }
         }
-        if ($("#Name").val()==="") {
-            ErrorCode += "[商品名稱]不可空白。\n"
-        }
-
-
 
         if (ErrorCode !== "") {
             alert(ErrorCode)
         }
         else {
+            //1.數值用URL傳，檔案用data方式傳
+            //
+            var data = new FormData(document.getElementById("ProductForm"));
+
+            var product = JSON.stringify({
+                Num: $("#Num").val(),
+                Category: parseInt($("#Category").val()),
+                SubCategory: parseInt($("#SubCategory").val()),
+                Name: $("#Name").val(),                
+                Price: parseInt($("#Price").val()),
+                Status: parseInt($("#Status").val()),
+                Content: $("#Content").val(),
+                Stock: parseInt($("#Stock").val())
+                //img: data    //將檔案用Formdata方式傳入  
+            })
+
+            //data.append("AddProductFrom", product);
+
             $.ajax({
                 type: "post",
                 url: "/api/Product/AddProduct",
                 contentType: "application/json",
                 dataType: "text",
-                data: JSON.stringify({
-                    "Num": $("#Num").val(),
-                    "Category": parseInt($("#Category").val()),
-                    "SubCategory": parseInt($("#SubCategory").val()),
-                    "Name": $("#Name").val(),
-                    "ImgPath": $("#ImgPath").val(), //字串切割完再傳入
-                    "Price": parseInt($("#Price").val()),
-                    "Status": parseInt($("#Status").val()),
-                    "Content": $("#Content").val(),
-                    "Stock": parseInt($("#Stock").val())
-                }),
+                data: product,
+                contentType: false,
+                processData: false,
                 success: function (result) {
                     var JsonResult = JSON.parse(result)//JSON字串轉物件
 

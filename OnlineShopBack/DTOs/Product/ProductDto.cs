@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 
 namespace OnlineShopBack.Controllers
 {
@@ -10,6 +11,7 @@ namespace OnlineShopBack.Controllers
         public int SubCategory { get; set; }
         public string Name { get; set; } 
         public string ImgPath { get; set; }
+        public IFormFile ImgFiles { get; set; }
         public int Price { get; set; }
         public int Status { get; set; }
         public string Content { get; set; } = string.Empty;

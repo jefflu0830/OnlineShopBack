@@ -78,10 +78,11 @@ $(document).ready(function () {
         var currentRow = $(this).closest("tr");
         var ProductId = currentRow.find('td:eq(0)').attr('id');
         var ProductNum = currentRow.find('td:eq(0)').text();
+        var ProductImgName = currentRow.find('td:eq(10)').text();
 
         if (window.confirm("確定要刪除此商品嗎?")) {
             $.ajax({
-                url: '/api/Product/DelProduct?ProductId=' + ProductId + '&ProductNum=' + ProductNum,
+                url: '/api/Product/DelProduct?ProductId=' + ProductId + '&ProductNum=' + ProductNum + '&ImgName=' + ProductImgName,
                 type: 'DELETE',
                 data: {},
                 success: function (result) {
@@ -118,7 +119,7 @@ $(document).ready(function () {
         var ProductStatus = currentRow.find("td:eq(5)").attr('name');
         var ProductStock = currentRow.find("td:eq(6)").text();
         var ProductContent = currentRow.find("td:eq(9)").text();
-        var ProductImg = currentRow.find("td:eq(10)").text();
+
         //開放狀態
         switch (ProductStatus) {
             case '0':
@@ -152,10 +153,10 @@ $(document).ready(function () {
         if ($("#EditBox").css("display") == "none") {
 
             var EditData =
-                "<h5>商品編輯</h5>" +
+                '<h5>商品編輯</h5>' +
                 //商品圖片
                 '<div><label> 圖片:</label> ' +
-                '<input type="text" id="ProductImg" name="ProductImg" maxlength="100" value="' + ProductImg + '"/></div>' +
+                '<input type="file" name="ImgPath" id="ImgPath">'+
                 //商品代號
                 '<div><label> 商品代號:</label> <label id="ProductNum">' + ProductNum + '</label></div>' +
                 //主類別
@@ -210,22 +211,31 @@ ProductMenuFun = {
             alert(errorCode);
         }
         else {
+            var data = new FormData(document.getElementById("Editform"));
+
+            var EditProduct = JSON.stringify({
+                Num: $("#ProductNum").html(),
+                Category: parseInt($("#ProductCategory").val()),
+                SubCategory: parseInt($("#SubCategory").val()),
+                Name: $("#ProductName").val(),
+                ImgPath: $("#ProductImg").val(),
+                Price: parseInt($("#ProductPrice").val()),
+                Status: parseInt($("#ProductStatus").val()),
+                Content: $("#ProductContent").val(),
+                Stock: parseInt($("#ProductStock").val())
+            })
+
+
+            data.append("EditProductFrom", EditProduct);
+
             $.ajax({
                 url: '/api/Product/UpdateProduct',
                 type: 'put',
                 contentType: 'application/json',
                 dataType: 'text',
-                data: JSON.stringify({
-                    "Num": $("#ProductNum").html(),
-                    "Category": parseInt($("#ProductCategory").val()),
-                    "SubCategory": parseInt($("#SubCategory").val()),
-                    "Name": $("#ProductName").val(),
-                    "ImgPath": $("#ProductImg").val(),
-                    "Price": parseInt($("#ProductPrice").val()),
-                    "Status": parseInt($("#ProductStatus").val()),
-                    "Content": $("#ProductContent").val(),
-                    "Stock": parseInt($("#ProductStock").val())
-                }),
+                data: data,
+                contentType: false,
+                processData: false,
                 success: function (result) {
 
                     var JsonResult = JSON.parse(result)//JSON字串轉物件
