@@ -14,6 +14,7 @@ using OnlineShopBack.Tool;
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Data;
+using static OnlineShopBack.Enum.ProductEnum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -27,24 +28,6 @@ namespace OnlineShopBack.Controllers
 
 
         //商品相關---------------------------------------------
-
-        #region 商品相關列舉(Enum)
-        private enum ProductReturnCode //新增商品
-        {
-            //<summary >
-            //新增成功
-            //</summary >
-            AddOK = 0,
-            //<summary >
-            //商品重複新增
-            //</summary >
-            DuplicateProduct = 100,
-            //<summary >
-            //商品類型不存在
-            //</summary >
-            CategoryIsNull = 101
-        }
-        #endregion
 
         //取得商品List
         [HttpGet("GetProduct")]
@@ -198,7 +181,8 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
+            ProductReturnCode result = ProductReturnCode.Default;
+            
             try
             {
                 // 資料庫連線
@@ -222,9 +206,9 @@ namespace OnlineShopBack.Controllers
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
 
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
+                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = CategoryReturnCode.Fail;
+                    result = ProductReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -271,7 +255,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
+            ProductReturnCode result = ProductReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -285,9 +269,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
+                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = CategoryReturnCode.Fail;
+                    result = ProductReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -334,7 +318,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
+            ProductReturnCode result = ProductReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -358,9 +342,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
+                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = CategoryReturnCode.Fail;
+                    result = ProductReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -381,24 +365,6 @@ namespace OnlineShopBack.Controllers
         }
 
         //類別相關-----------------------------------------
-
-        #region 類別相關列舉(Enum)
-        private enum CategoryReturnCode//[類別]相關代號
-        {
-            //<summary >
-            //成功
-            //</summary >
-            Success = 0,
-            //<summary >
-            //失敗
-            //</summary >
-            Fail = 1,
-            //<summary >
-            //預設值
-            //</summary >
-            Default = 2
-        }
-        #endregion
 
         //取得類別
         [HttpGet("GetCategory")]

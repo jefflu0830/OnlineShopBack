@@ -45,17 +45,19 @@ $(document).ready(function () {
             ErrorCode += "[商品編號]不可為空白\n"
         } else {
             if (/^[a-zA-Z0-9\u4e00-\u9fa5]*$/.test($("#Num").val()) == false) {
-                errorCode += "[商品編號] 只允許輸入英文及數字。\n"
+                ErrorCode += "[商品編號] 只允許輸入英文及數字。\n"
             }
             if ($("#Num").val().length > 20 || $("#Num").val().length < 3) {
-                errorCode += "[商品編號] 字數介於3~20之間\n"
+                ErrorCode += "[商品編號] 字數介於3~20之間\n"
             }
         }
         if (/^[0-9]*$/.test($("#Price").val()) == false ||
             /^[0-9]*$/.test($("#Stock").val()) == false ) {
-            CheckAccError += "[價錢][庫存] 只允許輸入數字。\n"
+            ErrorCode += "[價錢][庫存] 只允許輸入數字。\n"
         }
-
+        if ($("#Name").val()==="") {
+            ErrorCode += "[商品名稱]不可空白。\n"
+        }
 
 
 
@@ -73,23 +75,30 @@ $(document).ready(function () {
                     "Category": parseInt($("#Category").val()),
                     "SubCategory": parseInt($("#SubCategory").val()),
                     "Name": $("#Name").val(),
-                    "ImgPath": "TestPath/TestPath/TestPath",//$("#ImgPath").val(),
+                    "ImgPath": $("#ImgPath").val(), //字串切割完再傳入
                     "Price": parseInt($("#Price").val()),
                     "Status": parseInt($("#Status").val()),
                     "Content": $("#Content").val(),
                     "Stock": parseInt($("#Stock").val())
                 }),
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result)//JSON字串轉物件
 
-                    if (result == "商品新增成功") {
-                        location.href = "/Product/ProductMenu"
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('新增成功');
+                            location.href = "/Product/ProductMenu";//新增成功回Menu
+                            break;
+                        }
+                        case 100:
+                            alert('已有相同類別');
+                            break;
+                    }
+
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
-                },
-                failure: function (data) {
-                    alert(data);
                 },
                 error: function (error) {
                     alert(error);
