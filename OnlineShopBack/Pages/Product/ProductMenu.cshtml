@@ -14,7 +14,24 @@
 
 </div>
 
-<script src="~/js/Product/ProductMenu.js" ></script>
+<script src="~/js/Product/ProductMenu.js"></script>
+
+<div>
+    <label>主類別:</label>
+    <select id="SerchCategory">
+        <option value="0">全部</option>
+        <option value="10">3C</option>
+        <option value="20">電腦周邊</option>
+        <option value="30">軟體</option>
+        
+    </select>
+</div>
+<div style="display:none" id="SearchSubCategoryBox">
+    <label for="SerchSubCategory">商品子類型:</label>
+    <select id="SubCategory">
+        @*Script 動態插入select選項*@
+    </select>
+</div>
 
 <div class="panel panel-primary">
     <div class="panel-body">

@@ -7,7 +7,7 @@
         dataType: "json",
         success: function (data) {
             CategoryJson = data;
-            for (var i in data) {                
+            for (var i in data) {
 
                 var categoryName = AddCategoryFun.TransCategoryNum(data[i].f_categoryNum);
 
@@ -20,6 +20,110 @@
                     "</tr>";
             }
             $('#TableBody').append(rows);
+
+            //點擊編輯名稱按鈕
+            //$("#TableBody").on('click', '.EditBtn', function () {
+            $(".EditBtn").click(function () {
+                var currentRow = $(this).closest("tr");
+
+                var Num = currentRow.find("td:eq(0)").attr('name');
+                var SubNum = currentRow.find("td:eq(1)").text();
+                var SubName = currentRow.find("td:eq(2)").text();
+                var categoryName = "";
+
+                if ($("#EditBox").css("display") == "none") {
+
+                    categoryName = AddCategoryFun.TransCategoryNum(Num);
+
+                    var EditData =
+                        "<h5>名稱編輯</h5>" +
+                        "<div><label> 主類別:</label>    <label>" + categoryName + "</label>    </div>" +
+                        "<div><label> 子類別編號:</label>    <label>" + SubNum + "</label>    </div>" +
+                        //子類別名稱
+                        "<div><label for='EditCategroyName'>子類別名稱:</label>" +
+                        "<input type='text' id='EditCategroyName' name='EditCategroyName' maxlength='20' value='" + SubName + "'/></div>" +
+                        "<div id='Editbutton'><input id='EditConfirmEdit' type='Button' value='確認編輯' />" +
+                        "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
+                    $('#Editform').html(EditData);
+                    $("#EditBox").show();
+                };
+
+                //確認編輯
+                $('#EditConfirmEdit ').click(function () {
+                    $.ajax({
+                        url: "/api/Product/UpdateCategory?Num=" + Num + "&SubNum=" + SubNum,
+                        type: "put",
+                        contentType: "application/json",
+                        dataType: "text",
+                        data: JSON.stringify({
+                            "SubCategoryName": $("#EditCategroyName").val()
+                        }),
+                        success: function (result) {
+
+                            var JsonResult = JSON.parse(result)//JSON字串轉物件
+                            switch (JsonResult[0].st) {
+                                case 0: {
+                                    alert('更新成功');
+                                    location.reload(); //新增成功才更新頁面
+                                    break;
+                                }
+                                case 100:
+                                    alert('尚未建立此類別');
+                                    break;
+                            }
+
+                            if (result == "更新成功") {
+                                location.reload(); //新增成功才更新頁面
+                            }
+                        },
+                        error: function (error) {
+                            alert(error);
+                        }
+                    })
+                });
+
+                //取消編輯
+                $('#EditCancel ').click(function () {
+                    if ($("#EditBox").css("display") !== "none") {
+                        $("#EditBox").hide();
+                    }
+                });
+
+            });
+            //刪除按鈕
+            $(".DeleteBtn").click( function () {
+                var currentRow = $(this).closest("tr");
+                var Num = currentRow.find("td:eq(0)").attr('name');
+                var SubNum = currentRow.find("td:eq(1)").text();
+
+                if (window.confirm("確定要刪除此類別嗎?")) {
+                    $.ajax({
+                        url: "/api/Product/DelCategory?Num=" + Num + "&SubNum=" + SubNum,
+                        type: "DELETE",
+                        data: {},
+                        success: function (result) {
+                            var JsonResult = JSON.parse(result)//JSON字串轉物件
+                            switch (JsonResult[0].st) {
+                                case 0: {
+                                    alert('刪除成功');
+                                    location.reload(); //新增成功才更新頁面
+                                    break;
+                                }
+                                case 100:
+                                    alert('無此帳號');
+                                    break;
+                            }
+
+                            if (result === "已從另一地點登入,轉跳至登入頁面") {
+                                location.reload();
+                            }
+                        },
+                        error: function (error) {
+                            alert(error);
+                        }
+                    })
+                }
+            });
         },
 
         failure: function (data) {
@@ -28,7 +132,7 @@
         }
     });
 
-    //新增類別
+    //新增按鈕
     $("#AddButton").click(function () {
         var ErrorCode = "";
 
@@ -89,116 +193,15 @@
             })
         }
     });
-    //點擊編輯名稱按鈕
-    $("#TableBody").on('click', '.EditBtn', function () {
-        var currentRow = $(this).closest("tr");
 
-        var Num = currentRow.find("td:eq(0)").attr('name');
-        var SubNum = currentRow.find("td:eq(1)").text();
-        var SubName = currentRow.find("td:eq(2)").text();
-        var categoryName = "";
-        //var data = Num + "\n" + SubNum + "\n";
-        //alert(data);
-
-
-        if ($("#EditBox").css("display") == "none") {
-
-            categoryName = AddCategoryFun.TransCategoryNum(Num);
-
-            var EditData =
-                "<h5>名稱編輯</h5>" +
-                "<div><label> 主類別:</label>    <label>" + categoryName + "</label>    </div>" +
-                "<div><label> 子類別編號:</label>    <label>" + SubNum + "</label>    </div>" +
-                //子類別名稱
-                "<div><label for='EditCategroyName'>子類別名稱:</label>" +
-                "<input type='text' id='EditCategroyName' name='EditCategroyName' maxlength='20' value='" + SubName + "'/></div>" +
-                "<div id='Editbutton'><input name='EditCategroyName' onclick ='AddCategoryFun.EditAcc_Click(" + Num + "," + SubNum + ")' type='Button' value='確認編輯' />" +
-                "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'AddCategoryFun.EditCancel_Click()' value = '取消編輯' /></div > "
-            $('#Editform').append(EditData);
-            $("#EditBox").show();
-        }
-    });
-    //刪除按鈕
-    $("#TableBody").on('click', '.DeleteBtn', function () {
-        var currentRow = $(this).closest("tr");
-        var Num = currentRow.find("td:eq(0)").attr('name');
-        var SubNum = currentRow.find("td:eq(1)").text();
-
-        if (window.confirm("確定要刪除此類別嗎?")) {
-            $.ajax({
-                url: "/api/Product/DelCategory?Num=" + Num + "&SubNum=" + SubNum,
-                type: "DELETE",
-                data: {},
-                success: function (result) {
-                    var JsonResult = JSON.parse(result)//JSON字串轉物件
-                    switch (JsonResult[0].st) {
-                        case 0: {
-                            alert('刪除成功');
-                            location.reload(); //新增成功才更新頁面
-                            break;
-                        }
-                        case 100:
-                            alert('無此帳號');
-                            break;
-                    }
-
-                    if (result === "已從另一地點登入,轉跳至登入頁面") {
-                        location.reload();
-                    }
-                },
-                error: function (error) {
-                    alert(error);
-                }
-            })
-        }
-    });
     //上一頁
     $("#NextPage").click(function () {
         location.href = "/Product/ProductMenu"
     });
+
 })
 
 var AddCategoryFun = {
-    //確認編輯
-    EditAcc_Click: function (Num, SubNum) {
-        $.ajax({
-            url: "/api/Product/UpdateCategory?Num=" + Num + "&SubNum=" + SubNum,
-            type: "put",
-            contentType: "application/json",
-            dataType: "text",
-            data: JSON.stringify({
-                "SubCategoryName": $("#EditCategroyName").val()
-            }),
-            success: function (result) {
-
-                var JsonResult = JSON.parse(result)//JSON字串轉物件
-                switch (JsonResult[0].st) {
-                    case 0: {
-                        alert('更新成功');
-                        location.reload(); //新增成功才更新頁面
-                        break;
-                    }
-                    case 100:
-                        alert('尚未建立此類別');
-                        break;
-                }
-
-                if (result == "更新成功") {
-                    location.reload(); //新增成功才更新頁面
-                }
-            },
-            error: function (error) {
-                alert(error);
-            }
-        })
-    },
-    //取消編輯
-    EditCancel_Click: function () {
-        if ($("#EditBox").css("display") !== "none") {
-            $("#EditBox").hide();
-            $("#Editform > div,#Editform >h5").remove();
-        }
-    },
     //主類別名稱轉換
     TransCategoryNum: function (categoryNum) {
         switch (categoryNum) {
@@ -256,5 +259,6 @@ var AddCategoryFun = {
 
         }
     }
+
 
 }

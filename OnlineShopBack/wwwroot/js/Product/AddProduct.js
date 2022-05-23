@@ -27,7 +27,7 @@ $(document).ready(function () {
                     return item
                 }
             }));
-            
+
             AddProductFun.SelectSubCategory();//初始值 先執行一次 
         },
         failure: function (data) {
@@ -39,7 +39,7 @@ $(document).ready(function () {
     });
     //點擊新增
     $("#AddButton").click(function () {
-        var ErrorCode = '';   
+        var ErrorCode = '';
 
         if ($("#Num").val() == "") {
             ErrorCode += "[商品代號] [商品名稱]不可為空白\n"
@@ -66,29 +66,28 @@ $(document).ready(function () {
         }
         else {
             //1.數值用URL傳，檔案用data方式傳
-            //
+            ////img: data    //將檔案用Formdata方式傳入 
             var data = new FormData(document.getElementById("ProductForm"));
 
             var product = JSON.stringify({
                 Num: $("#Num").val(),
                 Category: parseInt($("#Category").val()),
                 SubCategory: parseInt($("#SubCategory").val()),
-                Name: $("#Name").val(),                
+                Name: $("#Name").val(),
                 Price: parseInt($("#Price").val()),
                 Status: parseInt($("#Status").val()),
                 Content: $("#Content").val(),
                 Stock: parseInt($("#Stock").val())
-                //img: data    //將檔案用Formdata方式傳入  
             })
 
-            //data.append("AddProductFrom", product);
+            data.append("AddProductFrom", product);
 
             $.ajax({
                 type: "post",
                 url: "/api/Product/AddProduct",
                 contentType: "application/json",
                 dataType: "text",
-                data: product,
+                data: data,
                 contentType: false,
                 processData: false,
                 success: function (result) {
@@ -100,9 +99,22 @@ $(document).ready(function () {
                             location.href = "/Product/ProductMenu";//新增成功回Menu
                             break;
                         }
+                        case 1:
+                            alert('資料庫新增失敗');
+                            break;
+                        case 3:
+                            alert('圖片格式錯誤');
+                            break;
+                        case 4:
+                            alert('需上傳圖片,且不可超過1張');
+                            break;
                         case 100:
                             alert('已有相同類別');
                             break;
+                        case 101:
+                            alert('無此商品類別or此類別已被刪除');
+                            break;
+
                     }
 
 
@@ -135,7 +147,7 @@ var AddProductFun = {
     SelectSubCategory: function () {
         //$("#SubCategory > option").remove();
         var CategoryValue = $("#Category").val();//取主類別值
-       
+
         switch (CategoryValue) {
             case ('10'):
                 $('#SubCategory').html(Category10);

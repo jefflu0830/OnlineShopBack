@@ -39,7 +39,6 @@ namespace OnlineShopBack.Controllers
 
 
         //商品相關---------------------------------------------
-
         //取得商品List
         [HttpGet("GetProduct")]
         public string GetProduct()
@@ -91,7 +90,7 @@ namespace OnlineShopBack.Controllers
 
         //新增商品 
         [HttpPost("AddProduct")]
-        public string AddProduct(string a, int b, int c)
+        public string AddProduct()
         {
             //其他文字資訊
             var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
@@ -192,12 +191,8 @@ namespace OnlineShopBack.Controllers
                 return ErrorStr;
             }
 
-
-
-
-
             SqlCommand cmd = null;
-            ProductReturnCode result = ProductReturnCode.Default;          
+            ProductReturnCode result = ProductReturnCode.Default;
             try
             {
 
@@ -208,12 +203,19 @@ namespace OnlineShopBack.Controllers
                 //儲存路徑
                 string SaveImgPath = "";
 
-                if (files.Count == 1) //圖片數量為1
+                if (files.Count != 1) //圖片數量不為1
+                {
+                    result = ProductReturnCode.ImgFail; 
+                    return "[{\"st\": " + (int)result + "}]";
+
+
+                }
+                else//圖片為一張
                 {
                     var Imgfile = files[0];
                     string imgType = Path.GetExtension(Imgfile.FileName); //取得圖片格式
                     //限制圖片格式
-                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))
+                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))//bmp?
                     {
                         if (!Directory.Exists(ImgPath))//資料夾不存在新增資料夾                    
                         {
@@ -224,6 +226,11 @@ namespace OnlineShopBack.Controllers
                             NewProductName = dto.Num + imgType; //新圖片名稱
                             SaveImgPath = ImgPath + NewProductName;//儲存路徑 
                         }
+                    }
+                    else//不支援此格式
+                    {
+                        result = ProductReturnCode.ImgFormatErr;
+                        return "[{\"st\": " + (int)result + "}]";
                     }
 
                 }
@@ -402,12 +409,12 @@ namespace OnlineShopBack.Controllers
                 //儲存路徑
                 string SaveImgPath = "";
 
-                if (files.Count == 1) //圖片數量為1
+                if (files.Count == 1) //有要更新的圖片
                 {
                     var Imgfile = files[0];
                     string imgType = Path.GetExtension(Imgfile.FileName); //取得圖片格式
                     //限制圖片格式
-                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))
+                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))//bmp?
                     {
                         if (!Directory.Exists(ImgPath))//資料夾不存在新增資料夾                    
                         {
@@ -419,8 +426,13 @@ namespace OnlineShopBack.Controllers
                             SaveImgPath = ImgPath + NewProductName;//儲存路徑 
                         }
                     }
-
+                    else//不支援此格式
+                    {
+                        result = ProductReturnCode.ImgFormatErr;
+                        return "[{\"st\": " + (int)result + "}]";
+                    }
                 }
+
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
@@ -447,8 +459,8 @@ namespace OnlineShopBack.Controllers
                     result = ProductReturnCode.Fail;
                 }
 
-                //資料庫輸入成功後才會做儲存圖片動作
-                if (result == (int)ProductReturnCode.Success && !string.IsNullOrWhiteSpace(NewProductName))
+                //資料庫輸入成功後才會做儲存圖片動作&有新圖片
+                if (result == (int)ProductReturnCode.Success && !string.IsNullOrWhiteSpace(NewProductName) && files.Count == 1)
                 {
                     var file = files[0];
                     var stream = new FileStream(SaveImgPath, FileMode.Create);
@@ -499,17 +511,12 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
                 cmd.CommandText = @" EXEC pro_onlineShopBack_getProductCategory ";
 
                 //開啟連線
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
                 da.Fill(dt);
-
-                da.Fill(ds);
-
-
             }
             catch (Exception e)
             {
@@ -606,7 +613,7 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                
+
 
                 if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
                 {
@@ -801,7 +808,7 @@ namespace OnlineShopBack.Controllers
             return "[{\"st\": " + (int)result + "}]";
 
         }
-       
+
         //---------------------------------------------------------
 
         //登入檢查

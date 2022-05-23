@@ -7,15 +7,19 @@
   <ItemGroup>
     <Compile Remove="Models\**" />
     <Compile Remove="Views\**" />
+    <Compile Remove="wwwroot\Img\**" />
     <Compile Remove="新文件夹1\**" />
     <Content Remove="Models\**" />
     <Content Remove="Views\**" />
+    <Content Remove="wwwroot\Img\**" />
     <Content Remove="新文件夹1\**" />
     <EmbeddedResource Remove="Models\**" />
     <EmbeddedResource Remove="Views\**" />
+    <EmbeddedResource Remove="wwwroot\Img\**" />
     <EmbeddedResource Remove="新文件夹1\**" />
     <None Remove="Models\**" />
     <None Remove="Views\**" />
+    <None Remove="wwwroot\Img\**" />
     <None Remove="新文件夹1\**" />
   </ItemGroup>
 
@@ -43,10 +47,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.24" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\Img\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

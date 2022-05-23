@@ -21,7 +21,15 @@ namespace OnlineShopBack.Enum
             //<summary >
             //預設值
             //</summary >
-            Default = 2
+            Default = 2,
+            //<summary >
+            //圖片格式錯誤
+            //</summary >
+            ImgFormatErr = 3,
+            //<summary >
+            //圖片不可空白且只能上傳一張
+            //</summary >
+            ImgFail = 4
         }
 
         public enum CategoryReturnCode//[類別]相關代號
