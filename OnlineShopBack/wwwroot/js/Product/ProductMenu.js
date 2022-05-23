@@ -6,7 +6,7 @@
     CategotyJson: "",
     MainTempTable: "",
     CategoryFilterResult: "",
-    SubCategoryFilterResult:""
+    SubCategoryFilterResult: ""
 }
 $(document).ready(function () {
     //取得類型列表
@@ -273,10 +273,10 @@ $(document).ready(function () {
 
     //主類別下拉欄位chnage事件
     $('#SerchCategory').change(function () {
+        MainTempTable = $.extend(true, [], ProductJson);
 
         if ($('#SerchCategory').val() === '0') {
             $("#SearchSubCategoryBox").hide();
-            MainTempTable = $.extend(true, [], ProductJson);
             //SearchTempJson初始化
             var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
             $('#TableBody').html(rows);
@@ -299,16 +299,23 @@ $(document).ready(function () {
                     break;
             };
 
-            CategoryFilterResult = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
+            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
 
-            var rows = ProductMenuFun.MakeProductMenuTag(CategoryFilterResult);
+            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
             $('#TableBody').html(rows);
         }
     });
 
     $('#SubCategory').change(function () {
+        CategoryFilterResult = $.extend(true, [], MainTempTable);
         if ($('#SubCategory').val() === 'All') {
-            SubCategoryFilterResult = $.extend(true, [], ProductJson);
+            MainTempTable = $.extend(true, [], CategoryFilterResult);
+        } else {
+            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
+
+            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+            $('#TableBody').html(rows);
+
         }
 
 
@@ -387,10 +394,10 @@ ProductMenuFun = {
     //Json查詢  //JsonTable=>要Filter的JSON, ItemName=>查詢的欄位, Searchvalue=>要查詢的值
     JsonFilter: function (JsonTable, ItemName, Searchvalue) {
         var Filter = JsonTable.filter(function (item) {
-           if (item[ItemName].indexOf(Searchvalue) >= 0) {
-                return item 
+            if (item[ItemName].indexOf(Searchvalue) >= 0) {
+                return item
             }
-       })
+        })
         return Filter;
     }
 }
