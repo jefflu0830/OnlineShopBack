@@ -183,6 +183,11 @@ namespace OnlineShopBack.Controllers
             {
                 ErrorStr += "[庫存量應介於1-99999]\n";
             }
+            //熱門度
+            if (dto.Popularity < 0 || dto.Popularity > 999)
+            {
+                ErrorStr += "[庫存量應介於1-99999]\n";
+            }
 
 
             //ErrorStr不為空 則回傳錯誤訊息
@@ -240,7 +245,7 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addProduct @num, @category, @subCategory, @name, @ImgPath, @price, @status, @contnet, @stock";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addProduct @num, @category, @subCategory, @name, @ImgPath, @price, @status, @contnet, @stock, @popularity";
 
                 cmd.Parameters.AddWithValue("@num", dto.Num);                //商品代號
                 cmd.Parameters.AddWithValue("@category", dto.Category);      //商品類型
@@ -251,6 +256,7 @@ namespace OnlineShopBack.Controllers
                 cmd.Parameters.AddWithValue("@status", dto.Status);          //開放狀態
                 cmd.Parameters.AddWithValue("@contnet", dto.Content);        //商品描述     
                 cmd.Parameters.AddWithValue("@stock", dto.Stock);            //庫存量
+                cmd.Parameters.AddWithValue("@popularity", dto.Popularity);  //熱門度
 
                 //開啟連線
                 cmd.Connection.Open();
@@ -437,7 +443,7 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putProduct @productNum, @category, @subCategory, @name, @price, @status, @contnet, @stock";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putProduct @productNum, @category, @subCategory, @name, @price, @status, @contnet, @stock, @popularity";
 
 
                 cmd.Parameters.AddWithValue("@productNum", dto.Num);          //商品代號
@@ -449,6 +455,7 @@ namespace OnlineShopBack.Controllers
                 cmd.Parameters.AddWithValue("@status", dto.Status);          //開放狀態
                 cmd.Parameters.AddWithValue("@contnet", dto.Content);        //商品描述     
                 cmd.Parameters.AddWithValue("@stock", dto.Stock);            //庫存量
+                cmd.Parameters.AddWithValue("@popularity", dto.Popularity);  //熱門度
 
                 //開啟連線
                 cmd.Connection.Open();

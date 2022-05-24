@@ -16,14 +16,23 @@
 
 <script src="~/js/Product/ProductMenu.js"></script>
 
+<div style="margin:15px">
+    搜尋：
+    <input id="Search" oninput="ProductMenuFun.SearchInput()" /> 
+    <select id="SearchClass" onchange="ProductMenuFun.SearchInput()">
+        <option value="f_num">代號</option>
+        <option value="f_name">名稱</option>
+        <option value="f_price">價格</option>
+        <option value="f_stock">庫存量</option>
+    </select>
+</div>
 <div>
     <label>主類別:</label>
     <select id="SerchCategory">
         <option value="0">全部</option>
         <option value="10">3C</option>
         <option value="20">電腦周邊</option>
-        <option value="30">軟體</option>
-        
+        <option value="30">軟體</option>        
     </select>
 </div>
 <div style="display:none" id="SearchSubCategoryBox">
@@ -45,6 +54,7 @@
                     <th>價格</th>
                     <th>開放狀態</th>
                     <th>庫存量</th>
+                    <th>熱門度</th>
                 </tr>
             </thead>
             <tbody id="TableBody">

@@ -16,6 +16,7 @@ namespace OnlineShopBack.Controllers
         public int Status { get; set; }
         public string Content { get; set; } = string.Empty;
         public int Stock { get; set; }
+        public int Popularity { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime UpdateDate { get; set; }
 

@@ -77,7 +77,8 @@ $(document).ready(function () {
                 Price: parseInt($("#Price").val()),
                 Status: parseInt($("#Status").val()),
                 Content: $("#Content").val(),
-                Stock: parseInt($("#Stock").val())
+                Stock: parseInt($("#Stock").val()),
+                Popularity: parseInt($("#Popularity").val())
             })
 
             data.append("AddProductFrom", product);
@@ -116,7 +117,6 @@ $(document).ready(function () {
                             break;
 
                     }
-
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
@@ -159,7 +159,6 @@ var AddProductFun = {
                 $('#SubCategory').html(Category30);
                 break;
         }
-
 
         //map深複製 第一名
         //var array = [1, 2, 3, 4, 5];

@@ -34,7 +34,7 @@
         </div>
         <div>
             <label for="ImgPath">商品圖片:</label>
-            <input type="file" name="ImgPath" id="ImgPath" >
+            <input type="file" name="ImgPath" id="ImgPath">
         </div>
         <div>
             <label for="Price">價格:</label>
@@ -53,7 +53,11 @@
         </div>
         <div>
             <label for="Stock">庫存量:</label>
-            <input type="text" id="Stock" name="Stock" maxlength="4" oninput="value=value.replace(/[^\d]/g,'')"/>
+            <input type="text" id="Stock" name="Stock" maxlength="4" oninput="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div>
+            <label for="Popularity">熱門度:</label>
+            <input type="text" id="Popularity" name="Popularity" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div>
             <input id="AddButton" type="button" value="Add" />

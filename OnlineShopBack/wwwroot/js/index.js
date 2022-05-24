@@ -9,4 +9,7 @@
     $("#Product").click(function () {
         location.href = "/Product/ProductMenu"
     });
+    $("#Order").click(function () {
+        location.href = "/Order/OrderMenu"
+    });
 });

@@ -5,8 +5,7 @@
     ProductJson: "",
     CategotyJson: "",
     MainTempTable: "",
-    CategoryFilterResult: "",
-    SubCategoryFilterResult: ""
+    FilterTemp: ""
 }
 $(document).ready(function () {
     //取得類型列表
@@ -166,11 +165,11 @@ $(document).ready(function () {
                 //商品代號
                 '<div><label> 商品代號:</label> <label id="ProductNum">' + EditProduct[0].f_num + '</label></div>' +
                 //主類別
-                '<div><label for="EditCategroy">主類別:</label>' +
-                '<select id="ProductCategory" onchange="ProductMenuFun.SelectSubCategory()">' + ProductCategoryNum + '</select ></div>' +
+                '<div><label for="EditProductCategory">主類別:</label>' +
+                '<select id="EditProductCategory" onchange="ProductMenuFun.SelectSubCategory()">' + ProductCategoryNum + '</select ></div>' +
                 //子類別
-                '<div><label for="EditSubCategroy">子類別:</label>' +
-                '<select id="SubCategory">' + ProductSubCategory + '</select >' +
+                '<div><label for="EditSubCategory">子類別:</label>' +
+                '<select id="EditSubCategory">' + ProductSubCategory + '</select >' +
                 //名稱
                 '<div><label for="ProductName">商品名稱:</label>' +
                 '<input type="text" id="ProductName" name="ProductName" maxlength="20" value="' + EditProduct[0].f_name + '"/></div>' +
@@ -183,6 +182,9 @@ $(document).ready(function () {
                 //庫存量
                 '<div><label for="ProductStock">庫存量:</label>' +
                 '<input type="text" id="ProductStock" name="ProductStock" maxlength="4" value="' + EditProduct[0].f_stock + '" /></div>' +
+                //熱門度
+                '<div><label for="Popularity">熱門度:</label>' +
+                '<input type="text" id="Popularity" name="Popularity" maxlength="3" value="' + EditProduct[0].f_popularity + '" /></div>' +
                 //內容
                 '<div><label for="Productcontent" style="display: block;">細項說明:</label>' +
                 '<textarea id="ProductContent" name="ProductContent" rows="5" cols="90" maxlength="500">' + EditProduct[0].f_content + '</textarea></div>' +
@@ -204,14 +206,15 @@ $(document).ready(function () {
 
                     var EditProduct = JSON.stringify({
                         Num: $("#ProductNum").html(),
-                        Category: parseInt($("#ProductCategory").val()),
-                        SubCategory: parseInt($("#SubCategory").val()),
+                        Category: parseInt($("#EditProductCategory").val()),
+                        SubCategory: parseInt($("#EditSubCategory").val()),
                         Name: $("#ProductName").val(),
                         ImgPath: $("#ProductImg").val(),
                         Price: parseInt($("#ProductPrice").val()),
                         Status: parseInt($("#ProductStatus").val()),
                         Content: $("#ProductContent").val(),
-                        Stock: parseInt($("#ProductStock").val())
+                        Stock: parseInt($("#ProductStock").val()),
+                        Popularity: parseInt($("#Popularity").val())
                     })
 
 
@@ -277,11 +280,9 @@ $(document).ready(function () {
 
         if ($('#SerchCategory').val() === '0') {
             $("#SearchSubCategoryBox").hide();
-            //SearchTempJson初始化
-            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
-            $('#TableBody').html(rows);
-
-
+            //SearchTempJson初始化            
+            //var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+            ProductMenuFun.SearchInput()
         } else {
             var AllStrTag = '<option value="All">全部</option>';
             $("#SearchSubCategoryBox").show();
@@ -300,27 +301,30 @@ $(document).ready(function () {
             };
 
             MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
-
-            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
-            $('#TableBody').html(rows);
+            FilterTemp = $.extend(true, [], MainTempTable);
+            //var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+            ProductMenuFun.SearchInput()
         }
+
+        //$('#TableBody').html(rows);
+        
     });
-
+    //子類別下拉欄位chnage事件
     $('#SubCategory').change(function () {
-        CategoryFilterResult = $.extend(true, [], MainTempTable);
+        MainTempTable = $.extend(true, [], FilterTemp);
         if ($('#SubCategory').val() === 'All') {
-            MainTempTable = $.extend(true, [], CategoryFilterResult);
-        } else {
-            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
-
             var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
-            $('#TableBody').html(rows);
+        } else {
+            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_subCategory", $('#SubCategory').val())
+            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
 
         }
+       
 
-
-    })
-});  // 
+        //$('#TableBody').html(rows);
+        ProductMenuFun.SearchInput()
+    });
+});
 
 ProductMenuFun = {
     //主類別名稱轉換
@@ -385,6 +389,7 @@ ProductMenuFun = {
                 '<td name="Price">' + ProudctJson[i].f_price + '</td>' +
                 '<td name="' + ProudctJson[i].f_status + '">' + status + '</td>' +
                 '<td name="Status">' + ProudctJson[i].f_stock + '</td>' +
+                '<td name="Status">' + ProudctJson[i].f_popularity + '</td>' +
                 "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'  value='編輯商品'/ ></td>" +
                 "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>";
             "</tr>";
@@ -399,5 +404,18 @@ ProductMenuFun = {
             }
         })
         return Filter;
+    },
+    SearchInput: function () {
+        if ($('#Search').val() == '') {
+            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+
+        } else {
+            var SearchResult = ProductMenuFun.JsonFilter(MainTempTable, $('#SearchClass').val(), $('#Search').val())
+            var rows = ProductMenuFun.MakeProductMenuTag(SearchResult);
+        }
+
+        $('#TableBody').html(rows);
+
     }
+
 }
