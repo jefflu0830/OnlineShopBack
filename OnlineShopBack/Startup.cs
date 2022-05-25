@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -51,6 +52,17 @@ namespace OnlineShopBack
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSession();//†¢ÓÃsession
+
+            //app.Use(async (context, next) =>
+            //{
+            //    string aaa = context.Session.GetString("Account");
+            //    string bbb = context.Session.Id;
+
+            //    context.Response.Redirect("/Order/OrderMenu");
+            //});
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -70,7 +82,7 @@ namespace OnlineShopBack
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSession();//†¢ÓÃsession
+            
 
             app.UseEndpoints(endpoints =>
             {

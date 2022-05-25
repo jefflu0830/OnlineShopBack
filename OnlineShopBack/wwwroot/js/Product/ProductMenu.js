@@ -3,9 +3,9 @@
     Category20: "",
     Category30: "",
     ProductJson: "",
-    CategotyJson: "",
-    MainTempTable: "",
-    FilterTemp: ""
+    CategotyJson:"",
+    MainTempTable:"",
+    FilterTemp:""
 }
 $(document).ready(function () {
     //取得類型列表
@@ -276,12 +276,13 @@ $(document).ready(function () {
 
     //主類別下拉欄位chnage事件
     $('#SerchCategory').change(function () {
+        //初始化
         MainTempTable = $.extend(true, [], ProductJson);
 
         if ($('#SerchCategory').val() === '0') {
-            $("#SearchSubCategoryBox").hide();
-            //SearchTempJson初始化            
-            //var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+
+            $("#SearchSubCategoryBox").hide();                        
+            
             ProductMenuFun.SearchInput()
         } else {
             var AllStrTag = '<option value="All">全部</option>';
@@ -300,28 +301,20 @@ $(document).ready(function () {
                     break;
             };
 
+            //篩選 主類別
             MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
             FilterTemp = $.extend(true, [], MainTempTable);
-            //var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
             ProductMenuFun.SearchInput()
-        }
-
-        //$('#TableBody').html(rows);
-        
+        }        
     });
     //子類別下拉欄位chnage事件
     $('#SubCategory').change(function () {
         MainTempTable = $.extend(true, [], FilterTemp);
-        if ($('#SubCategory').val() === 'All') {
-            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
-        } else {
+
+        if ($('#SubCategory').val() !== 'All') {
             MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_subCategory", $('#SubCategory').val())
-            var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);
+        }      
 
-        }
-       
-
-        //$('#TableBody').html(rows);
         ProductMenuFun.SearchInput()
     });
 });
@@ -405,6 +398,7 @@ ProductMenuFun = {
         })
         return Filter;
     },
+    //搜尋INPUT
     SearchInput: function () {
         if ($('#Search').val() == '') {
             var rows = ProductMenuFun.MakeProductMenuTag(MainTempTable);

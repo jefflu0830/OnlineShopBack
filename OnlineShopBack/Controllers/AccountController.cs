@@ -121,6 +121,7 @@ namespace OnlineShopBack.Controllers
 
         //帳號資料left join權限資料
         [HttpGet("GetAcc")]
+        //public string GetAcc()
         public string GetAcc()
         {
             //登入&身分檢查
@@ -165,10 +166,10 @@ namespace OnlineShopBack.Controllers
             }
 
 
-            for (var i = 0; i < dt.Rows.Count; i++)
-            {
-                dt.Rows[i]["f_createDate"] = string.Format("{0:yyyy-MM-dd HH:mm:ss}", dt.Rows[i]["f_createDate"]);   //重新格式化日期
-            }
+            //for (var i = 0; i < dt.Rows.Count; i++)
+            //{
+            //    dt.Rows[i]["f_createDate"] = string.Format("{0:yyyy-MM-dd HH:mm:ss}", dt.Rows[i]["f_createDate"]);   //重新格式化日期
+            //}
 
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
