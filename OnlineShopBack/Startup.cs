@@ -18,8 +18,11 @@ namespace OnlineShopBack
         public IConfiguration Configuration { get; }
 
 
+
         public void ConfigureServices(IServiceCollection services)
         {
+        
+
             services.AddHttpContextAccessor();
 
 
@@ -36,32 +39,37 @@ namespace OnlineShopBack
             services.AddSession(o =>
             {
                 //session多久失效
-                o.IdleTimeout = TimeSpan.FromSeconds(1800);  
+                o.IdleTimeout = TimeSpan.FromSeconds(1800);
             });
 
             services.AddMvc().ConfigureApiBehaviorOptions(options =>
             {
-                options.SuppressModelStateInvalidFilter = true; //tuer後 不管有沒有報錯 都先會進 controller
+                options.SuppressModelStateInvalidFilter = true; //true 後 不管有沒有報錯 都先會進 controller
             });
 
             services.AddRazorPages();
 
             services.AddDistributedMemoryCache();
 
+
+            //CORS
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("CorsPolicy", policy =>
+            //    {
+            //        policy.WithOrigins()
+            //              .WithHeaders()
+            //              .WithMethods()
+            //              .AllowCredentials();
+            //    });
+            //});
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        {            
             app.UseSession();//啟用session
-
-            //app.Use(async (context, next) =>
-            //{
-            //    string aaa = context.Session.GetString("Account");
-            //    string bbb = context.Session.Id;
-
-            //    context.Response.Redirect("/Order/OrderMenu");
-            //});
-
 
             if (env.IsDevelopment())
             {
@@ -72,6 +80,7 @@ namespace OnlineShopBack
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -86,6 +95,7 @@ namespace OnlineShopBack
 
             app.UseEndpoints(endpoints =>
             {
+                //endpoints.MapControllers();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -94,4 +104,5 @@ namespace OnlineShopBack
             });
         }
     }
+
 }
