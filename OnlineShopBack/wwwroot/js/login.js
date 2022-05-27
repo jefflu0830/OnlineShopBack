@@ -54,7 +54,7 @@ $.validator.setDefaults({
                     }
                 }
                 else {
-                    alert("123")  
+                    alert(result)  
                 }                
             },
             error: function (error) {

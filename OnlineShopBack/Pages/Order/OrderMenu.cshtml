@@ -3,16 +3,21 @@
 @{
     ViewData["Title"] = "訂單";
 }
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 <h5>訂單</h5>
+<button id="AddTransport">新增配送方式</button>
+<button id="AddtransportStatus">新增配送狀態</button>
 <div class="panel panel-primary">
     <div class="panel-body">
         <table class="table table-bordered" id="Table">
             <thead>
                 <tr>
                     <th>訂單編號</th>
-                    <th>訂單日期</th>
+                    <th>訂購帳號</th>
                     <th>配送方式</th>
                     <th>配送狀態</th>
+                    <th>訂單成立日期</th>
                 </tr>
             </thead>
             <tbody id="TableBody">
@@ -20,3 +25,11 @@
         </table>
     </div>
 </div>
+
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+        @* 用html()放入*@
+    </form>
+</div>
+
+<script src="~/js/Order/OrderMenu.js" ></script>

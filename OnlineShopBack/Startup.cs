@@ -54,21 +54,22 @@ namespace OnlineShopBack
 
             //CORS
 
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("CorsPolicy", policy =>
-            //    {
-            //        policy.WithOrigins()
-            //              .WithHeaders()
-            //              .WithMethods()
-            //              .AllowCredentials();
-            //    });
-            //});
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.WithOrigins("https://blog.johnwu.cc")
+                          .WithHeaders()
+                          .WithMethods()
+                          .AllowCredentials();
+                });
+            });
 
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {            
+        {
+            app.UseCors("CorsPolicy");
             app.UseSession();//†¢ÓÃsession
 
             if (env.IsDevelopment())
@@ -95,7 +96,6 @@ namespace OnlineShopBack
 
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapControllers();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -29,18 +29,19 @@ namespace OnlineShopBack.Controllers
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
+            DataSet st = new DataSet();
             SqlDataAdapter da = new SqlDataAdapter();
             try
             {
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductAndCategory ";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getOrder ";
 
                 //開啟連線
                 cmd.Connection.Open();
                 da.SelectCommand = cmd;
-                da.Fill(dt);
+                da.Fill(st);
             }
             catch (Exception e)
             {
@@ -56,9 +57,11 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            var OrderTable = "\"OrderTable\":"+ MyTool.DataTableJson(st.Tables[0]);
+            var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(st.Tables[1]);
+            var TransportStatusTable = "\"TransportStatusTable\":" + MyTool.DataTableJson(st.Tables[2]);
 
-            return result;
+            return "{"+ OrderTable +","+ TransportTable + ","+ TransportStatusTable + "}";
         }
 
     }
