@@ -1,0 +1,46 @@
+﻿@page
+@model OnlineShopBack.Pages.Order.AddTransportModel
+@{
+    ViewData["Title"] = "新增配送方式";
+}
+
+<h5>新增配送方式</h5>
+
+<div id="body" style="padding: 10px;">
+    <form id="Addform" method="post" action="">
+        <div>
+            <label>配送方式代號:</label>
+            <input type="text" id="Transport" name="Transport" maxlength="3" oninput="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div>
+            <label for="TransportName">配送方式名稱:</label>
+            <input type="text" id="TransportName" name="TransportName" maxlength="20" />
+        </div>
+        <div>
+            <input id="AddTransport" type="button" value="ADD" />
+        </div>
+    </form>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <thead>
+                <tr>
+                    <th>配送方式代號</th>
+                    <th>配送方式名稱</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script id="getSelect">
+
+    var TransportJson= @Html.Raw(Model.TransportJson);
+
+    $("#getSelect").remove();
+</script>
+<script src="~/js/Order/AddTransport.js"></script>

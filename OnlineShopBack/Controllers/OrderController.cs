@@ -12,6 +12,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using static OnlineShopBack.Enum.OrderEnum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -22,6 +23,7 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+        //訂單相關----------------------------------
         //取得訂單
         [HttpGet("GetProduct")]
         public string GetProduct()
@@ -45,7 +47,7 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                //return e.Message;
             }
             finally
             {
@@ -57,12 +59,77 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //DataTable轉Json;
-            var OrderTable = "\"OrderTable\":"+ MyTool.DataTableJson(st.Tables[0]);
+
+
+            var OrderTable = "\"OrderTable\":" + MyTool.DataTableJson(st.Tables[0]);
             var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(st.Tables[1]);
             var TransportStatusTable = "\"TransportStatusTable\":" + MyTool.DataTableJson(st.Tables[2]);
 
-            return "{"+ OrderTable +","+ TransportTable + ","+ TransportStatusTable + "}";
+            return "{" + OrderTable + "," + TransportTable + "," + TransportStatusTable + "}";
         }
+
+
+        //配送相關----------------------------------
+        //新增配送
+        [HttpPost("AddTransport")]
+        public string AddTransport([FromBody] TransportDto value )
+        {
+
+            //資料驗證
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            string ErrorStr = "";//記錄錯誤訊息
+
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            TransportReturnCode result = TransportReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addTransport @transport, @transportName ";
+
+                cmd.Parameters.AddWithValue("@transport", value.Transport);
+                cmd.Parameters.AddWithValue("@transportName", value.TransportName);
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
+
+
+                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = TransportReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                //TODO 要有log
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            return "[{\"st\": " + (int)result + "}]";
+        }
+
 
     }
 }
