@@ -380,7 +380,89 @@ namespace OnlineShopBack.Controllers
             return "[{\"st\": " + (int)result + "}]";
         }
 
-        //刪除配送方式
+        //更新配送方式名稱
+        [HttpPut("UpdateTransportStatus")]
+        public string UpdateTransportStatus([FromQuery] int TransportNum, int TransportStatusNum, string TransportStatusName)
+        {
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //編號 
+            if (TransportNum > 255 || TransportNum < 0 ||
+                TransportStatusNum > 255 || TransportStatusNum < 0)
+            {
+                ErrorStr += "[代號應介於0～255個之間]\n";
+            }
+
+            //名稱
+            if (string.IsNullOrEmpty(TransportStatusName) )
+            {
+                ErrorStr += "[名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(TransportStatusName))
+                {
+                    ErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (TransportStatusName.Length > 20 || TransportStatusName.Length < 0)
+                {
+                    ErrorStr += "[名稱應介於0～20個字之間]\n";
+                }
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            TransportReturnCode result = TransportReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putTransportStatus @TransportNum, @transportStatusNum, @transportStatusName ";
+
+                cmd.Parameters.AddWithValue("@transportNum", TransportNum);
+                cmd.Parameters.AddWithValue("@transportStatusNum", TransportStatusNum);
+                cmd.Parameters.AddWithValue("@transportStatusName", TransportStatusName);
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
+
+                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = TransportReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return "[{\"st\": " + (int)result + "}]";
+
+        }
+
+        //刪除配送狀態
         [HttpDelete("DelTransportStatus")]
         public string DelTransportStatus([FromQuery] int TransportNum, int TransportStatusNum)
         {

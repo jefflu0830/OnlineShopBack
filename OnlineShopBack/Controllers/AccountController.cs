@@ -165,12 +165,6 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-
-            //for (var i = 0; i < dt.Rows.Count; i++)
-            //{
-            //    dt.Rows[i]["f_createDate"] = string.Format("{0:yyyy-MM-dd HH:mm:ss}", dt.Rows[i]["f_createDate"]);   //重新格式化日期
-            //}
-
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 

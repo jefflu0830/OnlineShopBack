@@ -81,7 +81,6 @@
     });
 
     //刪除按鈕
-    //
     //$('.DeleteBtn').click(function () {
     $('#TableBody').on('click', '.DeleteBtn', function () {
         var currentRow = $(this).closest("tr");
@@ -119,6 +118,94 @@
                 }
             })
         }
+    });
+
+    //編輯名稱按鈕
+    $('#TableBody').on('click', '.EditTransportBtn', function () {
+        var currentRow = $(this).closest("tr");
+        var TransportNum = currentRow.find("td:eq(0)").text();
+        var TransportName = currentRow.find("td:eq(1)").text();
+
+        //組html Tag
+        if ($("#EditBox").css("display") == "none") {
+
+            var EditData =
+                '<h5>配送方式編輯</h5>' +
+                '<div><label> 配送方式編號:</label><label>' + TransportNum + '</label></div>' +
+                '<div><label> 配送方式名稱:</label><input type="text" id="EditTransportName" name="TransportName" maxlength="20" value="' + TransportName + '" /></div>' +
+                "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
+                "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
+
+            $('#Editform').html(EditData);
+            $("#EditBox").show();
+
+            $('#EditTransport').change(function () {
+                var SelectTag = OrderMenuFun.MakeTransportStatusSelect($('#EditTransport').val(), '');
+                $('#EditTransportStatus').html(SelectTag);
+            });
+
+            //確認編輯
+            $('#EditConfirm').click(function () {
+                var ErrorCode = "";
+                //檢測
+                if ($('#EditTransportName').val() === "") {
+                    ErrorCode += "[名稱] 不可空白\n"
+                } else {
+                    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($('#EditTransportName').val()) == false) {
+                        ErrorCode += "[名稱] 不允許中英數以外字符。\n"
+                    }
+                    if ($('#EditTransportName').val().length > 20) {
+                        ErrorCode += "[名稱]請小於20個字\n"
+                    }
+                }
+
+                if (ErrorCode !== "") {
+                    alert(ErrorCode)
+                }
+                else {
+
+                    $.ajax({
+                        url: "/api/Order/UpdateTransportStatus?TransportNum=" + TransportNum + "&TransportName=" + $('#EditTransportName').val(),
+                        type: "put",
+                        contentType: "application/json",
+                        dataType: "text",
+                        data: JSON.stringify({
+                            "SubCategoryName": $("#EditCategroyName").val()
+                        }),
+                        success: function (result) {
+
+                            var JsonResult = JSON.parse(result)//JSON字串轉物件
+                            switch (JsonResult[0].st) {
+                                case 0: {
+                                    alert('更新成功');
+                                    location.reload(); //新增成功才更新頁面
+                                    break;
+                                }
+                                case 100: {
+                                    alert('尚未建立此配送方式');
+                                    break;
+                                }
+                                default: {
+                                    alert('資料庫新增失敗');
+                                }
+                            }
+                        },
+                        error: function (error) {
+                            alert(error);
+                        }
+                    })
+                }
+            });
+            //取消編輯
+            $('#EditCancel').click(function () {
+                if ($("#EditBox").css("display") !== "none") {
+                    $("#EditBox").hide();
+                };
+            });
+
+        };
+
+
     });
 
     //上一頁

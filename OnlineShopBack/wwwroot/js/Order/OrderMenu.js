@@ -55,7 +55,7 @@ $(document).ready(function () {
                         '<div><label> 訂單編號:</label><label>' + Filter[0].f_orderNum + '</label></div>' +
                         '<div><label> 訂購帳號:</label><label>' + Filter[0].f_acc + '</label></div>' +
                         '<div><label> 配送方式:</label><select id="EditTransport" >' + TransportSelectTag + '</select ></div>' +
-                        '<div><label> 配送狀態:</label><select id="EditTransportStatus" >' + TransportStatusSelectTag + '</select ></div>' +
+                        '<div><label> 配送狀態:</label><span style="color:red;" id="StatusSelect">' + TransportStatusSelectTag + '</span></div>' +
                         "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
                         "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
 
@@ -63,12 +63,24 @@ $(document).ready(function () {
                     $("#EditBox").show();
 
                     $('#EditTransport').change(function () {
-                        var SelectTag = OrderMenuFun.MakeTransportStatusSelect($('#EditTransport').val() , '');
-                        $('#EditTransportStatus').html(SelectTag);
+                        var SelectTag = '';
+                        SelectTag = OrderMenuFun.MakeTransportStatusSelect($('#EditTransport').val(), '');
+
+                        if (SelectTag !== "") {
+                            $('#StatusSelect').html(SelectTag );
+
+                        } else {
+                            SelectTag = '無設定配送狀態請新增'
+                            $('#StatusSelect').html(SelectTag);
+                        }
                     });
 
                     //確認編輯
                     $('#EditConfirm').click(function () {
+                        if (!$('#EditTransportStatus').length > 0) {
+                            alert('此配送方式無設定配送狀態，請新增配送狀態');
+                        }
+
                         alert('配送方式確認');
                     });
                     //取消編輯
@@ -134,7 +146,7 @@ OrderMenuFun = {
         var TransportStatusTag = "";
 
         for (var i in TransportStatus) {
-            
+
 
             if (TransportStatus[i].f_transportStatus == TransportStatusValue) {
                 TransportStatusTag += '<option selected value="' + TransportStatus[i].f_transportStatus + '">' + TransportStatus[i].f_transportStatusName + '</option >';
@@ -143,7 +155,15 @@ OrderMenuFun = {
             };
 
         }
-        return TransportStatusTag;
+        var TagResult = '';
+        if (TransportStatusTag !== '') {
+            TagResult = '<select id="EditTransportStatus" >' + TransportStatusTag + '</select >';
+        } else {
+            TagResult = '';
+        }
+
+
+        return TagResult ;
 
     }
 };

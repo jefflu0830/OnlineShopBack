@@ -25,7 +25,6 @@ namespace OnlineShopBack
 
             services.AddHttpContextAccessor();
 
-
             services.AddControllersWithViews();
             services.AddControllers();
 
@@ -53,12 +52,12 @@ namespace OnlineShopBack
 
 
             //CORS
-
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins("https://blog.johnwu.cc")
+                    //policy.WithOrigins("https://blog.johnwu.cc")
+                    policy.WithOrigins("https://tw.yahoo.com")
                           .WithHeaders()
                           .WithMethods()
                           .AllowCredentials();
@@ -70,6 +69,7 @@ namespace OnlineShopBack
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors("CorsPolicy");
+
             app.UseSession();//啟用session
 
             if (env.IsDevelopment())
@@ -88,9 +88,9 @@ namespace OnlineShopBack
             app.UseRouting();
 
             //Cookie驗證用  順序要一樣
-            app.UseCookiePolicy();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseCookiePolicy();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             
 
