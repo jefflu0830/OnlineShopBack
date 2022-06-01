@@ -21,21 +21,21 @@
         var ErrorCode = "";
 
         //檢測
-        if ($("#LevelName").val() === "" || $("#memberLevel").val() === "") {
+        if ($("#Transport").val() === "" || $("#TransportStatus").val() === "" || $("#TransportStatusName").val() === "") {
             ErrorCode += "[名稱] 或 [代號] 不可空白\n"
         } else {
-            //    if (parseInt($("#memberLevel").val()) < 0 || parseInt($("#memberLevel").val()) > 255) {
-            //        ErrorCode += "[會員等級編號]請輸入0～255之間。\n"
-            //    }
-            //    if (/^[0-9]*$/.test($("#memberLevel").val()) == false) {
-            //        ErrorCode += "[會員等級編號] 只允許輸入數字。\n"
-            //    }
-            //    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($("#LevelName").val()) == false) {
-            //        ErrorCode += "[會員等級名稱] 不允許中英數以外字符。\n"
-            //    }
-            //    if ($("#LevelName").val().length > 10) {
-            //        ErrorCode += "[會員等級名稱]請小於10個字\n"
-            //    }
+            if (parseInt($("#TransportStatus").val()) < 0 || parseInt($("#TransportStatus").val()) > 255) {
+                ErrorCode += "[會員等級編號]請輸入0～255之間。\n"
+            }
+            if (/^[0-9]*$/.test($("#TransportStatus").val()) == false) {
+                ErrorCode += "[會員等級編號] 只允許輸入數字。\n"
+            }
+            if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($("#TransportStatusName").val()) == false) {
+                ErrorCode += "[會員等級名稱] 不允許中英數以外字符。\n"
+            }
+            if ($("#TransportStatusName").val().length > 10) {
+                ErrorCode += "[會員等級名稱]請小於10個字\n"
+            }
         }
 
         if (ErrorCode !== "") {
@@ -64,6 +64,9 @@
                         case 1:
                             alert('資料庫新增失敗');
                             break;
+                        default: {
+                            alert('資料庫新增失敗');
+                        }
                     }
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {
@@ -80,11 +83,11 @@
     //刪除按鈕
     //
     //$('.DeleteBtn').click(function () {
-    $('#TableBody').on('click','.DeleteBtn',function () {
+    $('#TableBody').on('click', '.DeleteBtn', function () {
         var currentRow = $(this).closest("tr");
         var TransportNum = $('#TransportSelect').val();
         var TransportStatusNum = currentRow.find('td:eq(1)').text();
-              
+
 
         if (window.confirm("確定要刪除此配送方式嗎?")) {
             $.ajax({
@@ -102,6 +105,9 @@
                         case 100:
                             alert('無此配送方式');
                             break;
+                        default: {
+                            alert('資料庫新增失敗');
+                        }
                     }
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {
@@ -113,6 +119,11 @@
                 }
             })
         }
+    });
+
+    //上一頁
+    $("#NextPage").click(function () {
+        location.href = "/Order/AddTransport"
     });
 });
 
@@ -136,7 +147,7 @@ AddTransStatusFun = {
     TransportSelectOnChange: function () {
         var Transport = $('#TransportSelect').val();
         var temp = TransportStatusJson.filter(function (item) {
-            if (item['f_transport'] == parseInt(Transport) ) {
+            if (item['f_transport'] == parseInt(Transport)) {
                 return item
             }
         });

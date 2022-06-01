@@ -82,10 +82,30 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-
-
             string ErrorStr = "";//記錄錯誤訊息
 
+            //編號 
+            if (value.Transport > 255 || value.Transport < 0)
+            {
+                ErrorStr += "[代號應介於0～255個之間]\n";
+            }
+
+            //名稱
+            if (string.IsNullOrEmpty(value.TransportName))
+            {
+                ErrorStr += "[名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.TransportName))
+                {
+                    ErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (value.TransportName.Length > 20 || value.TransportName.Length < 1)
+                {
+                    ErrorStr += "[名稱應介於1～20個字之間]\n";
+                }
+            }
 
             //錯誤訊息有值 return錯誤值
             if (!string.IsNullOrEmpty(ErrorStr))
@@ -144,26 +164,26 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //子類別編號 
-            if (TransportNum > 256 || TransportNum < 0)
+            //編號 
+            if (TransportNum > 255 || TransportNum < 0)
             {
-                ErrorStr += "[代號應介於0～256個之間]\n";
+                ErrorStr += "[代號應介於0～255個之間]\n";
             }
 
-            //權限名稱
+            //名稱
             if (string.IsNullOrEmpty(TransportName))
             {
-                ErrorStr += "[子類別名稱不可為空]\n";
+                ErrorStr += "[名稱不可為空]\n";
             }
             else
             {
                 if (!MyTool.IsCNAndENAndNumber(TransportName))
                 {
-                    ErrorStr += "[子類別名稱應為中文,英文及數字]\n";
+                    ErrorStr += "[名稱應為中文,英文及數字]\n";
                 }
                 if (TransportName.Length > 20 || TransportName.Length < 0)
                 {
-                    ErrorStr += "[子類別名稱應介於0～20個字之間]\n";
+                    ErrorStr += "[名稱應介於0～20個字之間]\n";
                 }
             }
 
@@ -225,6 +245,12 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
+            //編號 
+            if (TransportNum > 255 || TransportNum < 0)
+            {
+                ErrorStr += "[代號應介於0～255個之間]\n";
+            }
+
             //錯誤訊息有值 return錯誤值
             if (!string.IsNullOrEmpty(ErrorStr))
             {
@@ -267,7 +293,7 @@ namespace OnlineShopBack.Controllers
 
         //配送狀態相關-----------------
 
-        //新增配送方式
+        //新增配送狀態
         [HttpPost("AddTransportStatus")]
         public string AddTransportStatus([FromBody] TransportDto value)
         {
@@ -282,6 +308,30 @@ namespace OnlineShopBack.Controllers
 
 
             string ErrorStr = "";//記錄錯誤訊息
+
+            //編號 
+            if (value.Transport > 255 || value.Transport < 0 ||
+                value.TransportStatus > 255 || value.TransportStatus < 0)
+            {
+                ErrorStr += "[代號應介於0～255個之間]\n";
+            }
+
+            //名稱
+            if (string.IsNullOrEmpty(value.TransportStatusName))
+            {
+                ErrorStr += "[名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.TransportStatusName))
+                {
+                    ErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (value.TransportStatusName.Length > 20 || value.TransportStatusName.Length < 1)
+                {
+                    ErrorStr += "[名稱應介於1～20個字之間]\n";
+                }
+            }
 
 
             //錯誤訊息有值 return錯誤值
