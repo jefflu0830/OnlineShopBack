@@ -33,6 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Pages\Order\AddTransportStatus.cshtml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Pages\Shared\_Layout.cshtml" />
     <None Include="Pages\Shared\_ValidationScriptsPartial.cshtml" />
   </ItemGroup>

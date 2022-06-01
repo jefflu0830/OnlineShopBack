@@ -1,0 +1,51 @@
+﻿@page
+@model OnlineShopBack.wwwroot.js.Order.AddTransportStatusModel
+@{
+    ViewData["Title"] = "新增配送狀態";
+}
+<h5>新增配送狀態</h5>
+<div id="body" style="padding: 10px;">
+    <form id="Addform" method="post" action="">
+        <div>
+            <select id="TransportSelect">
+               
+            </select>
+        </div>
+        <div>
+            <label for="TransportStatus">配送狀態代號:</label>
+            <input type="text" id="TransportStatus" name="TransportStatus" maxlength="3"  oninput="value=value.replace(/[^\d]/g,'')"/>
+        </div>
+        <div>
+            <label for="TransportStatusName">配送狀態名稱:</label>
+            <input type="text" id="TransportStatusName" name="TransportStatusName" maxlength="20" />
+        </div>
+        <div>
+            <input id="AddTransportStatus" type="button" value="ADD" />
+        </div>
+    </form>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <table class="table table-bordered" id="Table">
+            <thead>
+                <tr>
+                    <th>配送方式</th>
+                    <th>配送狀態代號</th>
+                    <th>配送狀態名稱</th>
+                </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script id="getSelect">
+
+    var TransportJson = @Html.Raw(Model.TransportJson);
+    var TransportStatusJson = @Html.Raw(Model.TransportStatusJson);
+    $("#getSelect").remove();
+</script>
+<script src="~/js/Order/AddTransportStatus.js"></script>

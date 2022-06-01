@@ -4,8 +4,9 @@
     ViewData["Title"] = "新增配送方式";
 }
 
-<h5>新增配送方式</h5>
 
+<button id="AddTransportStatus">新增配送狀態</button>
+<h5>新增配送方式</h5>
 <div id="body" style="padding: 10px;">
     <form id="Addform" method="post" action="">
         <div>
@@ -14,7 +15,7 @@
         </div>
         <div>
             <label for="TransportName">配送方式名稱:</label>
-            <input type="text" id="TransportName" name="TransportName" maxlength="20" />
+            <input type="text" id="TransportName" name="TransportName" maxlength="20"  />
         </div>
         <div>
             <input id="AddTransport" type="button" value="ADD" />
@@ -35,6 +36,12 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div id="EditBox" style="border: solid 2px; padding: 5px; display: none; position:relative; z-index:99; ">
+    <form id="Editform" method="post" action="">
+        @* 用html()放入*@
+    </form>
 </div>
 
 <script id="getSelect">
