@@ -9,7 +9,7 @@ $(document).ready(function () {
     //取得會員列表
     $.ajax({
         type: "GET",
-        url: "/api/Order/GetProduct",
+        url: "/api/Order/GetOrder",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {

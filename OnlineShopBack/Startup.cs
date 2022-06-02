@@ -21,7 +21,7 @@ namespace OnlineShopBack
 
         public void ConfigureServices(IServiceCollection services)
         {
-        
+
 
             services.AddHttpContextAccessor();
 
@@ -50,25 +50,55 @@ namespace OnlineShopBack
 
             services.AddDistributedMemoryCache();
 
+            //會一直通過CORS的原因是因為 有分簡單請求(GET , POST) and 預檢請求(PUT , DELETE)
+            //簡單請求就不會經過跨域檢查
+            //GET 跟POST 要想辦法讓他經過預檢  可利用 Content-Type  標頭值header
+            //https://developer.mozilla.org/zh-TW/docs/Web/HTTP/CORS
 
-            //CORS
+            /*
+            JS 測試
+            var request = new XMLHttpRequest();
+
+            request.open('POST', 'https://localhost:5001/api/Order/AddTransport', true);
+            request.setRequestHeader('Content-Type', 'application/json');
+
+            request.send({ });*/
+
+            //預設CORS
+            //下方Configure 中的 app.useCors(),就不須加上名稱
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy", policy =>
+                options.AddDefaultPolicy(builder =>
                 {
-                    //policy.WithOrigins("https://blog.johnwu.cc")
-                    policy.WithOrigins("https://tw.yahoo.com")
-                          .WithHeaders()
-                          .WithMethods()
-                          .AllowCredentials();
+                    builder.WithOrigins("https://blog.johnwu.cc")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
+
+            //addCors可以做個別controller的防護
+            //在controller上 加上標籤 [EnableCors("CorsPolicy")]
+            //https://stackoverflow.com/questions/31942037/how-to-enable-cors-in-asp-net-core
+            //CORS
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("CorsPolicy", policy =>
+            //    {
+            //        //policy.WithOrigins("https://blog.johnwu.cc")
+            //        policy.WithOrigins("https://tw.yahoo.com")
+            //              .WithHeaders()
+            //              .WithMethods()
+            //              .AllowCredentials();
+            //    });
+            //});
 
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors("CorsPolicy");
+            //app.UseCors("CorsPolicy");
+            app.UseCors();
 
             app.UseSession();//啟用session
 
@@ -92,7 +122,7 @@ namespace OnlineShopBack
             //app.UseAuthentication();
             //app.UseAuthorization();
 
-            
+
 
             app.UseEndpoints(endpoints =>
             {

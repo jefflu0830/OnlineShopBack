@@ -11,6 +11,9 @@
     //Transport 下拉選單 change
     $('#TransportSelect').change(function () {
         AddTransStatusFun.TransportSelectOnChange();
+        if ($("#EditBox").css("display") !== "none") {
+            $("#EditBox").hide();
+        };
     });
 
     //點擊新增
@@ -123,16 +126,18 @@
     //編輯名稱按鈕
     $('#TableBody').on('click', '.EditTransportBtn', function () {
         var currentRow = $(this).closest("tr");
-        var TransportNum = currentRow.find("td:eq(0)").text();
-        var TransportName = currentRow.find("td:eq(1)").text();
-
+        var TransportNum = currentRow.find("td:eq(0)").attr('id');
+        var TransportName = currentRow.find("td:eq(0)").text();
+        var TransportStatusNum = currentRow.find("td:eq(1)").text();
+        var TransportStatusName = currentRow.find("td:eq(2)").text();
         //組html Tag
         if ($("#EditBox").css("display") == "none") {
 
             var EditData =
                 '<h5>配送方式編輯</h5>' +
-                '<div><label> 配送方式編號:</label><label>' + TransportNum + '</label></div>' +
-                '<div><label> 配送方式名稱:</label><input type="text" id="EditTransportName" name="TransportName" maxlength="20" value="' + TransportName + '" /></div>' +
+                '<div><label> 配送方式:</label><label >' + TransportName + '</label></div>' +
+                '<div><label> 配送狀態代號:</label><label>' + TransportStatusNum + '</label></div>' +
+                '<div><label> 配送狀態名稱:</label><input type="text" id="EditTransportName" name="TransportName" maxlength="20" value="' + TransportStatusName + '" /></div>' +
                 "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
 
@@ -145,27 +150,27 @@
             });
 
             //確認編輯
-            $('#EditConfirm').click(function () {
+            $('#EditConfirm').click(function () {                                                  
+
                 var ErrorCode = "";
-                //檢測
-                if ($('#EditTransportName').val() === "") {
-                    ErrorCode += "[名稱] 不可空白\n"
-                } else {
-                    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($('#EditTransportName').val()) == false) {
-                        ErrorCode += "[名稱] 不允許中英數以外字符。\n"
-                    }
-                    if ($('#EditTransportName').val().length > 20) {
-                        ErrorCode += "[名稱]請小於20個字\n"
-                    }
-                }
+                ////檢測
+                //if ($('#EditTransportName').val() === "") {
+                //    ErrorCode += "[名稱] 不可空白\n"
+                //} else {
+                //    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($('#EditTransportName').val()) == false) {
+                //        ErrorCode += "[名稱] 不允許中英數以外字符。\n"
+                //    }
+                //    if ($('#EditTransportName').val().length > 20) {
+                //        ErrorCode += "[名稱]請小於20個字\n"
+                //    }
+                //}
 
                 if (ErrorCode !== "") {
                     alert(ErrorCode)
                 }
                 else {
-
                     $.ajax({
-                        url: "/api/Order/UpdateTransportStatus?TransportNum=" + TransportNum + "&TransportName=" + $('#EditTransportName').val(),
+                        url: '/api/Order/UpdateTransportStatus?TransportNum=' + TransportNum + '&TransportStatusNum=' + TransportStatusNum + '&TransportStatusName=' + $('#EditTransportName').val(),
                         type: "put",
                         contentType: "application/json",
                         dataType: "text",

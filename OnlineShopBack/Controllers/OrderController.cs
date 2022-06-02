@@ -26,8 +26,8 @@ namespace OnlineShopBack.Controllers
         //訂單相關-----------------
 
         //取得訂單
-        [HttpGet("GetProduct")]
-        public string GetProduct()
+        [HttpGet("GetOrder")]
+        public string GetOrder()
         {
 
             SqlCommand cmd = null;
@@ -66,6 +66,71 @@ namespace OnlineShopBack.Controllers
             var TransportStatusTable = "\"TransportStatusTable\":" + MyTool.DataTableJson(st.Tables[2]);
 
             return "{" + OrderTable + "," + TransportTable + "," + TransportStatusTable + "}";
+        }
+
+        //更新訂單配送方式&狀態
+        [HttpPut("UpdateOrder")]
+        public string UpdateOrder([FromQuery] int OrderNum, int TransportNum, int TransportStatusNum)
+        {
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+
+            //編號 
+            if (TransportNum > 255 || TransportNum < 0 ||
+                TransportStatusNum > 255 || TransportStatusNum < 0)
+            {
+                ErrorStr += "[代號應介於0～255個之間]\n";
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            TransportReturnCode result = TransportReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putOrder @orderNum, @transportNum, @transportStatusNum ";
+
+                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
+                cmd.Parameters.AddWithValue("@transportNum", TransportNum);
+                cmd.Parameters.AddWithValue("@transportStatusNum", TransportStatusNum);
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
+
+                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = TransportReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return "[{\"st\": " + (int)result + "}]";
+
         }
 
         //配送方式相關-----------------
