@@ -154,16 +154,16 @@
 
                 var ErrorCode = "";
                 ////檢測
-                //if ($('#EditTransportName').val() === "") {
-                //    ErrorCode += "[名稱] 不可空白\n"
-                //} else {
-                //    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($('#EditTransportName').val()) == false) {
-                //        ErrorCode += "[名稱] 不允許中英數以外字符。\n"
-                //    }
-                //    if ($('#EditTransportName').val().length > 20) {
-                //        ErrorCode += "[名稱]請小於20個字\n"
-                //    }
-                //}
+                if ($('#EditTransportName').val() === "") {
+                    ErrorCode += "[名稱] 不可空白\n"
+                } else {
+                    if (/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test($('#EditTransportName').val()) == false) {
+                        ErrorCode += "[名稱] 不允許中英數以外字符。\n"
+                    }
+                    if ($('#EditTransportName').val().length > 20) {
+                        ErrorCode += "[名稱]請小於20個字\n"
+                    }
+                }
 
                 if (ErrorCode !== "") {
                     alert(ErrorCode)
@@ -245,5 +245,10 @@ AddTransStatusFun = {
         });
         var rows = AddTransStatusFun.MakeTransStatusTag(temp);
         $('#TableBody').html(rows)
+    },
+    //重取列表資訊
+    RemakeList: function () {
+
+
     }
 }

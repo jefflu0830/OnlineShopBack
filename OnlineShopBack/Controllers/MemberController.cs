@@ -357,9 +357,9 @@ namespace OnlineShopBack.Controllers
             }
 
             //購物金資料驗證
-            if (PutShopGold > 20000 || PutShopGold < 0)
+            if (PutShopGold > 200000 || PutShopGold < 0)
             {
-                addAccErrorStr += "調整後不得小於0 or 大於20000";
+                addAccErrorStr += "調整後不得小於0 or 大於200000";
             }
 
             if (!string.IsNullOrEmpty(addAccErrorStr))

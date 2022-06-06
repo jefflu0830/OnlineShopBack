@@ -49,6 +49,15 @@ namespace OnlineShopBack.Tool
             return sb.ToString();
         }
 
+
+        //判斷字串是否只有數字
+        public static bool OnlyNumber(string str)
+        {
+            System.Text.RegularExpressions.Regex reg1 = new System.Text.RegularExpressions.Regex(@"^[0-9]+$");
+
+            return reg1.IsMatch(str);
+        }
+
         //判斷字串是否只有英數
         public static bool IsENAndNumber(string str )
         {

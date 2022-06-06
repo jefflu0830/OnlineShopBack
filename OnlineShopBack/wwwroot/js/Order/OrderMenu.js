@@ -6,7 +6,7 @@
 
 $(document).ready(function () {
 
-    //取得會員列表
+    //取得表
     $.ajax({
         type: "GET",
         url: "/api/Order/GetOrder",
@@ -67,7 +67,7 @@ $(document).ready(function () {
                         SelectTag = OrderMenuFun.MakeTransportStatusSelect($('#EditTransport').val(), '');
 
                         if (SelectTag !== "") {
-                            $('#StatusSelect').html(SelectTag );
+                            $('#StatusSelect').html(SelectTag);
 
                         } else {
                             SelectTag = '無設定配送狀態請新增'
@@ -77,11 +77,46 @@ $(document).ready(function () {
 
                     //確認編輯
                     $('#EditConfirm').click(function () {
-                        if (!$('#EditTransportStatus').length > 0) {
-                            alert('此配送方式無設定配送狀態，請新增配送狀態');
+                        var ErrorCode = '';
+
+                        if ($('#EditTransportStatus').length == 0) {
+                            ErrorCode = '此配送方式無設定配送狀態，請新增配送狀態';
                         }
 
-                        alert('配送方式確認');
+
+                        if (ErrorCode != '') {
+                            alert(ErrorCode);
+                        } else {
+                            $.ajax({
+                                url: '/api/Order/UpdateOrder?OrderNum=' + Filter[0].f_orderNum + '&TransportNum=' + $('#EditTransport').val() + '&TransportStatusNum=' + $('#EditTransportStatus').val(),
+                                type: "put",
+                                contentType: "application/json",
+                                dataType: "text",
+                                data: {},
+                                success: function (result) {
+
+                                    var JsonResult = JSON.parse(result)//JSON字串轉物件
+                                    switch (JsonResult[0].st) {
+                                        case 0: {
+                                            alert('更新成功');
+                                            location.reload(); //新增成功才更新頁面
+                                            break;
+                                        }
+                                        case 100: {
+                                            alert('尚未建立此配送方式');
+                                            break;
+                                        }
+                                        default: {
+                                            alert('資料庫新增失敗');
+                                        }
+                                    }
+                                },
+                                error: function (error) {
+                                    alert(error);
+                                }
+                            })
+                        }
+
                     });
                     //取消編輯
                     $('#EditCancel').click(function () {
@@ -91,6 +126,66 @@ $(document).ready(function () {
                     });
 
                 };
+            });
+
+
+            //退貨
+            $('.ReturnBtn').click(function () {
+                if (window.confirm("此訂單確定要退貨嗎?")) {
+                    var currentRow = $(this).closest("tr");
+                    var OrderId = currentRow.find("td:eq(0)").attr('id');
+                    var OrdernNum = currentRow.find("td:eq(0)").text();
+
+                    //篩選所點選訂單id資料
+                    var Filter = OrderTable.filter(function (item) {
+                        if (item["f_id"] == OrderId) {
+                            return item
+                        }
+                    })
+                    var ErrorCode = '';
+
+                    if (Filter[0].f_orderStatus != 2) {
+                        ErrorCode = '此訂單狀態不為待退貨，無法退貨';
+                    }
+
+
+                    
+                    if (ErrorCode != '') {
+                        alert(ErrorCode);
+                    } else {
+                        $.ajax({
+                            url: '/api/Order/OrderReturn?OrderNum=' + OrdernNum,
+                            type: "put",
+                            contentType: "application/json",
+                            dataType: "text",
+                            data: {},
+                            success: function (result) {
+                                var JsonResult = JSON.parse(result)//JSON字串轉物件
+                                switch (JsonResult[0].st) {
+                                    case 0: {
+                                        alert('此訂單已完成退貨');
+                                        location.reload(); //新增成功才更新頁面
+                                        break;
+                                    }
+                                    case 100: {
+                                        alert('尚未建立此訂單');
+                                        break;
+                                    }
+                                    case 101: {
+                                        alert('此訂單狀態是不是待退貨狀態');
+                                        break;
+                                    }
+                                    default: {
+                                        alert('資料庫更新失敗');
+                                    }
+                                }
+                            },
+                            error: function (error) {
+                                alert(error);
+                            }
+                        })
+                    }
+                }
             })
         },
         failure: function (data) {
@@ -125,14 +220,38 @@ OrderMenuFun = {
                 }
             })
 
+            var OrderStatus = '';
+            var ReturnBtn = '';
+            switch (MenuJson[i].f_orderStatus) {
+                case '0':
+                    OrderStatus = '待取貨';
+                    break;
+                case '1':
+                    OrderStatus = '已取貨';
+                    break;
+                case '2':
+                    OrderStatus = '待退貨';
+                    ReturnBtn = '<input type="button" class="ReturnBtn" name="ReturnBtn" value="退貨" />'
+                    break;
+                case '3':
+                    OrderStatus = '已退貨';                    
+                    break;
+                default:
+                    alert('訂單狀態碼參數異常');
+                    break;
+            }
+
+
             rows += "<tr>" +
                 '<td id="' + MenuJson[i].f_id + '">' + MenuJson[i].f_orderNum + '</td>' +
                 '<td name="Acc">' + MenuJson[i].f_acc + '</td>' +
                 '<td name="TransportName">' + TempTransport[0].f_transportName + '</td>' +
                 '<td name="TransportStatusName">' + TempStatus[0].f_transportStatusName + '</td>' +
+                '<td name="OrderStatus">' + OrderStatus + '</td>' +
                 '<td name="OrderDate">' + MenuJson[i].f_orderDate + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯配送"/ ></td>' +
-                "<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='退貨'/ ></td>";
+                '<td align="center">' + ReturnBtn+' </td>'+
+                //"<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='退貨'/ ></td>";
             "</tr>";
         }
         return rows
@@ -163,7 +282,7 @@ OrderMenuFun = {
         }
 
 
-        return TagResult ;
+        return TagResult;
 
     }
 };

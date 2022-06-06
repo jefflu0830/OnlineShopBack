@@ -23,7 +23,7 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        //訂單相關-----------------
+        /*訂單相關-----------------*/
 
         //取得訂單
         [HttpGet("GetOrder")]
@@ -70,7 +70,7 @@ namespace OnlineShopBack.Controllers
 
         //更新訂單配送方式&狀態
         [HttpPut("UpdateOrder")]
-        public string UpdateOrder([FromQuery] int OrderNum, int TransportNum, int TransportStatusNum)
+        public string UpdateOrder([FromQuery] string OrderNum, int TransportNum, int TransportStatusNum)
         {
             string ErrorStr = "";//記錄錯誤訊息
 
@@ -79,15 +79,20 @@ namespace OnlineShopBack.Controllers
             {
                 return "參數異常";
             }
+            //訂單編號
+            if (!MyTool.OnlyNumber(OrderNum))
+            {
+                ErrorStr += "[訂單號碼只能是數字]\n";
+            }
 
-            //編號 
+            //配送方式&配送狀態
             if (TransportNum > 255 || TransportNum < 0 ||
                 TransportStatusNum > 255 || TransportStatusNum < 0)
             {
-                ErrorStr += "[代號應介於0～255個之間]\n";
+                ErrorStr += "[方式代號&狀態代號，應介於0～255個之間]\n";
             }
 
-            //錯誤訊息有值 return錯誤值
+            //錯誤訊息有值 return錯誤訊息
             if (!string.IsNullOrEmpty(ErrorStr))
             {
                 return ErrorStr;
@@ -133,7 +138,68 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        //配送方式相關-----------------
+        //訂單退貨
+        [HttpPut("OrderReturn")]
+        public string OrderReturn([FromQuery] string OrderNum)
+        {
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+            //訂單編號
+            if (!MyTool.OnlyNumber(OrderNum))
+            {
+                ErrorStr += "[訂單號碼只能是數字]\n";
+            }
+
+            //錯誤訊息有值 return錯誤訊息
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            TransportReturnCode result = TransportReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @" EXEC pro_onlineShopBack_putOrderReturn @orderNum ";
+
+                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
+
+                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = TransportReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return "[{\"st\": " + (int)result + "}]";
+
+        }
+
+        /*配送方式相關-----------------*/
 
         //新增配送方式
         [HttpPost("AddTransport")]
@@ -356,7 +422,7 @@ namespace OnlineShopBack.Controllers
             return "[{\"st\": " + (int)result + "}]";
         }
 
-        //配送狀態相關-----------------
+        /*配送狀態相關-----------------*/
 
         //新增配送狀態
         [HttpPost("AddTransportStatus")]
