@@ -149,7 +149,7 @@ $(document).ready(function () {
                     }
 
 
-                    
+
                     if (ErrorCode != '') {
                         alert(ErrorCode);
                     } else {
@@ -160,7 +160,9 @@ $(document).ready(function () {
                             dataType: "text",
                             data: {},
                             success: function (result) {
+
                                 var JsonResult = JSON.parse(result)//JSON字串轉物件
+
                                 switch (JsonResult[0].st) {
                                     case 0: {
                                         alert('此訂單已完成退貨');
@@ -173,6 +175,10 @@ $(document).ready(function () {
                                     }
                                     case 101: {
                                         alert('此訂單狀態是不是待退貨狀態');
+                                        break;
+                                    }
+                                    case 1: {
+                                        alert('更新失敗,請檢查LOG');
                                         break;
                                     }
                                     default: {
@@ -234,7 +240,7 @@ OrderMenuFun = {
                     ReturnBtn = '<input type="button" class="ReturnBtn" name="ReturnBtn" value="退貨" />'
                     break;
                 case '3':
-                    OrderStatus = '已退貨';                    
+                    OrderStatus = '已退貨';
                     break;
                 default:
                     alert('訂單狀態碼參數異常');
@@ -250,9 +256,9 @@ OrderMenuFun = {
                 '<td name="OrderStatus">' + OrderStatus + '</td>' +
                 '<td name="OrderDate">' + MenuJson[i].f_orderDate + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯配送"/ ></td>' +
-                '<td align="center">' + ReturnBtn+' </td>'+
+                '<td align="center">' + ReturnBtn + ' </td>' +
                 //"<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='退貨'/ ></td>";
-            "</tr>";
+                "</tr>";
         }
         return rows
     },

@@ -7,6 +7,7 @@
 
 using System;
 using System.Data;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -72,6 +73,23 @@ namespace OnlineShopBack.Tool
             System.Text.RegularExpressions.Regex reg1 = new System.Text.RegularExpressions.Regex(@"^[A-Za-z0-9_\u4e00-\u9fa5]+$");
 
             return reg1.IsMatch(str);
+        }
+
+        //紀錄錯誤訊息
+        public static void WriteErroLog(string ErrorStr)
+        {
+            DateTime Date = DateTime.Now;
+            string TodyMillisecond = Date.ToString("yyyy-MM-dd HH:mm:ss");
+            string Today = Date.ToString("yyyy-MM-dd");
+
+            if (!Directory.Exists("D:\\OnlinShopBack_ErrorLog"))
+            {
+                //新增資料夾
+                Directory.CreateDirectory("D:\\OnlinShopBack_ErrorLog");
+            }
+
+            File.AppendAllText("D:\\OnlinShopBack_ErrorLog\\" + Today + ".txt", "\r\n" + TodyMillisecond + "：" + ErrorStr);
+
         }
 
 

@@ -1,11 +1,13 @@
 ﻿$(document).ready(function () {
+
     //組Transport下拉選單
     var TransportSelectTag = '';
     for (i in TransportJson) {
         TransportSelectTag += ' <option value="' + TransportJson[i].f_transport + '">' + TransportJson[i].f_transportName + '</option>'
     }
     $('#TransportSelect').html(TransportSelectTag)
-    //Table 內容初始化
+
+    //列表內容初始化
     AddTransStatusFun.TransportSelectOnChange();
 
     //Transport 下拉選單 change
@@ -61,7 +63,9 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('新增成功');
-                            location.reload();
+                            AddTransStatusFun.ReMakeList();
+                            $('#TransportStatus').val('')
+                            $('#TransportStatusName').val('')
                             break;
                         }
                         case 1:
@@ -101,7 +105,8 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('刪除成功');
-                            location.reload(); //新增成功才更新頁面
+                            AddTransStatusFun.ReMakeList();
+                            //location.reload(); //新增成功才更新頁面
                             break;
                         }
                         case 100:
@@ -183,7 +188,8 @@
                             switch (JsonResult[0].st) {
                                 case 0: {
                                     alert('更新成功');
-                                    location.reload(); //新增成功才更新頁面
+                                    AddTransStatusFun.ReMakeList();
+                                    //location.reload(); //新增成功才更新頁面
                                     break;
                                 }
                                 case 100: {
@@ -207,10 +213,7 @@
                     $("#EditBox").hide();
                 };
             });
-
         };
-
-
     });
 
     //上一頁
@@ -247,7 +250,27 @@ AddTransStatusFun = {
         $('#TableBody').html(rows)
     },
     //重取列表資訊
-    RemakeList: function () {
+    ReMakeList: function () {
+
+        //取得表
+        $.ajax({
+            type: "GET",
+            url: "/api/Order/GetTransportStatus",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                TransportJson = data.TransportTable;
+                TransportStatusJson = data.TransportStatusTable;
+
+                AddTransStatusFun.TransportSelectOnChange();
+            },
+            failure: function (data) {
+                alert(data);
+            },
+            error: function (data) {
+                alert(data);
+            }
+        });
 
 
     }

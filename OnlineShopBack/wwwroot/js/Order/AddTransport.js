@@ -45,7 +45,9 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('新增成功');
-                            location.reload();
+                            $('#Transport').val('');
+                            $('#TransportName').val('');
+                            OrderMenuFun.ReMakeList();
                             break;
                         };
                         case 1: {
@@ -74,7 +76,8 @@
     })
 
     //編輯名稱
-    $('.EditTransportBtn').click(function () {
+    //$('.EditTransportBtn').click(function () {
+    $('#TableBody').on('click', '.EditTransportBtn', function () {
         var currentRow = $(this).closest("tr");
         var TransportNum = currentRow.find("td:eq(0)").text();
         var TransportName = currentRow.find("td:eq(1)").text();
@@ -131,7 +134,8 @@
                             switch (JsonResult[0].st) {
                                 case 0: {
                                     alert('更新成功');
-                                    location.reload(); //新增成功才更新頁面
+                                    //location.reload(); //新增成功才更新頁面
+                                    OrderMenuFun.ReMakeList();
                                     break;
                                 }
                                 case 100: {
@@ -160,10 +164,11 @@
     })
 
     //刪除按鈕
-    $('.DeleteBtn').click(function () {
+    
+    //$('.DeleteBtn').click(function () {
+    $('#TableBody').on('click', '.DeleteBtn',function () {
         var currentRow = $(this).closest("tr");
         var TransportNum = currentRow.find('td:eq(0)').text();
-
 
         if (window.confirm("確定要刪除此配送方式嗎?")) {
             $.ajax({
@@ -175,7 +180,8 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('刪除成功');
-                            location.reload(); //新增成功才更新頁面
+                            //location.reload(); //新增成功才更新頁面
+                            OrderMenuFun.ReMakeList();
                             break;
                         }
                         case 100: {
@@ -225,5 +231,30 @@ OrderMenuFun = {
             "</tr>";
         }
         return rows
+    },
+    //重取列表資訊
+    ReMakeList: function () {
+        //取得表
+        $.ajax({
+            type: "GET",
+            url: "/api/Order/GetTransport",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                TransportJson = data.TransportTable;   
+                var result = OrderMenuFun.MakeOrderMenuTag(TransportJson);
+                $('#TableBody').html(result)
+
+               
+            },
+            failure: function (data) {
+                alert(data);
+            },
+            error: function (data) {
+                alert(data);
+            }
+        });
+
+
     }
 }

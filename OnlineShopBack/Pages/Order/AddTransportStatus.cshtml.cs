@@ -16,8 +16,6 @@ namespace OnlineShopBack.wwwroot.js.Order
         public string TransportStatusJson;
         public void OnGet()
         {
-
-
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             DataSet ds = new DataSet();

@@ -12,6 +12,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using System.IO;
 using static OnlineShopBack.Enum.OrderEnum;
 
 namespace OnlineShopBack.Controllers
@@ -48,7 +49,7 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -123,7 +124,8 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
+                result = TransportReturnCode.Fail;
             }
             finally
             {
@@ -184,7 +186,8 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
+                result = TransportReturnCode.Fail;
             }
             finally
             {
@@ -200,6 +203,45 @@ namespace OnlineShopBack.Controllers
         }
 
         /*配送方式相關-----------------*/
+
+        //取得配送方式
+        [HttpGet("GetTransport")]
+        public string GetTransport()
+        {
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @" SELECT f_transport, f_transportName FROM t_transport ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            //DataTable轉Json;
+            var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(dt);
+
+            return "{" + TransportTable +  "}";
+        }
 
         //新增配送方式
         [HttpPost("AddTransport")]
@@ -423,6 +465,49 @@ namespace OnlineShopBack.Controllers
         }
 
         /*配送狀態相關-----------------*/
+
+
+        //取得配送狀態
+        [HttpGet("GetTransportStatus")]
+        public string GetTransportStatus()
+        {
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @" SELECT f_transport, f_transportName FROM t_transport  
+                                     SELECT f_transport, f_transportStatus,f_transportStatusName FROM t_transportStatus ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(ds);
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            //DataTable轉Json;
+            var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(ds.Tables[0]);
+            var TransportStatusTable = "\"TransportStatusTable\":" + MyTool.DataTableJson(ds.Tables[1]);
+
+            return "{" + TransportTable + "," + TransportStatusTable + "}";
+        }
 
         //新增配送狀態
         [HttpPost("AddTransportStatus")]
