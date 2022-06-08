@@ -189,6 +189,7 @@
                                 case 0: {
                                     alert('更新成功');
                                     AddTransStatusFun.ReMakeList();
+                                    $("#EditBox").hide();
                                     //location.reload(); //新增成功才更新頁面
                                     break;
                                 }

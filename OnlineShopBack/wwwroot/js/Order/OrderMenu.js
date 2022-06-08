@@ -193,6 +193,11 @@ $(document).ready(function () {
                     }
                 }
             })
+
+            //退貨
+            $('.CancelOrder').click(function () {
+                alert('12356')
+            })
         },
         failure: function (data) {
             alert(data);
@@ -228,9 +233,11 @@ OrderMenuFun = {
 
             var OrderStatus = '';
             var ReturnBtn = '';
+            var CancelOrderBtn = '';
             switch (MenuJson[i].f_orderStatus) {
                 case '0':
                     OrderStatus = '待取貨';
+                    CancelOrderBtn = '<input type="button" class="CancelOrder" name="CancelOrder" value="取消訂單" />'
                     break;
                 case '1':
                     OrderStatus = '已取貨';
@@ -241,6 +248,10 @@ OrderMenuFun = {
                     break;
                 case '3':
                     OrderStatus = '已退貨';
+                    break;
+                case '4':
+                    OrderStatus = '訂單取消';
+                    
                     break;
                 default:
                     alert('訂單狀態碼參數異常');
@@ -257,7 +268,8 @@ OrderMenuFun = {
                 '<td name="OrderDate">' + MenuJson[i].f_orderDate + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯配送"/ ></td>' +
                 '<td align="center">' + ReturnBtn + ' </td>' +
-                //"<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='退貨'/ ></td>";
+                '<td align="center">' + CancelOrderBtn + ' </td>' +
+                //"<td align='center'> <input type='button' class='CancelOrder'  name='CancelOrder' value='取消訂單'/ ></td>";
                 "</tr>";
         }
         return rows

@@ -45,9 +45,7 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('新增成功');
-                            $('#Transport').val('');
-                            $('#TransportName').val('');
-                            OrderMenuFun.ReMakeList();
+                            location.reload();
                             break;
                         };
                         case 1: {
@@ -134,8 +132,9 @@
                             switch (JsonResult[0].st) {
                                 case 0: {
                                     alert('更新成功');
-                                    //location.reload(); //新增成功才更新頁面
-                                    OrderMenuFun.ReMakeList();
+                                    location.reload(); //新增成功才更新頁面
+                                    $("#EditBox").hide();
+                                    //OrderMenuFun.ReMakeList();
                                     break;
                                 }
                                 case 100: {
@@ -180,8 +179,8 @@
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('刪除成功');
-                            //location.reload(); //新增成功才更新頁面
-                            OrderMenuFun.ReMakeList();
+                            location.reload(); //新增成功才更新頁面
+                            //OrderMenuFun.ReMakeList();
                             break;
                         }
                         case 100: {
