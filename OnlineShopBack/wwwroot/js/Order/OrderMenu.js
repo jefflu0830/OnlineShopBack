@@ -194,9 +194,69 @@ $(document).ready(function () {
                 }
             })
 
-            //退貨
+            //取消訂單
             $('.CancelOrder').click(function () {
-                alert('12356')
+                if (window.confirm("此訂單確定要取消嗎?")) {
+                    var currentRow = $(this).closest("tr");
+                    var OrderId = currentRow.find("td:eq(0)").attr('id');
+                    var OrdernNum = currentRow.find("td:eq(0)").text();
+
+                    //篩選所點選訂單id資料
+                    var Filter = OrderTable.filter(function (item) {
+                        if (item["f_id"] == OrderId) {
+                            return item
+                        }
+                    })
+                    var ErrorCode = '';
+
+                    if (Filter[0].f_orderStatus != 0) {
+                        ErrorCode = '此訂單狀態不為未取貨，無法取消';
+                    }
+
+
+
+                    if (ErrorCode != '') {
+                        alert(ErrorCode);
+                    } else {
+                        $.ajax({
+                            url: '/api/Order/OrderCancel?OrderNum=' + OrdernNum,
+                            type: "put",
+                            contentType: "application/json",
+                            dataType: "text",
+                            data: {},
+                            success: function (result) {
+
+                                var JsonResult = JSON.parse(result)//JSON字串轉物件
+
+                                switch (JsonResult[0].st) {
+                                    case 0: {
+                                        alert('此訂單已取消');
+                                        location.reload(); //新增成功才更新頁面
+                                        break;
+                                    }
+                                    case 100: {
+                                        alert('尚未建立此訂單');
+                                        break;
+                                    }
+                                    case 101: {
+                                        alert('此訂單狀態不是未取貨狀態');
+                                        break;
+                                    }
+                                    case 1: {
+                                        alert('更新失敗,請檢查LOG');
+                                        break;
+                                    }
+                                    default: {
+                                        alert('資料庫更新失敗');
+                                    }
+                                }
+                            },
+                            error: function (error) {
+                                alert(error);
+                            }
+                        })
+                    }
+                }
             })
         },
         failure: function (data) {
@@ -236,7 +296,7 @@ OrderMenuFun = {
             var CancelOrderBtn = '';
             switch (MenuJson[i].f_orderStatus) {
                 case '0':
-                    OrderStatus = '待取貨';
+                    OrderStatus = '未取貨';
                     CancelOrderBtn = '<input type="button" class="CancelOrder" name="CancelOrder" value="取消訂單" />'
                     break;
                 case '1':

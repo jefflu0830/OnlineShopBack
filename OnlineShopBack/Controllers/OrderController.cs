@@ -202,7 +202,67 @@ namespace OnlineShopBack.Controllers
 
         }
 
-        //
+        //取消訂單
+        [HttpPut("OrderCancel")]
+        public string OrderCancel([FromQuery] string OrderNum)
+        {
+            string ErrorStr = "";//記錄錯誤訊息
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+            //訂單編號
+            if (!MyTool.OnlyNumber(OrderNum))
+            {
+                ErrorStr += "[訂單號碼只能是數字]\n";
+            }
+
+            //錯誤訊息有值 return錯誤訊息
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                return ErrorStr;
+            }
+
+            SqlCommand cmd = null;
+            TransportReturnCode result = TransportReturnCode.Default;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @" EXEC pro_onlineShopBack_putOrderCancel @orderNum ";
+
+                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
+
+                //開啟連線
+                cmd.Connection.Open();
+                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
+
+                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                {
+                    result = TransportReturnCode.Fail;
+                }
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+                result = TransportReturnCode.Fail;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return "[{\"st\": " + (int)result + "}]";
+
+        }
 
         /*配送方式相關-----------------*/
 
