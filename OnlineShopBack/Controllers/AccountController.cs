@@ -171,57 +171,6 @@ namespace OnlineShopBack.Controllers
             return result;
         }
 
-        //Select帳號資料Left join權限資料where ID
-        [HttpGet("IdGetAcc")]
-        public string IdGetAccount([FromQuery] int id)
-        {
-            //登入&身分檢查
-            if (!loginValidate())
-            {
-                return "已從另一地點登入,轉跳至登入頁面";
-            }
-            else if (RolesValidate())
-            {
-                return "未有使用權限";
-            }
-
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
-                cmd.CommandText = @" SELECT f_acc FROM t_Account ";
-                cmd.Parameters.AddWithValue("@accLevel", id);
-
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
-
-            return result;
-        }
-
         //增加帳號
         [HttpPost("AddAcc")]
         public string AddAcc([FromBody] AccountDto value)
@@ -750,7 +699,6 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
                 cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevelById @accLevel ";
                 cmd.Parameters.AddWithValue("@accLevel", id);
 
@@ -833,7 +781,8 @@ namespace OnlineShopBack.Controllers
             //是否有權使用帳號管理 or 會員管理
             if (value.canUseAccount == null || value.canUseMember == null ||
                (value.canUseAccount > 1 || value.canUseAccount < 0) ||
-               (value.canUseMember > 1 || value.canUseMember < 0))
+               (value.canUseMember > 1 || value.canUseMember < 0) ||
+               (value.canUseOrder > 1 || value.canUseOrder < 0))
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
             }
@@ -845,7 +794,6 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
             try
             {
                 // 資料庫連線
@@ -853,13 +801,14 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
                 //重複驗證寫在SP中
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct, @canUseOrder ";
 
                 cmd.Parameters.AddWithValue("@accLevel", value.accLevel);
                 cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
                 cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
                 cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
                 cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
+                cmd.Parameters.AddWithValue("@canUseOrder", value.canUseOrder);
 
                 //開啟連線
 
@@ -944,7 +893,8 @@ namespace OnlineShopBack.Controllers
             if (value.canUseAccount == null || value.canUseMember == null ||
                (value.canUseAccount > 1 || value.canUseAccount < 0) ||
                (value.canUseMember > 1 || value.canUseMember < 0) ||
-               (value.canUseProduct > 1 || value.canUseProduct < 0))
+               (value.canUseProduct > 1 || value.canUseProduct < 0)||
+               (value.canUseOrder > 1 || value.canUseOrder < 0))
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
             }
@@ -962,14 +912,14 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct ";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct, @canUseOrder ";
 
                 cmd.Parameters.AddWithValue("@accLevel", id);
                 cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
                 cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
                 cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
                 cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
-
+                cmd.Parameters.AddWithValue("@canUseOrder", value.canUseOrder);
                 //開啟連線
                 cmd.Connection.Open();
                 addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL

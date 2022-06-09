@@ -92,7 +92,8 @@ $.validator.setDefaults({
     submitHandler: function (form) {
         var canUseAccount = 0
         var canUseMember = 0
-        var canProduct = 0
+        var canUseProduct = 0
+        var canUseOrder = 0
         //canUseMember  checkbox
         if ($("#canUseAccount").prop("checked")) {
             canUseAccount = 1
@@ -114,6 +115,15 @@ $.validator.setDefaults({
         else {
             canUseProduct = 0
         }
+        //canUseOrder  checkbox
+        if ($("#canUseOrder").prop("checked")) {
+            canUseOrder = 1
+        }
+        else {
+            canUseOrder = 0
+        }
+
+
         $.ajax({
             url: "/api/Account/AddAccLv",
             type: "post",
@@ -124,7 +134,8 @@ $.validator.setDefaults({
                 "accPosition": $("#AccPosission").val(),
                 "canUseAccount": canUseAccount,
                 "canUseMember": canUseMember,
-                "canUseProduct": canUseProduct
+                "canUseProduct": canUseProduct,
+                "canUseOrder": canUseOrder
             }),
             success: function (result) {
                 alert(result)
@@ -184,6 +195,9 @@ function Edit_Click(Id) {
                 if (data[0].f_canUseProduct === "True") {
                     canUseProduct = "checked"
                 }
+                if (data[0].f_canUseOrder === "True") {
+                    canUseOrder = "checked"
+                }
                 var EditData = "<div><label> 帳號:" + data[0].f_accLevel + "</label></div>" +
                     //f_accPosition
                     "<div><label for='EditAccPosission'>AccPosission:</label>" +
@@ -195,8 +209,11 @@ function Edit_Click(Id) {
                     "<div><input type='checkbox' id='EditCanUseMember'" + canUseMember + " />" +
                     "<label for='EditCanUseMember'>是否有會員管理權限</label></div >" +
                     //canUseProduct
-                    "<div><input type='checkbox' id='EditCanUseProduct'" + canUseMember + " />" +
+                    "<div><input type='checkbox' id='EditCanUseProduct'" + canUseProduct + " />" +
                     "<label for='EditCanUseProduct'>是否有商品管理權限</label></div >" +
+                    //canUseOrder
+                    "<div><input type='checkbox' id='EditCanUseOrder'" + canUseOrder + " />" +
+                    "<label for='EditCanUseOrder'>是否有訂單管理權限</label></div >" +
                     //Edit Button
                     "<div><input id='" + data[0].f_accLevel + "' onclick ='EditOK_Click(this.id)' type='Button' value='Edit' />" +
                     "<input id='EditCancel' type='Button' value='Cancel' onclick='EditCancel_Click()' /></div> "
@@ -224,7 +241,8 @@ function EditCancel_Click() {
 function EditOK_Click(Id) {
     var EditcanUseAccount = 0
     var EditcanUseMember = 0
-    var EditCanUseProduct=0
+    var EditCanUseProduct = 0
+    var EditCanUseOrder = 0
     //canUseMember  checkbox
     if ($("#EditCanUseAccount").prop("checked")) {
         EditcanUseAccount = 1
@@ -244,6 +262,13 @@ function EditOK_Click(Id) {
     } else {
         EditCanUseProduct = 0
     }
+    //canUseOrder  checkbox
+    if ($("#EditCanUseOrder").prop("checked")) {
+        EditCanUseOrder = 1
+    }
+    else {
+        EditCanUseOrder = 0
+    }
 
     $.ajax({
         url: "/api/account/PutAccLv?id=" + Id,
@@ -254,7 +279,8 @@ function EditOK_Click(Id) {
             "accPosition": $("#EditAccPosission").val(),
             "CanUseAccount": EditcanUseAccount,
             "CanUseMember": EditcanUseMember,
-            "CanUseProduct": EditCanUseProduct
+            "CanUseProduct": EditCanUseProduct,
+            "canUseOrder": EditCanUseOrder
         }),
         success: function (result) {
             alert(result)

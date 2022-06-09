@@ -1,4 +1,4 @@
-using static OnlineShopBack.Pages.Account.BasePage;
+using static OnlineShopBack.Pages.Product.BasePage;
 
 namespace OnlineShopBack.Pages.Product
 {

@@ -4,7 +4,7 @@ using OnlineShopBack.Tool;
 using System;
 using System.Data;
 
-namespace OnlineShopBack.Pages.Product
+namespace OnlineShopBack.Pages.Order
 {
     public class BasePage
     {
@@ -32,7 +32,7 @@ namespace OnlineShopBack.Pages.Product
             {
 
 
-                if (!HttpContext.Session.GetString("Roles").Contains("canUseProduct"))
+                if (!HttpContext.Session.GetString("Roles").Contains("canUseOrder"))
                 {
                     TempData["message"] = "無使用權限";
                     //Response.Redirect("/index");

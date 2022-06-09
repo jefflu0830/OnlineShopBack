@@ -14,14 +14,6 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-
-        //EntityFramework  要使用把MODEL加回項目
-        //private readonly OnlineShopContext _OnlineShopContext;
-        //public LoginController(OnlineShopContext onlineShopContext)
-        //{
-        //    _OnlineShopContext = onlineShopContext;
-        //}
-
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 
         //登入
@@ -76,8 +68,6 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-
-
             //錯誤訊息不為空
             if (loginErrorStr != "")
             {
@@ -91,8 +81,6 @@ namespace OnlineShopBack.Controllers
 
                 try
                 {
-
-
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
@@ -110,8 +98,8 @@ namespace OnlineShopBack.Controllers
                     {
                         return "loginFail"; //登入失敗
                     }
-                    else //登入成功
-                    {
+                    else //驗證成功
+                    { 
 
 
 
@@ -135,15 +123,16 @@ namespace OnlineShopBack.Controllers
                         {
                             Roles += "canUseProduct/";
                         };
+                        //添加 可使用訂單管理
+                        if ((bool)dt.Rows[0]["f_canUseOrder"])
+                        {
+                            Roles += "canUseOrder/";
+                        };
 
                         //Session傳遞
                         HttpContext.Session.SetString("Account", value.Account);
                         HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
                         HttpContext.Session.SetString("Roles", Roles);
-
-
-
-
                         
                         //資料庫中 Account為空 or 存的sessionId與現在的不符
                         if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
@@ -197,43 +186,6 @@ namespace OnlineShopBack.Controllers
                     }
                 }
             }
-
-
-            //HttpContext.Session.GetString("Account");
-            //Session.Remove("Account")
-
-            #region  EF舊寫法已註解
-            /*using (var md5 = MD5.Create())
-            {
-                var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
-                                                                                 //
-                var strResult = BitConverter.ToString(result);
-
-                var user = (from a in _OnlineShopContext.TAccount
-                            where a.FAcc == value.Account
-                            && a.FPwd == strResult.Replace("-", "")
-                            select a).SingleOrDefault();
-
-                if (user == null)
-                {
-                    return "帳號密碼錯誤";
-                }
-                else
-                {
-                    //這邊等等寫驗證
-                    var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.FAcc),
-                    //new Claim("FullName", user.FName),
-                   // new Claim(ClaimTypes.Role, "Administrator")
-                };
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                    return "OK";
-                }
-            }*/
-            #endregion
-
         }
 
 

@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using static OnlineShopBack.Pages.Order.BasePage;
 
 namespace OnlineShopBack.Pages.Order
 {
-    public class AddTransportModel : PageModel
+    public class AddTransportModel :  BasePageModel
     {
         //SQLßB¾€×Ö´®  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
@@ -16,6 +16,19 @@ namespace OnlineShopBack.Pages.Order
 
         public void OnGet()
         {
+
+            //òž×CµÇÈë
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            //òž×CÄ_É«
+            if (!RolesValidate())
+            {
+                Response.Redirect("/index");
+                return;
+            }
 
             SqlCommand cmd = null;
             DataTable dt = new DataTable();            

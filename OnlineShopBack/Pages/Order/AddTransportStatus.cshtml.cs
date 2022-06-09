@@ -5,10 +5,11 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using static OnlineShopBack.Pages.Order.BasePage;
 
 namespace OnlineShopBack.wwwroot.js.Order
 {
-    public class AddTransportStatusModel : PageModel
+    public class AddTransportStatusModel : BasePageModel
     {
         //SQLßB¾€×Ö´®  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
@@ -16,6 +17,20 @@ namespace OnlineShopBack.wwwroot.js.Order
         public string TransportStatusJson;
         public void OnGet()
         {
+
+            //òž×CµÇÈë
+            if (!LoginValidate())
+            {
+                Response.Redirect("/Login");
+                return;
+            }
+            //òž×CÄ_É«
+            if (!RolesValidate())
+            {
+                Response.Redirect("/index");
+                return;
+            }
+
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             DataSet ds = new DataSet();

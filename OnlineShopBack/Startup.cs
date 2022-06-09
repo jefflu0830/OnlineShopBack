@@ -118,9 +118,9 @@ namespace OnlineShopBack
             app.UseRouting();
 
             //Cookieòž×CÓÃ  í˜ÐòÒªÒ»˜Ó
-            //app.UseCookiePolicy();
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            app.UseCookiePolicy();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
 
 

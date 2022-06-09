@@ -21,7 +21,7 @@ namespace OnlineShopBack.Pages
                 SessionDB.sessionDB[HttpContext.Session.GetString("Account")].SId != HttpContext.Session.Id ||//判斷DB SessionId與瀏覽器 SessionId是否一樣
                 SessionDB.sessionDB[HttpContext.Session.GetString("Account")].ValidTime < DateTime.Now)//判斷是否過期
             {
-                Response.Redirect("/Login");
+                Response.Redirect("/Login");                
             }
 
             Roles = HttpContext.Session.GetString("Roles");
