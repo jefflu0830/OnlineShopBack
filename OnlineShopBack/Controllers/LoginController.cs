@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#region 功能與歷史修改描述
+/*
+    描述:登入系統相關
+    日期:2022-05-05
+*/
+#endregion
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Distributed;
