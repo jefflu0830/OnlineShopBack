@@ -21,8 +21,6 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-
-
         //會員相關--------------------------------------------------
 
         #region 會員相關列舉(Enum)

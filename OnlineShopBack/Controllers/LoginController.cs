@@ -14,6 +14,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using OnlineShopBack.Enum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -27,6 +28,7 @@ namespace OnlineShopBack.Controllers
         [HttpPost]
         public string login(LoginDto value)
         {
+            string ResultCode = "";
 
             //查詢伺服器狀態是否正常
             if (ModelState.IsValid == false)
@@ -34,10 +36,10 @@ namespace OnlineShopBack.Controllers
                 return "輸入參數有誤";
             }
 
-            if (User.Identity.IsAuthenticated)
-            {
-                return "請先登出再進行登入";
-            }
+            //if (User.Identity.IsAuthenticated)
+            //{
+            //    return "請先登出再進行登入";
+            //}
 
             string loginErrorStr = "";//記錄錯誤訊息
 
@@ -78,16 +80,18 @@ namespace OnlineShopBack.Controllers
             //錯誤訊息不為空
             if (loginErrorStr != "")
             {
-                return loginErrorStr;
+                MyTool.WriteErroLog(loginErrorStr);
+                ResultCode = ((int)LoginEnum.LoginReturnCode.BackEndError).ToString();
             }
             else
             {
                 SqlCommand cmd = null;
-                DataTable dt = new DataTable();
                 SqlDataAdapter da = new SqlDataAdapter();
 
                 try
                 {
+                    DataTable dt = new DataTable();
+
                     // 資料庫連線
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
@@ -97,19 +101,16 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.AddWithValue("@f_acc", value.Account);
                     cmd.Parameters.AddWithValue("@f_pwd", MyTool.PswToMD5(value.Pwd));
 
-
                     //開啟連線
                     cmd.Connection.Open();
 
                     if (cmd.ExecuteScalar() == null)
                     {
-                        return "loginFail"; //登入失敗
+                        ResultCode = ((int)LoginEnum.LoginReturnCode.AccOrPwdError).ToString();
+                        //return "登入失敗"; //登入失敗
                     }
                     else //驗證成功
-                    { 
-
-
-
+                    {
                         da.SelectCommand = cmd;
                         da.Fill(dt);
 
@@ -140,48 +141,36 @@ namespace OnlineShopBack.Controllers
                         HttpContext.Session.SetString("Account", value.Account);
                         HttpContext.Session.SetString("AccPosition", dt.Rows[0]["f_accPosition"].ToString());
                         HttpContext.Session.SetString("Roles", Roles);
-                        
-                        //資料庫中 Account為空 or 存的sessionId與現在的不符
-                        if (!string.IsNullOrWhiteSpace(dt.Rows[0]["f_sessionId"].ToString()) &&
-                            dt.Rows[0]["f_sessionId"].ToString() != HttpContext.Session.Id)
-                        {
-                            cmd.Parameters.Clear();
-                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc
-                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
-                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
-                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                        //關閉清空連線
+                        cmd.Connection.Close();
+                        cmd.Parameters.Clear();
 
-                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
-                            SessionInfo.SId = cmd.ExecuteScalar().ToString();//updata完後的sessionId
-                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
+                        DataTable SessionIdDt = new DataTable();
 
+                        //登入成功 紀錄session 在DB中
+                        cmd.CommandText = @" EXEC pro_onlineShopBack_putAccountBySessionId @sessionId, @f_acc, @LogInOrLogOut ";
+                        cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
+                        cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                        cmd.Parameters.AddWithValue("@LogInOrLogOut", true); //登入(1)or登出(0)
+                                                                             //開啟連線
+                        cmd.Connection.Open();
+                        da.SelectCommand = cmd;
+                        da.Fill(SessionIdDt);
 
-                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
-                                                            SessionInfo,
-                                                           (key, oldValue) => oldValue=SessionInfo);
+                        ResultCode = SessionIdDt.Rows[0]["ReturnCode"].ToString();
 
-                            return "重複登入";  //重複登入
-                        }
-                        else
-                        {
-                            //登入成功 紀錄session 在DB中
-                            cmd.Parameters.Clear();
-                            cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = @sessionId WHERE f_acc = @f_acc 
-                                                SELECT f_sessionId FROM t_account WHERE f_acc = @f_acc ";
-                            cmd.Parameters.AddWithValue("@sessionId", HttpContext.Session.Id);
-                            cmd.Parameters.AddWithValue("@f_acc", value.Account);
+                        SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
+                        SessionInfo.SId = SessionIdDt.Rows[0]["f_sessionId"].ToString(); //updata完後的sessionId
+                        SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
 
-                            SessionDB.SessionInfo SessionInfo = new SessionDB.SessionInfo();
-                            SessionInfo.SId = cmd.ExecuteScalar().ToString(); //updata完後的sessionId
-                            SessionInfo.ValidTime = DateTime.Now.AddMinutes(30);//失效時間 =(現在時間在加30分鐘)
-
-                            SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
-                                                            SessionInfo,
-                                                           (key, oldValue) => oldValue= SessionInfo);
-
-                            return "loginOK";  //登入OK
-                        }
+                        SessionDB.sessionDB.AddOrUpdate(HttpContext.Session.GetString("Account"),
+                                                        SessionInfo,
+                                                       (key, oldValue) => oldValue = SessionInfo);
                     }
+                }
+                catch (Exception e)
+                {
+                    MyTool.WriteErroLog(e.Message);
                 }
                 finally
                 {
@@ -193,8 +182,9 @@ namespace OnlineShopBack.Controllers
                     }
                 }
             }
-        }
 
+            return ResultCode;
+        }
 
         //登出
         [HttpDelete("Logout")]
@@ -205,11 +195,7 @@ namespace OnlineShopBack.Controllers
             {
                 return;
             }
-           
-
             SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
             try
             {
 
@@ -217,14 +203,20 @@ namespace OnlineShopBack.Controllers
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
                 //清空DB的sessionId
-                cmd.CommandText = @"UPDATE t_account WITH(ROWLOCK) SET f_sessionId = '' WHERE f_acc = @f_acc ";
+                cmd.CommandText = @" EXEC pro_onlineShopBack_putAccountBySessionId @sessionId, @f_acc, @LogInOrLogOut ";
+                cmd.Parameters.AddWithValue("@sessionId", "");
                 cmd.Parameters.AddWithValue("@f_acc", HttpContext.Session.GetString("Account"));
+                cmd.Parameters.AddWithValue("@LogInOrLogOut", false); //登入(1)or登出(0)
                 //開啟連線
                 cmd.Connection.Open();
                 cmd.ExecuteScalar();
             }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
             finally
-            {                
+            {
                 if (cmd != null)
                 {
                     cmd.Connection.Close();
@@ -233,16 +225,11 @@ namespace OnlineShopBack.Controllers
             }
 
             //清空Dictionary & Session[Account]中的值
-
-            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"),out _);
+            SessionDB.sessionDB.TryRemove(HttpContext.Session.GetString("Account"), out _);
             HttpContext.Session.Clear();
 
         }
-        [HttpGet("NoLogin")]
-        public string noLogin()
-        {
-            return "未登入";
-        }
+
         private bool loginValidate()
         {
             if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString("Account")) ||                        //判斷Session[Account]是否為空

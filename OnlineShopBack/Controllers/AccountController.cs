@@ -14,9 +14,6 @@ using OnlineShopBack.Tool;
 using System;
 using System.Data;
 
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace OnlineShopBack.Controllers
 {
     [Route("api/[controller]")]
@@ -25,34 +22,6 @@ namespace OnlineShopBack.Controllers
     {
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
-
-
-        //已註解
-        #region GetAccount  EF舊寫法用所需
-        //private readonly OnlineShopContext _OnlineShopContext;
-        //public AccountController(OnlineShopContext onlineShopContext)
-        //{
-        //    _OnlineShopContext = onlineShopContext;
-        //}
-        #endregion
-
-        //已註解
-        #region  GetAccount舊寫法EF
-        //[HttpGet("GetAccount")]
-        //public IEnumerable<AccountSelectDto> GetAccount()
-        //{
-        //    var result = _OnlineShopContext.TAccount
-        //        .Select(a => new AccountSelectDto
-        //        {
-        //            Id = a.FId,
-        //            Account = a.FAcc,
-        //            Pwd = a.FPwd,
-        //            Level = a.FLevel
-        //        });
-        //    return result;
-
-        //}
-        #endregion
 
 
         //帳號相關------------------------------------------------------------------
@@ -128,7 +97,6 @@ namespace OnlineShopBack.Controllers
 
         //帳號資料left join權限資料
         [HttpGet("GetAcc")]
-        //public string GetAcc()
         public string GetAcc()
         {
             //登入&身分檢查
@@ -144,7 +112,6 @@ namespace OnlineShopBack.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
-            DataSet ds = new DataSet();
             try
             {
                 // 資料庫連線&SQL指令
@@ -194,7 +161,6 @@ namespace OnlineShopBack.Controllers
 
             //後端驗證
             //如字串字數特殊字元驗證
-
             string addAccErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
@@ -219,13 +185,6 @@ namespace OnlineShopBack.Controllers
                     addAccErrorStr += "[帳號長度應介於3～20個數字之間]\n";
                 }
             }
-
-            #region  可改為只輸出一行
-            //if (string.IsNullOrEmpty(value.Account) || !MyTool.IsENAndNumber(value.Account) || value.Account.Length > 20 || value.Account.Length < 3)
-            //{
-            //    addAccErrorStr += "[帳號格式不符合]\n";
-            //}
-            #endregion
 
             //密碼資料驗證
             if (string.IsNullOrEmpty(value.Pwd))//空字串判斷and Null值判斷皆用IsNullOrEmpty
@@ -308,24 +267,6 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-            #region EF舊寫法已註解
-            /*using (var md5 = MD5.Create())
-            {
-                var result = md5.ComputeHash(Encoding.ASCII.GetBytes(value.Pwd));//MD5 加密傳密碼進去
-                var strResult = BitConverter.ToString(result);
-
-                TAccount insert = new TAccount
-                {
-                    FAcc = value.Account,
-                    FPwd = strResult.Replace("-",""),
-                    FLevel = value.Level 
-                };
-                _OnlineShopContext.Add(insert);
-                _OnlineShopContext.SaveChanges();
-               return "新增成功"; 
-            }*/
-            #endregion
-
         }
 
         //編輯帳號_權限
@@ -362,7 +303,6 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
             try
             {
                 // 資料庫連線
@@ -638,7 +578,6 @@ namespace OnlineShopBack.Controllers
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
-                //cmd.CommandText = @"EXEC pro_onlineShopBack_getAccountAndAccountLevel";
                 cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
 
                 //開啟連線

@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#region 功能與歷史修改描述
+/*
+    描述:後台登入頁面
+    日期:2022-05-05
+*/
+#endregion
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using OnlineShopBack.Tool;
