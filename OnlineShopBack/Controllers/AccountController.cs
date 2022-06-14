@@ -13,6 +13,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using OnlineShopBack.Enum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -20,80 +21,8 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        //SQL連線字串  SQLConnectionString
+        //取得SQL連線字串
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
-
-
-        //帳號相關------------------------------------------------------------------
-
-        #region 帳號相關列舉(Enum)
-        private enum addACCountErrorCode //新增帳號
-        {
-            //<summary >
-            //帳號新增成功
-            //</summary >
-            AddOK = 0,
-
-            //<summary >
-            //帳號重複
-            //</summary >
-            duplicateAccount = 100,
-
-            //<summary >
-            //該權限未建立
-            //</summary >
-            permissionIsNull = 101
-        }
-        private enum PutAccErrorCode //編輯帳號
-        {
-            //<summary >
-            //帳號刪除成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //此帳號不可更改
-            //</summary >
-            ProhibitPut = 100,
-            //<summary >
-            //尚未建立權限
-            //</summary >
-            LvIsNull = 101
-
-        }
-        private enum PutAccPwdErrorCode //修改密碼
-        {
-            //<summary >
-            //密碼修改成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //新密碼與確認密碼不相同
-            //</summary >
-            confirmError = 100,
-            //<summary >
-            //尚未建立權限
-            //</summary >
-            AccIsNull = 101
-
-        }
-        private enum DelACCountErrorCode //刪除帳號
-        {
-            //<summary >
-            //帳號刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //此帳號不可刪除
-            //</summary >
-            ProhibitDel = 100,
-            //<summary >
-            //無此帳號
-            //</summary >
-            AccIsNull = 101
-
-        }
-
-        #endregion
 
         //帳號資料left join權限資料
         [HttpGet("GetAcc")]
@@ -140,7 +69,7 @@ namespace OnlineShopBack.Controllers
             }
 
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -214,6 +143,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = ""; 
             try
             {
                 // 資料庫連線
@@ -226,33 +156,10 @@ namespace OnlineShopBack.Controllers
                 cmd.Parameters.AddWithValue("@f_pwd", MyTool.PswToMD5(value.Pwd));
                 cmd.Parameters.AddWithValue("@f_level", value.Level);
 
-                #region //SQL回傳是 Return時的接法
-                //SqlParameter returnValue = new SqlParameter("XXX", SqlDbType.Int);
-                //returnValue.Direction = ParameterDirection.ReturnValue;
-                //cmd.Parameters.Add(returnValue);
-
-
-                //return returnValue.Value.ToString();
-                #endregion
-
                 //開啟連線
                 cmd.Connection.Open();
-                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)addACCountErrorCode.duplicateAccount:
-                        return "此帳號已存在";
-
-                    case (int)addACCountErrorCode.permissionIsNull:
-                        return "該權限未建立";
-
-                    case (int)addACCountErrorCode.AddOK:
-                        return "帳號新增成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -267,11 +174,27 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
-        }
+            int ResultCode = int.Parse(SQLReturnCode);
 
+            switch (ResultCode)
+            {
+                case (int)AccountEnum.AddACCountErrorCode.duplicateAccount:
+                    return "此帳號已存在";
+
+                case (int)AccountEnum.AddACCountErrorCode.permissionIsNull:
+                    return "該權限未建立";
+
+                case (int)AccountEnum.AddACCountErrorCode.AddOK:
+                    return "帳號新增成功";
+                default:
+                    return "失敗";
+            }
+
+        }
+        /*-----------後臺帳號相關-----------*/
         //編輯帳號_權限
-        [HttpPut("PutAcc")]
-        public string PutAcc([FromQuery] int id, [FromBody] AccountDto value)
+        [HttpPut("EditAcc")]
+        public string EditAcc([FromQuery] int id, [FromBody] AccountDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -303,6 +226,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -316,20 +240,8 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)PutAccErrorCode.ProhibitPut:
-                        return "此帳號不可做更改";
-                    case (int)PutAccErrorCode.LvIsNull:
-                        return "尚未建立此權限";
-                    case (int)PutAccErrorCode.PutOK:
-                        return "帳號更新成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -343,11 +255,24 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)AccountEnum.PutAccErrorCode.ProhibitPut:
+                    return "此帳號不可做更改";
+                case (int)AccountEnum.PutAccErrorCode.LvIsNull:
+                    return "尚未建立此權限";
+                case (int)AccountEnum.PutAccErrorCode.PutOK:
+                    return "帳號更新成功";
+                default:
+                    return "失敗";
+            }
         }
 
         //更新帳號_密碼
-        [HttpPut("PutPwd")]
-        public string PutPwd([FromBody] PutPwdDto value)
+        [HttpPut("EditPwd")]
+        public string EditPwd([FromBody] PutPwdDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -395,7 +320,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -410,20 +335,8 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)PutAccPwdErrorCode.confirmError:
-                        return "新密碼與確認新密碼不相同";
-                    case (int)PutAccPwdErrorCode.AccIsNull:
-                        return "此帳號不存在";
-                    case (int)PutAccPwdErrorCode.PutOK:
-                        return "密碼修改成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -436,6 +349,20 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
+            }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)AccountEnum.PutAccPwdErrorCode.confirmError:
+                    return "新密碼與確認新密碼不相同";
+                case (int)AccountEnum.PutAccPwdErrorCode.AccIsNull:
+                    return "此帳號不存在";
+                case (int)AccountEnum.PutAccPwdErrorCode.PutOK:
+                    return "密碼修改成功";
+                default:
+                    return "失敗";
             }
         }
 
@@ -453,7 +380,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            string addAccLVErrorStr = "";//記錄錯誤訊息
+            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -462,7 +389,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -475,20 +402,8 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)DelACCountErrorCode.AccIsNull:
-                        return "無此帳號";
-                    case (int)DelACCountErrorCode.ProhibitDel:
-                        return "此帳號不可刪除";
-                    case (int)DelACCountErrorCode.DelOK:
-                        return "帳號刪除成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -502,60 +417,23 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)AccountEnum.DelACCountErrorCode.AccIsNull:
+                    return "無此帳號";
+                case (int)AccountEnum.DelACCountErrorCode.ProhibitDel:
+                    return "此帳號不可刪除";
+                case (int)AccountEnum.DelACCountErrorCode.DelOK:
+                    return "帳號刪除成功";
+                default:
+                    return "失敗";
+            }
         }
 
-
-
-        //權限相關-------------------------------------------------------------------
-
-        #region 權限相關列舉(Enum)
-        private enum addACCountLVErrorCode //新增權限
-        {
-            //<summary >
-            //權限新增成功
-            //</summary >
-            addOK = 0,
-            //<summary >
-            //權限重複
-            //</summary >
-            duplicateAccountLv = 100
-        }
-
-        private enum DelACCountLVErrorCode //刪除權限
-        {
-            //<summary >
-            //權限刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //有帳號使用此權限中
-            //</summary >
-            IsUsing = 100,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            LvIsNull = 101
-        }
-
-        private enum PutACCountLVErrorCode // 更新權限
-        {
-            //<summary >
-            //權限更新成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //超級使用者不可更改
-            //</summary >
-            prohibitPutlv = 100,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            LvIsNull = 101
-
-        }
-
-        #endregion
-
+        /*-----------後臺帳號權限相關-----------*/
         //權限資料List
         [HttpGet("GetAccLvList")]
         public string GetAccLvList()
@@ -599,7 +477,7 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -668,7 +546,7 @@ namespace OnlineShopBack.Controllers
             }
 
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -740,6 +618,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -759,19 +638,8 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
 
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-
-                    case (int)addACCountLVErrorCode.addOK:
-                        return "權限新增成功";
-                    case (int)addACCountLVErrorCode.duplicateAccountLv:
-                        return "權限編號重複";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -785,10 +653,23 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+
+                case (int)AccountEnum.addACCountLVErrorCode.addOK:
+                    return "權限新增成功";
+                case (int)AccountEnum.addACCountLVErrorCode.duplicateAccountLv:
+                    return "權限編號重複";
+                default:
+                    return "失敗";
+            }
         }
 
         //更新權限
-        [HttpPut("PutAccLv")]
+        [HttpPut("EditAccLv")]
         public string PutAccLv([FromQuery] int id, [FromBody] AccountLevelDto value)
         {
             //登入&身分檢查
@@ -852,6 +733,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -868,20 +750,8 @@ namespace OnlineShopBack.Controllers
                 cmd.Parameters.AddWithValue("@canUseOrder", value.canUseOrder);
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)PutACCountLVErrorCode.prohibitPutlv:
-                        return "此權限不可更改";
-                    case (int)PutACCountLVErrorCode.LvIsNull:
-                        return "此權限尚未建立";
-                    case (int)PutACCountLVErrorCode.PutOK:
-                        return "權限更新成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
@@ -894,6 +764,19 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
+            }
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)AccountEnum.PutACCountLVErrorCode.prohibitPutlv:
+                    return "此權限不可更改";
+                case (int)AccountEnum.PutACCountLVErrorCode.LvIsNull:
+                    return "此權限尚未建立";
+                case (int)AccountEnum.PutACCountLVErrorCode.PutOK:
+                    return "權限更新成功";
+                default:
+                    return "失敗";
             }
 
         }
@@ -936,7 +819,8 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            int SQLReturnCode;
+            int aa;
             try
             {
                 // 資料庫連線
@@ -950,20 +834,7 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
-
-                switch (SQLReturnCode)
-                {
-                    case (int)DelACCountLVErrorCode.LvIsNull:
-                        return "此權限尚未建立";
-                    case (int)DelACCountLVErrorCode.IsUsing:
-                        return "此權限目前有人正在使用";
-                    case (int)DelACCountLVErrorCode.DelOK:
-                        return "刪除成功";
-                    default:
-                        return "失敗";
-                }
+                SQLReturnCode = int.Parse(cmd.ExecuteScalar().ToString());
             }
             catch (Exception e)
             {
@@ -976,6 +847,18 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
+            }
+
+            switch (SQLReturnCode)
+            {
+                case (int)AccountEnum.DelACCountLVErrorCode.LvIsNull:
+                    return "此權限尚未建立";
+                case (int)AccountEnum.DelACCountLVErrorCode.IsUsing:
+                    return "此權限目前有人正在使用";
+                case (int)AccountEnum.DelACCountLVErrorCode.DelOK:
+                    return "刪除成功";
+                default:
+                    return "失敗";
             }
         }
 

@@ -271,7 +271,7 @@ function EditOK_Click(Id) {
     }
 
     $.ajax({
-        url: "/api/account/PutAccLv?id=" + Id,
+        url: "/api/account/EditAccLv?id=" + Id,
         type: "put",
         contentType: "application/json",
         dataType: "text",

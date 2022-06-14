@@ -100,7 +100,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -117,15 +117,15 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
             {
                 MyTool.WriteErroLog(e.Message);
-                result = TransportReturnCode.Fail;
+                result = OrderReturnCode.Fail;
             }
             finally
             {
@@ -164,7 +164,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -179,15 +179,15 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
             {
                 MyTool.WriteErroLog(e.Message);
-                result = TransportReturnCode.Fail;
+                result = OrderReturnCode.Fail;
             }
             finally
             {
@@ -226,7 +226,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -241,15 +241,15 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
             {
                 MyTool.WriteErroLog(e.Message);
-                result = TransportReturnCode.Fail;
+                result = OrderReturnCode.Fail;
             }
             finally
             {
@@ -349,7 +349,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -366,9 +366,9 @@ namespace OnlineShopBack.Controllers
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -429,7 +429,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -445,9 +445,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -493,7 +493,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -506,9 +506,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -619,7 +619,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -637,9 +637,9 @@ namespace OnlineShopBack.Controllers
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -701,7 +701,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -718,9 +718,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)
@@ -760,7 +760,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            TransportReturnCode result = TransportReturnCode.Default;
+            OrderReturnCode result = OrderReturnCode.Default;
             try
             {
                 // 資料庫連線
@@ -774,9 +774,9 @@ namespace OnlineShopBack.Controllers
                 cmd.Connection.Open();
                 string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                if (!TransportReturnCode.TryParse(SQLReturnCode, out result))
+                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
                 {
-                    result = TransportReturnCode.Fail;
+                    result = OrderReturnCode.Fail;
                 }
             }
             catch (Exception e)

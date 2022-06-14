@@ -1,3 +1,9 @@
+#region 功能與歷史修改描述
+/*
+    描述:前台會員清單頁面
+    日期:2022-05-05
+*/
+#endregion
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
@@ -36,8 +42,8 @@ namespace OnlineShopBack.Pages.Member
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"SELECT * FROM t_memberLevel 
-                                SELECT * FROM t_suspensionLevel "; //改成SP
+            cmd.CommandText = @"SELECT f_memberLevel, f_LevelName  FROM t_memberLevel  
+                                SELECT f_suspensionLv, f_suspensionName FROM t_suspensionLevel "; //改成SP
 
             //開啟連線
             cmd.Connection.Open();

@@ -13,10 +13,9 @@
         if (/^[a-zA-Z0-9]*$/.test($("#CheckAcc").val()) == false) {
             CheckAccError += "[確認帳號] 只允許輸入英文及數字。\n"
         }
+
         if (CheckAccError !== "") {
-
             alert(CheckAccError);
-
         }
         else {
 
@@ -54,7 +53,7 @@
     $("#AdjustAmountBtn").click(function () {
         if (window.confirm("要調整的金額為 " + $("#AdjustAmount").val() + ",確定要調整嗎?")) {
             $.ajax({
-                url: "/api/member/PutShopGold",
+                url: "/api/member/EditShopGold",
                 type: "put",
                 contentType: "application/json",
                 dataType: "text",

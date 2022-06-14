@@ -12,6 +12,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
+using OnlineShopBack.Enum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -21,64 +22,9 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        //會員相關--------------------------------------------------
+        /*----------前台會員相關----------*/
 
-        #region 會員相關列舉(Enum)
-        private enum DelMemberErrorCode //刪除會員
-        {
-            //<summary >
-            //會員刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            MemIsNull = 100
-        }
-
-        private enum PutMemberErrorCode //編輯會員
-        {
-            //<summary >
-            //1編輯成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            MemIsNull = 100,
-            //<summary >
-            //無此會員
-            //</summary >
-            LvIsNull = 101,
-            //<summary >
-            //無此會員
-            //</summary >
-            SuspensionNull = 102
-        }
-
-        private enum PutShopGoldCode //購物金調整
-        {
-            //<summary >
-            //調整成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            MemIsNull = 100,
-            //<summary >
-            //原始購物金與帳號不相符
-            //</summary >
-            Incompatible = 101,
-            //<summary >
-            //調整後購物金不得小於0 or 大於20000
-            //</summary >
-            PutShopGoldError = 102
-        }
-        #endregion
-
-
-        //取得會員資料
+        //取得前台會員資料
         [HttpGet("GetMember")]
         public string GetMember()
         {
@@ -95,22 +41,36 @@ namespace OnlineShopBack.Controllers
             SqlCommand cmd = null;
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberList ";
 
-            // 資料庫連線&SQL指令
-            cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberList ";
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
 
-            //開啟連線
-            cmd.Connection.Open();
-            da.SelectCommand = cmd;
-            da.Fill(dt);
+                //關閉連線
+                cmd.Connection.Close();
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
 
-            //關閉連線
-            cmd.Connection.Close();
-
+            }
             //DataTable轉Json;
-            var result = Tool.MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -139,9 +99,9 @@ namespace OnlineShopBack.Controllers
                     // 資料庫連線&SQL指令
                     cmd = new SqlCommand();
                     cmd.Connection = new SqlConnection(SQLConnectionString);
-                    cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @Acc";
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_getMemberByAcc @acc";
 
-                    cmd.Parameters.AddWithValue("@Acc", acc);
+                    cmd.Parameters.AddWithValue("@acc", acc);
 
                     //開啟連線
                     cmd.Connection.Open();
@@ -151,20 +111,25 @@ namespace OnlineShopBack.Controllers
                     //關閉連線
                     cmd.Connection.Close();
 
-                    //DataTable轉Json;
-                    var result = Tool.MyTool.DataTableJson(dt);
-
-                    return result;
+               
                 }
                 catch (Exception e)
                 {
-                    return e.Message;
+                    MyTool.WriteErroLog(e.Message);
                 }
                 finally
                 {
-                    cmd.Connection.Close();
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
 
                 }
+                //DataTable轉Json;
+                string result = Tool.MyTool.DataTableJson(dt);
+
+                return result;
             }
         }
 
@@ -190,9 +155,8 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-
-
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -205,22 +169,12 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)DelMemberErrorCode.MemIsNull:
-                        return "無此會員";
-                    case (int)DelMemberErrorCode.DelOK:
-                        return "會員刪除成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -230,11 +184,23 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.DelMemberErrorCode.MemIsNull:
+                    return "無此會員";
+                case (int)MemberEnum.DelMemberErrorCode.DelOK:
+                    return "會員刪除成功";
+                default:
+                    return "失敗";
+            }
         }
 
         //編輯會員(等級&狀態)
-        [HttpPut("PutMember")]
-        public string PutMember([FromQuery] int id, [FromBody] MemberDto value)
+        [HttpPut("EditMember")]
+        public string EditMember([FromQuery] int id, [FromBody] MemberDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -272,6 +238,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -286,26 +253,12 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)PutMemberErrorCode.MemIsNull:
-                        return "無此會員帳號";
-                    case (int)PutMemberErrorCode.LvIsNull:
-                        return "無此等級";
-                    case (int)PutMemberErrorCode.SuspensionNull:
-                        return "無此狀態";
-                    case (int)PutMemberErrorCode.PutOK:
-                        return "更新成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -315,11 +268,27 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.PutMemberErrorCode.MemIsNull:
+                    return "無此會員帳號";
+                case (int)MemberEnum.PutMemberErrorCode.LvIsNull:
+                    return "無此等級";
+                case (int)MemberEnum.PutMemberErrorCode.SuspensionNull:
+                    return "無此狀態";
+                case (int)MemberEnum.PutMemberErrorCode.PutOK:
+                    return "更新成功";
+                default:
+                    return "失敗";
+            }
         }
 
         //調整購物金
-        [HttpPut("PutShopGold")]
-        public string PutShopGold([FromBody] PutShopGlodDto value)
+        [HttpPut("EditShopGold")]
+        public string EditShopGold([FromBody] PutShopGlodDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -372,6 +341,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -386,26 +356,11 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccErrorStr);
-
-                switch (SQLReturnCode)
-                {
-                    case (int)PutShopGoldCode.Incompatible:
-                        return "原始購物金與帳號不相符";
-                    case (int)PutShopGoldCode.MemIsNull:
-                        return "會員不存在";
-                    case (int)PutShopGoldCode.PutShopGoldError:
-                        return "調整後購物金不得小於0 or 大於20000";
-                    case (int)PutShopGoldCode.PutOK:
-                        return "更新成功";
-                    default:
-                        return "失敗";
-                }
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -415,50 +370,25 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int SQLResultCode = int.Parse(SQLReturnCode);
+
+            switch (SQLResultCode)
+            {
+                case (int)MemberEnum.PutShopGoldCode.Incompatible:
+                    return "原始購物金與帳號不相符";
+                case (int)MemberEnum.PutShopGoldCode.MemIsNull:
+                    return "會員不存在";
+                case (int)MemberEnum.PutShopGoldCode.PutShopGoldError:
+                    return "調整後購物金不得小於0 or 大於20000";
+                case (int)MemberEnum.PutShopGoldCode.PutOK:
+                    return "更新成功";
+                default:
+                    return "失敗";
+            }
         }
 
-
-        //會員等級相關----------------------------------------------
-
-        #region 會員等級相關列舉(Enum)
-        private enum AddMemLvErrorCode //增加會員等級
-        {
-            //<summary >
-            //會員刪除成功
-            //</summary >
-            AddOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            DuplicateMemLv = 100
-        }
-
-        private enum DelMemLvErrorCode //刪除會員等級
-        {
-            //<summary >
-            //會員刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            ProhibitDel = 100
-        }
-
-        private enum PutMemLVErrorCode // 更新權限
-        {
-            //<summary >
-            //權限更新成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            LvIsNull = 100
-
-        }
-
-        #endregion
+        /*----------前台會員等級相關----------*/
 
         //取得會員等級資料List
         [HttpGet("GetMemLvList")]
@@ -492,7 +422,7 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -504,12 +434,12 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
 
-        //增加會員等級 
+        //添加會員等級 
         [HttpPost("AddMemLv")]
         public string AddMemLv([FromBody] MemLvDto value)
         {
@@ -523,7 +453,7 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-            string addMemLvErrorStr = "";//記錄錯誤訊息
+            string AddMemLvErrorStr = "";//記錄錯誤訊息
             //資料驗證
 
             //查詢資料庫狀態是否正常
@@ -535,40 +465,40 @@ namespace OnlineShopBack.Controllers
             //等級編號 
             if (value.memLv == null)
             {
-                addMemLvErrorStr += "[編號不可為空]\n";
+                AddMemLvErrorStr += "[編號不可為空]\n";
             }
             else
             {
                 if (value.memLv > 255 || value.memLv < 0)
                 {
-                    addMemLvErrorStr += "[編號長度應介於0～255個數字之間]\n";
+                    AddMemLvErrorStr += "[編號長度應介於0～255個數字之間]\n";
                 }
             }
             //等級名稱
             if (string.IsNullOrEmpty(value.LvName))
             {
-                addMemLvErrorStr += "[權限名稱不可為空]\n";
+                AddMemLvErrorStr += "[權限名稱不可為空]\n";
             }
             else
             {
                 if (!MyTool.IsCNAndENAndNumber(value.LvName))
                 {
-                    addMemLvErrorStr += "[名稱應為中文,英文及數字]\n";
+                    AddMemLvErrorStr += "[名稱應為中文,英文及數字]\n";
                 }
                 if (value.LvName.Length > 10 || value.LvName.Length < 0)
                 {
-                    addMemLvErrorStr += "[名稱應介於0～10個字之間]\n";
+                    AddMemLvErrorStr += "[名稱應介於0～10個字之間]\n";
                 }
             }
 
             //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(addMemLvErrorStr))
+            if (!string.IsNullOrEmpty(AddMemLvErrorStr))
             {
-                return addMemLvErrorStr;
+                return AddMemLvErrorStr;
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -584,23 +514,12 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
 
                 cmd.Connection.Open();
-                addMemLvErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addMemLvErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-
-                    case (int)AddMemLvErrorCode.AddOK:
-                        return "會員等級新增成功";
-                    case (int)AddMemLvErrorCode.DuplicateMemLv:
-                        return "會員等級編號重複";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -611,11 +530,24 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+
+                case (int)MemberEnum.AddMemLvErrorCode.AddOK:
+                    return "會員等級新增成功";
+                case (int)MemberEnum.AddMemLvErrorCode.DuplicateMemLv:
+                    return "會員等級編號重複";
+                default:
+                    return "失敗";
+            }
+
         }
 
         //更新權限
-        [HttpPut("PutMemLv")]
-        public string PutMemLv([FromQuery] int MemLv, [FromBody] MemLvDto value)
+        [HttpPut("EditMemLv")]
+        public string EditMemLv([FromQuery] int MemLv, [FromBody] MemLvDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -665,6 +597,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -678,22 +611,11 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
-
-                switch (SQLReturnCode)
-                {
-                    case (int)PutMemLVErrorCode.LvIsNull:
-                        return "尚未建立此會員等級";
-                    case (int)PutMemLVErrorCode.PutOK:
-                        return "會員等級更新成功";
-                    default:
-                        return "失敗";
-                }
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -702,6 +624,18 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
+            }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.PutMemLVErrorCode.LvIsNull:
+                    return "尚未建立此會員等級";
+                case (int)MemberEnum.PutMemLVErrorCode.PutOK:
+                    return "會員等級更新成功";
+                default:
+                    return "失敗";
             }
 
         }
@@ -731,7 +665,7 @@ namespace OnlineShopBack.Controllers
 
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -744,22 +678,12 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)DelMemLvErrorCode.ProhibitDel:
-                        return "此等級不可刪除";
-                    case (int)DelMemLvErrorCode.DelOK:
-                        return "會員等級刪除成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -769,55 +693,26 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.DelMemLvErrorCode.ProhibitDel:
+                    return "此等級不可刪除";
+                case (int)MemberEnum.DelMemLvErrorCode.DelOK:
+                    return "會員等級刪除成功";
+                case (int)MemberEnum.DelMemLvErrorCode.IsNull:
+                    return "此等級尚未建立";
+                case (int)MemberEnum.DelMemLvErrorCode.IsUsing:
+                    return "有使用者正在套用此等級";
+                default:
+                    return "失敗";
+            }
         }
 
 
-
-        //會員狀態相關----------------------------------------------
-
-        #region 會員等級相關列舉(Enum)
-        private enum AddSuspensionCode //增加會員狀態
-        {
-            //<summary >
-            //會員刪除成功
-            //</summary >
-            AddOK = 0,
-            //<summary >
-            //無此會員
-            //</summary >
-            Duplicate = 100
-        }
-
-        private enum DelSuspensionCode //刪除會員狀態
-        {
-            //<summary >
-            //刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //禁止刪除
-            //</summary >
-            ProhibitDel = 100,
-            //<summary >
-            //編號尚未建立
-            //</summary >
-            isNull = 101
-        }
-
-        private enum PutSuspensionCode // 更新狀態
-        {
-            //<summary >
-            //權限更新成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            IsNull = 100
-
-        }
-
-        #endregion
+        /*----------前台會員狀態相關----------*/
 
         //取得狀態資料List
         [HttpGet("GetSuspensionList")]
@@ -851,7 +746,7 @@ namespace OnlineShopBack.Controllers
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -863,7 +758,7 @@ namespace OnlineShopBack.Controllers
                 }
             }
             //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            string result = MyTool.DataTableJson(dt);
 
             return result;
         }
@@ -927,7 +822,7 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -943,23 +838,12 @@ namespace OnlineShopBack.Controllers
                 //開啟連線
 
                 cmd.Connection.Open();
-                ErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(ErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-
-                    case (int)AddSuspensionCode.AddOK:
-                        return "狀態新增成功";
-                    case (int)AddSuspensionCode.Duplicate:
-                        return "狀態重複";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -968,6 +852,19 @@ namespace OnlineShopBack.Controllers
                     cmd.Parameters.Clear();
                     cmd.Connection.Close();
                 }
+            }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+
+                case (int)MemberEnum.AddSuspensionCode.AddOK:
+                    return "狀態新增成功";
+                case (int)MemberEnum.AddSuspensionCode.Duplicate:
+                    return "狀態重複";
+                default:
+                    return "失敗";
             }
 
         }
@@ -997,7 +894,7 @@ namespace OnlineShopBack.Controllers
 
 
             SqlCommand cmd = null;
-            //DataTable dt = new DataTable();
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
@@ -1010,24 +907,12 @@ namespace OnlineShopBack.Controllers
 
                 //開啟連線
                 cmd.Connection.Open();
-                ErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(ErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)DelSuspensionCode.ProhibitDel:
-                        return "不可刪除";
-                    case (int)DelSuspensionCode.DelOK:
-                        return "刪除成功";
-                    case (int)DelSuspensionCode.isNull:
-                        return "狀態尚未建立";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -1037,11 +922,25 @@ namespace OnlineShopBack.Controllers
                     cmd.Connection.Close();
                 }
             }
+
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.DelSuspensionCode.ProhibitDel:
+                    return "不可刪除";
+                case (int)MemberEnum.DelSuspensionCode.DelOK:
+                    return "刪除成功";
+                case (int)MemberEnum.DelSuspensionCode.isNull:
+                    return "狀態尚未建立";
+                default:
+                    return "失敗";
+            }
         }
 
         //更新狀態
-        [HttpPut("PutSuspension")]
-        public string PutSuspension([FromQuery] int id, [FromBody] suspensionDto value)
+        [HttpPut("EditSuspension")]
+        public string EditSuspension([FromQuery] int id, [FromBody] suspensionDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -1091,35 +990,26 @@ namespace OnlineShopBack.Controllers
             }
 
             SqlCommand cmd = null;
+            string SQLReturnCode = "";
             try
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
                 cmd.Connection = new SqlConnection(SQLConnectionString);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putSuspensionById @id, @Name ";
+                cmd.CommandText = @"EXEC pro_onlineShopBack_putSuspension @id, @Name ";
 
                 cmd.Parameters.AddWithValue("@id", id);
                 cmd.Parameters.AddWithValue("@Name", value.suspensionName);
 
                 //開啟連線
                 cmd.Connection.Open();
-                addAccLVErrorStr = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-                int SQLReturnCode = int.Parse(addAccLVErrorStr);
+                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-                switch (SQLReturnCode)
-                {
-                    case (int)PutSuspensionCode.IsNull:
-                        return "尚未建立此狀態";
-                    case (int)PutSuspensionCode.PutOK:
-                        return "狀態更新成功";
-                    default:
-                        return "失敗";
-                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -1130,8 +1020,21 @@ namespace OnlineShopBack.Controllers
                 }
             }
 
+            int ResultCode = int.Parse(SQLReturnCode);
+
+            switch (ResultCode)
+            {
+                case (int)MemberEnum.PutSuspensionCode.IsNull:
+                    return "尚未建立此狀態";
+                case (int)MemberEnum.PutSuspensionCode.PutOK:
+                    return "狀態更新成功";
+                default:
+                    return "失敗";
+            }
+
         }
 
+        /*-------------------------------------------*/
         //登入檢查
         private bool loginValidate()
         {

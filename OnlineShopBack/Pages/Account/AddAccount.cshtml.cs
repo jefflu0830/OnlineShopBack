@@ -1,3 +1,9 @@
+#region 功能與歷史修改描述
+/*
+    描述:添加後台帳號頁面
+    日期:2022-05-05
+*/
+#endregion
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
@@ -36,7 +42,7 @@ namespace OnlineShopBack.Pages.Account
             // 資料庫連線&SQL指令
             cmd = new SqlCommand();
             cmd.Connection = new SqlConnection(SQLConnectionString);
-            cmd.CommandText = @"SELECT * FROM T_accountLevel "; //改成SP
+            cmd.CommandText = @" SELECT f_accLevel, f_accPosition FROM T_accountLevel "; //改成SP
 
             //開啟連線
             cmd.Connection.Open();

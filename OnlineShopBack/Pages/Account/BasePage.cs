@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#region 功能與歷史修改描述
+/*
+    描述:後台帳號頁面BASE PAGE
+    日期:2022-05-05
+*/
+#endregion
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OnlineShopBack.Tool;
 using System;

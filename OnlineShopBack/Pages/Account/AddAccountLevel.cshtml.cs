@@ -1,3 +1,9 @@
+#region 功能與歷史修改描述
+/*
+    描述:添加後臺帳號等級頁面
+    日期:2022-05-05
+*/
+#endregion
 using static OnlineShopBack.Pages.Account.BasePage;
 
 namespace OnlineShopBack.Pages.Account

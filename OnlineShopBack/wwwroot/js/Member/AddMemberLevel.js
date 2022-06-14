@@ -167,7 +167,7 @@ function EditPwd_Click(MemLv) {
     }
     else {
         $.ajax({
-            url: "/api/Member/PutMemLv?MemLv=" + MemLv,
+            url: "/api/Member/EditMemLv?MemLv=" + MemLv,
             type: "put",
             contentType: "application/json",
             dataType: "text",

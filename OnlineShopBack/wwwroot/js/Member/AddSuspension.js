@@ -168,7 +168,7 @@ function Edit_Click(suspensionLv) {
     }
     else {
         $.ajax({
-            url: "/api/Member/PutSuspension?id=" + suspensionLv,
+            url: "/api/Member/EditSuspension?id=" + suspensionLv,
             type: "put",
             contentType: "application/json",
             dataType: "text",

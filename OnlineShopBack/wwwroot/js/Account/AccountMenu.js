@@ -1,6 +1,5 @@
 ﻿$(document).ready(function () {
 
-
     //取得帳號列表
     $.ajax({
         type: "GET",
@@ -43,9 +42,6 @@
         }
     });
 
-
-
-
     //點擊編輯帳號按鈕
     $("#TableBody").on('click', '.EditAccBtn', function () {
         var currentRow = $(this).closest("tr");
@@ -53,8 +49,6 @@
         var col1 = currentRow.find("td:eq(0)").text();
         var col2 = currentRow.find("td:eq(1)").text();
         var col3 = currentRow.find("td:eq(2)").text();
-        //var data = col1 + "\n" + col2 + "\n" + col3;
-        //alert(data);
 
         for (var i = 0; i < accLevel.length - 1; i++) {
             if (accPosition[i] === col3) {
@@ -87,7 +81,7 @@
                 "<h5>密碼修改</h5>" +
                 "<div><label> 帳號:</label><label id='Editfacc'>" + col2 + "</label></div>" +
                 "<div><label>新密碼:</label><input type='password' id='newPwd' name='newPwd'maxlength='16' /></div>" +
-                "<div><label>確認新密碼:</label><input id='cfmNewPwd' name='cfmNewPwd' maxlength='16' /></div>" +
+                "<div><label>確認新密碼:</label><input type='password' id='cfmNewPwd' name='cfmNewPwd' maxlength='16' /></div>" +
                 "<div id='Editbutton'><input name='EditPwd' onclick ='AccountMenufun.EditPwd_Click(" + col1 + ")' type='Button' value='確認修改' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button'  onclick = 'AccountMenufun.EditCancel_Click()' value = '取消修改' /></div > "
             $('#Editform').append(EditData);
@@ -227,7 +221,7 @@ var AccountMenufun = {
         else {
             if (window.confirm("確定要修改密碼嗎?")) {
                 $.ajax({
-                    url: "/api/account/PutPwd",
+                    url: "/api/account/EditPwd",
                     type: "put",
                     contentType: "application/json",
                     dataType: "text",
@@ -255,7 +249,7 @@ var AccountMenufun = {
     //確認編輯帳號
     EditAcc_Click: function (Id) {
         $.ajax({
-            url: "/api/account/PutAcc?id=" + Id,
+            url: "/api/account/EditAcc?id=" + Id,
             type: "put",
             contentType: "application/json",
             dataType: "text",

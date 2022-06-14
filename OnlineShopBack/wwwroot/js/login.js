@@ -45,9 +45,9 @@
                             break;
                         }
                         case '101': {
-                            if (window.confirm("有使用者正在連線,要繼續登入嗎?")) {
+                            if (window.confirm("有使用者正在連線,已清除連線,要繼續登入嗎?")) {
                                 location.href = "/index";
-                            }
+                            } 
                             break;
                         }
                         case '102': {

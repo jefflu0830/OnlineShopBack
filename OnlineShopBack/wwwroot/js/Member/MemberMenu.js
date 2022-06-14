@@ -7,8 +7,6 @@
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            //$("#DIV").html('');
-            //var DIV = '';
             memJson = data;
 
             for (var i in data) {
@@ -135,12 +133,11 @@
     });
 })
 
-
 var memMenufun = {
     //確認編輯帳號
     EditMem_Click: function (Id) {
         $.ajax({
-            url: "/api/Member/PutMember?id=" + Id,
+            url: "/api/Member/EditMember?id=" + Id,
             type: "put",
             contentType: "application/json",
             dataType: "text",

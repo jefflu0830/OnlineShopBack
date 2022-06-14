@@ -1,3 +1,9 @@
+#region 功能與歷史修改描述
+/*
+    描述:新增配送方式頁面
+    日期:2022-05-05
+*/
+#endregion
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
