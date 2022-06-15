@@ -10,7 +10,7 @@ namespace OnlineShopBack.Enum
     public class AccountEnum
     {
 
-        #region 後台帳號相關列舉(Enum)
+        #region 後台帳號相關列舉
         //新增帳號       
         public enum AddACCountErrorCode
         {

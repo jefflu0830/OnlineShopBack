@@ -13,7 +13,7 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
 using System.Data;
-using OnlineShopBack.Enum;
+using static OnlineShopBack.Enum.AccountEnum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -178,13 +178,13 @@ namespace OnlineShopBack.Controllers
 
             switch (ResultCode)
             {
-                case (int)AccountEnum.AddACCountErrorCode.duplicateAccount:
+                case (int)AddACCountErrorCode.duplicateAccount:
                     return "此帳號已存在";
 
-                case (int)AccountEnum.AddACCountErrorCode.permissionIsNull:
+                case (int)AddACCountErrorCode.permissionIsNull:
                     return "該權限未建立";
 
-                case (int)AccountEnum.AddACCountErrorCode.AddOK:
+                case (int)AddACCountErrorCode.AddOK:
                     return "帳號新增成功";
                 default:
                     return "失敗";
@@ -259,11 +259,11 @@ namespace OnlineShopBack.Controllers
 
             switch (ResultCode)
             {
-                case (int)AccountEnum.PutAccErrorCode.ProhibitPut:
+                case (int)PutAccErrorCode.ProhibitPut:
                     return "此帳號不可做更改";
-                case (int)AccountEnum.PutAccErrorCode.LvIsNull:
+                case (int)PutAccErrorCode.LvIsNull:
                     return "尚未建立此權限";
-                case (int)AccountEnum.PutAccErrorCode.PutOK:
+                case (int)PutAccErrorCode.PutOK:
                     return "帳號更新成功";
                 default:
                     return "失敗";
@@ -355,11 +355,11 @@ namespace OnlineShopBack.Controllers
 
             switch (ResultCode)
             {
-                case (int)AccountEnum.PutAccPwdErrorCode.confirmError:
+                case (int)PutAccPwdErrorCode.confirmError:
                     return "新密碼與確認新密碼不相同";
-                case (int)AccountEnum.PutAccPwdErrorCode.AccIsNull:
+                case (int)PutAccPwdErrorCode.AccIsNull:
                     return "此帳號不存在";
-                case (int)AccountEnum.PutAccPwdErrorCode.PutOK:
+                case (int)PutAccPwdErrorCode.PutOK:
                     return "密碼修改成功";
                 default:
                     return "失敗";
@@ -422,11 +422,11 @@ namespace OnlineShopBack.Controllers
 
             switch (ResultCode)
             {
-                case (int)AccountEnum.DelACCountErrorCode.AccIsNull:
+                case (int)DelACCountErrorCode.AccIsNull:
                     return "無此帳號";
-                case (int)AccountEnum.DelACCountErrorCode.ProhibitDel:
+                case (int)DelACCountErrorCode.ProhibitDel:
                     return "此帳號不可刪除";
-                case (int)AccountEnum.DelACCountErrorCode.DelOK:
+                case (int)DelACCountErrorCode.DelOK:
                     return "帳號刪除成功";
                 default:
                     return "失敗";
@@ -659,9 +659,9 @@ namespace OnlineShopBack.Controllers
             switch (ResultCode)
             {
 
-                case (int)AccountEnum.addACCountLVErrorCode.addOK:
+                case (int)addACCountLVErrorCode.addOK:
                     return "權限新增成功";
-                case (int)AccountEnum.addACCountLVErrorCode.duplicateAccountLv:
+                case (int)addACCountLVErrorCode.duplicateAccountLv:
                     return "權限編號重複";
                 default:
                     return "失敗";
@@ -769,11 +769,11 @@ namespace OnlineShopBack.Controllers
 
             switch (ResultCode)
             {
-                case (int)AccountEnum.PutACCountLVErrorCode.prohibitPutlv:
+                case (int)PutACCountLVErrorCode.prohibitPutlv:
                     return "此權限不可更改";
-                case (int)AccountEnum.PutACCountLVErrorCode.LvIsNull:
+                case (int)PutACCountLVErrorCode.LvIsNull:
                     return "此權限尚未建立";
-                case (int)AccountEnum.PutACCountLVErrorCode.PutOK:
+                case (int)PutACCountLVErrorCode.PutOK:
                     return "權限更新成功";
                 default:
                     return "失敗";
@@ -851,11 +851,11 @@ namespace OnlineShopBack.Controllers
 
             switch (SQLReturnCode)
             {
-                case (int)AccountEnum.DelACCountLVErrorCode.LvIsNull:
+                case (int)DelACCountLVErrorCode.LvIsNull:
                     return "此權限尚未建立";
-                case (int)AccountEnum.DelACCountLVErrorCode.IsUsing:
+                case (int)DelACCountLVErrorCode.IsUsing:
                     return "此權限目前有人正在使用";
-                case (int)AccountEnum.DelACCountLVErrorCode.DelOK:
+                case (int)DelACCountLVErrorCode.DelOK:
                     return "刪除成功";
                 default:
                     return "失敗";
