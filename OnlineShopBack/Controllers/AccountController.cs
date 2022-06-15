@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using OnlineShopBack.Domain.Repository;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
@@ -24,6 +25,13 @@ namespace OnlineShopBack.Controllers
         //取得SQL連線字串
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+        private readonly IAccountRepository _accountService = null;
+        public AccountController(IAccountRepository accountService)
+        {
+            _accountService = accountService;
+        }
+
+
         //帳號資料left join權限資料
         [HttpGet("GetAcc")]
         public string GetAcc()
@@ -38,35 +46,37 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
+            
+            DataTable dt = _accountService.GetAccountAndLevelList(SQLConnectionString);
+            //SqlCommand cmd = null;
+            //SqlDataAdapter da = new SqlDataAdapter();
+            //try
+            //{
+            //    // 資料庫連線&SQL指令
+            //    cmd = new SqlCommand();
+            //    cmd.Connection = new SqlConnection(SQLConnectionString);
+            //    cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
 
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
+            //    //開啟連線
+            //    cmd.Connection.Open();
+            //    da.SelectCommand = cmd;
+            //    da.Fill(dt);
 
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    return e.Message;
+            //}
+            //finally
+            //{
+            //    //關閉連線
+            //    if (cmd != null)
+            //    {
+            //        cmd.Parameters.Clear();
+            //        cmd.Connection.Close();
+            //    }
+            //}
+
 
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
@@ -820,7 +830,6 @@ namespace OnlineShopBack.Controllers
 
             SqlCommand cmd = null;
             int SQLReturnCode;
-            int aa;
             try
             {
                 // 資料庫連線
