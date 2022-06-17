@@ -5,20 +5,19 @@
 */
 #endregion
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
 using OnlineShopBack.Tool;
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
 using System.Data;
-using static OnlineShopBack.Enum.ProductEnum;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Hosting;
 using System.IO;
-using System.Linq;
+using System.Text.Json;
+using static OnlineShopBack.Enum.ProductEnum;
 
 namespace OnlineShopBack.Controllers
 {
@@ -91,7 +90,9 @@ namespace OnlineShopBack.Controllers
         public string AddProduct()
         {
             //其他文字資訊
-            var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
+            //var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
+
+            var dto = JsonSerializer.Deserialize<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
             //圖片檔
             var files = Request.Form.Files;
 
@@ -373,7 +374,8 @@ namespace OnlineShopBack.Controllers
         {
 
             //其他文字資訊
-            var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
+            //var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
+            var dto = JsonSerializer.Deserialize<ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
             //圖片檔
             var files = Request.Form.Files;
 

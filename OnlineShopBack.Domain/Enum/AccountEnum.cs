@@ -5,12 +5,75 @@
 */
 #endregion
 
-namespace OnlineShopBack.Enum
+namespace OnlineShopBack.Domain.Enum
 {
     public class AccountEnum
     {
 
         #region 後台帳號相關列舉
+        //新增帳號       
+        public enum AddAccountCode
+        {
+            //<summary >
+            //帳號新增成功
+            //</summary >
+            AddOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+
+        }
+        //編輯帳號
+        public enum EditAccCode
+        {
+            //<summary >
+            //帳號刪除成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+
+        }
+        //修改密碼
+        public enum EditAccPwdCode 
+        {
+            //<summary >
+            //密碼修改成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+
+        }
         //刪除帳號
         public enum DelACCountErrorCode
         {

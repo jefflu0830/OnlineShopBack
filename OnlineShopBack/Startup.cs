@@ -13,17 +13,11 @@ namespace OnlineShopBack
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IAccountRepository, AccountRepository>();
 
+            services.AddSingleton<IAccountRepository, AccountRepository>();//依賴注入 Account相關
             services.AddHttpContextAccessor();
-
             services.AddControllersWithViews();
             services.AddControllers();
-
-            //EntityFramework  要使用把MODEL加回項目
-            //services.AddDbContext<OnlineShopContext>(options =>
-            //                                         options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDatabase")));
-
             services.AddAuthentication();
 
             //session設定

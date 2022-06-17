@@ -31,8 +31,7 @@ namespace OnlineShopBack.Controllers
             _accountService = accountService;
         }
 
-
-        //帳號資料left join權限資料
+        //取得全部帳號資訊
         [HttpGet("GetAcc")]
         public string GetAcc()
         {
@@ -46,47 +45,17 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            
             DataTable dt = _accountService.GetAccountAndLevelList(SQLConnectionString);
-            //SqlCommand cmd = null;
-            //SqlDataAdapter da = new SqlDataAdapter();
-            //try
-            //{
-            //    // 資料庫連線&SQL指令
-            //    cmd = new SqlCommand();
-            //    cmd.Connection = new SqlConnection(SQLConnectionString);
-            //    cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountAndAccountLevelList ";
-
-            //    //開啟連線
-            //    cmd.Connection.Open();
-            //    da.SelectCommand = cmd;
-            //    da.Fill(dt);
-
-            //}
-            //catch (Exception e)
-            //{
-            //    return e.Message;
-            //}
-            //finally
-            //{
-            //    //關閉連線
-            //    if (cmd != null)
-            //    {
-            //        cmd.Parameters.Clear();
-            //        cmd.Connection.Close();
-            //    }
-            //}
-
 
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
 
             return result;
         }
-
+        /*-----------後臺帳號相關-----------*/
         //增加帳號
         [HttpPost("AddAcc")]
-        public string AddAcc([FromBody] AccountDto value)
+        public string AddAcc([FromBody] Domain.DTOs.Account.AccountDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -98,113 +67,23 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            //後端驗證
-            //如字串字數特殊字元驗證
-            string addAccErrorStr = "";//記錄錯誤訊息
-
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
 
-            //帳號資料驗證
-            if (string.IsNullOrEmpty(value.Account))
-            {
-                addAccErrorStr += "[帳號不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsENAndNumber(value.Account))
-                {
-                    addAccErrorStr += "[帳號只能為英數]\n";
-                }
-                if (value.Account.Length > 20 || value.Account.Length < 3)
-                {
-                    addAccErrorStr += "[帳號長度應介於3～20個數字之間]\n";
-                }
-            }
+            //_accountService.AddAccount 新增帳號
+            int ResultCode = _accountService.AddAccount(SQLConnectionString, value);
 
-            //密碼資料驗證
-            if (string.IsNullOrEmpty(value.Pwd))//空字串判斷and Null值判斷皆用IsNullOrEmpty
-            {
-                addAccErrorStr += "[密碼不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsENAndNumber(value.Pwd))
-                {
-                    addAccErrorStr += "[密碼只能為英數]\n";
-                }
-                if (value.Pwd.Length > 16 || value.Pwd.Length < 8)
-                {
-                    addAccErrorStr += "[密碼長度應應介於8～16個數字之間]\n";
-                }
-            }
-            //權限資料驗證
-            if (value.Level > 255 || value.Level < 0)
-            {
-                addAccErrorStr += "[該權限不再範圍內]\n";
-            }
 
-            if (!string.IsNullOrEmpty(addAccErrorStr))
-            {
-                return addAccErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            string SQLReturnCode = ""; 
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccount @f_acc, @f_pwd, @f_level";
-
-                cmd.Parameters.AddWithValue("@f_acc", value.Account);
-                cmd.Parameters.AddWithValue("@f_pwd", MyTool.PswToMD5(value.Pwd));
-                cmd.Parameters.AddWithValue("@f_level", value.Level);
-
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-                case (int)AddACCountErrorCode.duplicateAccount:
-                    return "此帳號已存在";
-
-                case (int)AddACCountErrorCode.permissionIsNull:
-                    return "該權限未建立";
-
-                case (int)AddACCountErrorCode.AddOK:
-                    return "帳號新增成功";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + (int)ResultCode + "}]";
 
         }
-        /*-----------後臺帳號相關-----------*/
+
         //編輯帳號_權限
         [HttpPut("EditAcc")]
-        public string EditAcc([FromQuery] int id, [FromBody] AccountDto value)
+        public string EditAcc([FromQuery] int id, [FromBody] Domain.DTOs.Account.AccountDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -214,75 +93,22 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }
-
-            string addAccErrorStr = "";//記錄錯誤訊息
+            }            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
+            
+            int ResultCode = _accountService.EditAcc(SQLConnectionString, id, value);
 
-            //權限資料驗證
-            if (value.Level > 255 || value.Level < 0)
-            {
-                addAccErrorStr += "[該權限不再範圍內]\n";
-            }
-
-            if (!string.IsNullOrEmpty(addAccErrorStr))
-            {
-                return addAccErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            string SQLReturnCode = "";
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountByLevel @Id, @Level";
-
-                cmd.Parameters.AddWithValue("@Id", id);
-                cmd.Parameters.AddWithValue("@Level", value.Level);
-
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-                case (int)PutAccErrorCode.ProhibitPut:
-                    return "此帳號不可做更改";
-                case (int)PutAccErrorCode.LvIsNull:
-                    return "尚未建立此權限";
-                case (int)PutAccErrorCode.PutOK:
-                    return "帳號更新成功";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + (int)ResultCode + "}]";
         }
 
         //更新帳號_密碼
         [HttpPut("EditPwd")]
-        public string EditPwd([FromBody] PutPwdDto value)
+        public string EditPwd([FromBody] Domain.DTOs.Account.PutPwdDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -292,9 +118,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }
-
-            string addAccErrorStr = "";//記錄錯誤訊息
+            }            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -302,78 +126,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //密碼資料驗證
-            if (string.IsNullOrEmpty(value.newPwd) || string.IsNullOrEmpty(value.cfmNewPwd))//空字串判斷and Null值判斷皆用IsNullOrEmpty
-            {
-                addAccErrorStr += "[新密碼或確認密碼不可為空]\n";
-            }
-            else
-            {
-                if (value.newPwd != value.cfmNewPwd)//空字串判斷and Null值判斷皆用IsNullOrEmpty
-                {
-                    addAccErrorStr += "[新密碼與確認新密碼需相同]\n";
-                }
+            int ResultCode = _accountService.EditPwd(SQLConnectionString, value);
 
-                if (!MyTool.IsENAndNumber(value.newPwd) || !MyTool.IsENAndNumber(value.cfmNewPwd))
-                {
-                    addAccErrorStr += "[密碼只能為英數]\n";
-                }
-                if (value.newPwd.Length > 16 || value.newPwd.Length < 8)
-                {
-                    addAccErrorStr += "[密碼長度應應介於8～16個數字之間]\n";
-                }
-            }
-
-            if (!string.IsNullOrEmpty(addAccErrorStr))
-            {
-                return addAccErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            string SQLReturnCode = "";
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountByPwd @id, @newPwd, @cfmNewPwd";
-
-                cmd.Parameters.AddWithValue("@id", value.id);
-                cmd.Parameters.AddWithValue("@newPwd", MyTool.PswToMD5(value.newPwd));
-                cmd.Parameters.AddWithValue("@cfmNewPwd", MyTool.PswToMD5(value.cfmNewPwd));
-
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-                case (int)PutAccPwdErrorCode.confirmError:
-                    return "新密碼與確認新密碼不相同";
-                case (int)PutAccPwdErrorCode.AccIsNull:
-                    return "此帳號不存在";
-                case (int)PutAccPwdErrorCode.PutOK:
-                    return "密碼修改成功";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + (int)ResultCode + "}]";
         }
 
         //刪除帳號
@@ -389,8 +144,6 @@ namespace OnlineShopBack.Controllers
             {
                 return "未有使用權限";
             }
-
-            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -730,7 +483,7 @@ namespace OnlineShopBack.Controllers
             if (value.canUseAccount == null || value.canUseMember == null ||
                (value.canUseAccount > 1 || value.canUseAccount < 0) ||
                (value.canUseMember > 1 || value.canUseMember < 0) ||
-               (value.canUseProduct > 1 || value.canUseProduct < 0)||
+               (value.canUseProduct > 1 || value.canUseProduct < 0) ||
                (value.canUseOrder > 1 || value.canUseOrder < 0))
             {
                 addAccLVErrorStr += "[選擇權限格式錯誤]\n";
@@ -890,13 +643,14 @@ namespace OnlineShopBack.Controllers
             if (HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
             {
                 return false;
-            }else
+            }
+            else
             {
                 return true;
             }
         }
     }
-    
+
 
 }
 

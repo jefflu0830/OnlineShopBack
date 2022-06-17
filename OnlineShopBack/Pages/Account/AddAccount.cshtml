@@ -15,7 +15,7 @@
 <h5>添加帳號</h5>
 <h5 class=innertest ></h5>
 <div id="body" style="padding: 10px;">
-    <form id="form" method="post" action="">
+    <form id="form" method="post" action="" >
         <div>
             <label for="Account">Account:</label>
             <input type="text" id="Account" name="Account" maxlength="20" />
@@ -31,7 +31,7 @@
             </select>
         </div>
         <div>
-            <input id="post" type="submit" value="Add" />
+            <input id="Addbtn" type="button" value="Add" />
         </div>
     </form>
 </div>
@@ -43,8 +43,12 @@
 <script src="~/js/Account/AddAccount.js"></script>
 
 <script id="getSelect">
+    
+
+    var accLV = "@Html.Raw(Model.AccLevel)".split('/');
+    var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
     //立即執行函式  (變數只會存活在這之中 不會對外造成汙染)
-    (function (accLV, accPosition) {
+    @*(function (accLV, accPosition) {
         try {
             //組標籤
             for (var i = 0; i < accLV.length - 1; i++) {
@@ -52,7 +56,7 @@
             }
 
             //將組好的標籤append至 #level
-            $('#level').append(LvRows);
+            $('#level').html(LvRows);
         }
         catch (e) {
             handleError(e);
@@ -61,5 +65,5 @@
             //清除SCRIPT標籤
             $("#getSelect").remove();
         }
-    })("@Html.Raw(Model.AccLevel)".split('/'), "@Html.Raw(Model.AccPosition)".split('/'));
+    })("@Html.Raw(Model.AccLevel)".split('/'), "@Html.Raw(Model.AccPosition)".split('/'));*@
 </script>

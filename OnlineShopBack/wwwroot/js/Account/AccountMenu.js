@@ -231,13 +231,39 @@ var AccountMenufun = {
                         "cfmNewPwd": $("#cfmNewPwd").val()
                     }),
                     success: function (result) {
-                        alert(result)
+                        var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                        if (result === "密碼修改成功") {
-                            location.reload(); //新增成功才更新頁面
-                        } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                        switch (JsonResult[0].st) {
+                            case 0: {
+                                alert('更改成功');
+                                location.reload();
+                                break;
+                            };
+                            case 100: {
+                                alert('新密碼與確認密碼不相同');
+                                break;
+                            };
+                            case 101: {
+                                alert('此帳號不存在');
+                                break;
+                            };
+                            case 200: {
+                                alert('後端驗證失敗,請查詢LOG');
+                                break;
+                            };
+                            case 201: {
+                                alert('例外錯誤,請查詢LOG');
+                                location.reload();
+                                break;
+                            }
+                            default: {
+                                alert(result);
+                            }
+                        };
+
+                        if (result === "已從另一地點登入,轉跳至登入頁面") {
                             location.reload();
-                        }
+                        };
                     },
                     error: function (error) {
                         alert(error);
@@ -257,13 +283,39 @@ var AccountMenufun = {
                 "Level": parseInt($("#Editlevel").val())
             }),
             success: function (result) {
-                alert(result)
+                var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                if (result === "帳號更新成功") {
-                    location.reload(); //新增成功才更新頁面
-                } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('編輯成功');
+                        location.reload();
+                        break;
+                    };
+                    case 100: {
+                        alert('預設帳號不可更改');
+                        break;
+                    };
+                    case 101: {
+                        alert('尚未建立權限');
+                        break;
+                    };
+                    case 200: {
+                        alert('後端驗證失敗,請查詢LOG');
+                        break;
+                    };
+                    case 201: {
+                        alert('例外錯誤,請查詢LOG');
+                        location.reload();
+                        break;
+                    }
+                    default: {
+                        alert(result);
+                    }
+                };
+
+                if (result === "已從另一地點登入,轉跳至登入頁面") {
                     location.reload();
-                }
+                };
             },
             error: function (error) {
                 alert(error);
@@ -348,7 +400,7 @@ var AccountMenufun = {
                         return item //大於等於0則 return item
                     }
                 })
-            }  
+            }
 
             //字串搜尋
             if (StrClassArr.indexOf($("#SearchClass").val()) >= 0) {
