@@ -31,6 +31,9 @@ namespace OnlineShopBack.Controllers
             _accountService = accountService;
         }
 
+
+        /*-----------後臺帳號相關-----------*/
+
         //取得全部帳號資訊
         [HttpGet("GetAcc")]
         public string GetAcc()
@@ -52,7 +55,7 @@ namespace OnlineShopBack.Controllers
 
             return result;
         }
-        /*-----------後臺帳號相關-----------*/
+
         //增加帳號
         [HttpPost("AddAcc")]
         public string AddAcc([FromBody] Domain.DTOs.Account.AccountDto value)
@@ -151,49 +154,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            SqlCommand cmd = null;
-            string SQLReturnCode = "";
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+            int ResultCode = _accountService.DelAcc(SQLConnectionString,id);
 
-                cmd.CommandText = @"EXEC pro_onlineShopBack_delAccount @f_acc";
-
-                cmd.Parameters.AddWithValue("@f_acc", id);
-
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-                case (int)DelACCountErrorCode.AccIsNull:
-                    return "無此帳號";
-                case (int)DelACCountErrorCode.ProhibitDel:
-                    return "此帳號不可刪除";
-                case (int)DelACCountErrorCode.DelOK:
-                    return "帳號刪除成功";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + (int)ResultCode + "}]";
         }
 
         /*-----------後臺帳號權限相關-----------*/
@@ -211,34 +174,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
-
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+            DataTable dt = _accountService.GetAccLvList(SQLConnectionString);
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
 
@@ -246,8 +182,8 @@ namespace OnlineShopBack.Controllers
         }
 
         //依照ID查詢權限資料
-        [HttpGet("IdGetAccLV")]
-        public string IdGetAccLV([FromQuery] int id)
+        [HttpGet("GetAccLVById")]
+        public string GetAccLVById([FromQuery] int id)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -258,55 +194,13 @@ namespace OnlineShopBack.Controllers
             {
                 return "未有使用權限";
             }
-
-            string addAccLVErrorStr = "";//記錄錯誤訊息
-
-            if (id > 255 || id < 0)
-            {
-                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
-            }
-
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(addAccLVErrorStr))
-            {
-                return addAccLVErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
 
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevelById @accLevel ";
-                cmd.Parameters.AddWithValue("@accLevel", id);
-
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+            DataTable dt = _accountService.GetAccLvById(SQLConnectionString, id);
 
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
@@ -316,7 +210,7 @@ namespace OnlineShopBack.Controllers
 
         //增加權限
         [HttpPost("AddAccLv")]
-        public string AddAccLv([FromBody] AccountLevelDto value)
+        public string AddAccLv([FromBody] Domain.DTOs.Account.AccountLevelDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -433,7 +327,7 @@ namespace OnlineShopBack.Controllers
 
         //更新權限
         [HttpPut("EditAccLv")]
-        public string PutAccLv([FromQuery] int id, [FromBody] AccountLevelDto value)
+        public string PutAccLv([FromQuery] int id, [FromBody] Domain.DTOs.Account.AccountLevelDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -623,6 +517,8 @@ namespace OnlineShopBack.Controllers
                     return "失敗";
             }
         }
+
+
 
         //登入&權限檢查
         private bool loginValidate()

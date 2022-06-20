@@ -10,26 +10,6 @@ namespace OnlineShopBack.Enum
     public class AccountEnum
     {
 
-        #region 後台帳號相關列舉
-        //刪除帳號
-        public enum DelACCountErrorCode
-        {
-            //<summary >
-            //帳號刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //此帳號不可刪除
-            //</summary >
-            ProhibitDel = 100,
-            //<summary >
-            //無此帳號
-            //</summary >
-            AccIsNull = 101
-
-        }
-        #endregion
-
         #region 後台帳號權限相關列舉
         //新增權限
         public enum addACCountLVErrorCode 

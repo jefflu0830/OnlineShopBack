@@ -179,7 +179,7 @@ function Edit_Click(Id) {
     if ($("#EditBox").css("display") == "none") {
         $.ajax({
             type: "GET",
-            url: "/api/account/IdGetAccLV?id=" + Id,
+            url: "/api/account/GetAccLVById?id=" + Id,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

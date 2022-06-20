@@ -12,7 +12,9 @@ namespace OnlineShopBack.Persistent
 
     public class AccountRepository : IAccountRepository
     {
-        //取得全部帳號資訊
+        /*-----------後台帳號相關-----------*/
+
+        //取得全部後台帳號清單
         public DataTable GetAccountAndLevelList(string SQLConnectionString)
         {
             SqlCommand cmd = null;
@@ -33,6 +35,7 @@ namespace OnlineShopBack.Persistent
             }
             catch (Exception e)
             {
+                MyTool.WriteErroLog(e.Message);
             }
             finally
             {
@@ -44,9 +47,8 @@ namespace OnlineShopBack.Persistent
                 }
             }
             return dt;
-        }
-
-        //新增帳號
+        }        
+        //新增後台帳號  
         public int AddAccount(string SQLConnectionString, AccountDto value)
         {
             //後端驗證
@@ -138,9 +140,8 @@ namespace OnlineShopBack.Persistent
             }
 
             return ResultCode;
-        }
-
-        //編輯帳號
+        }      
+        //編輯後台帳號權限
         public int EditAcc(string SQLConnectionString, int id, AccountDto value)
         {
             string addAccErrorStr = "";//記錄錯誤訊息
@@ -191,8 +192,7 @@ namespace OnlineShopBack.Persistent
             }
             return ResultCode;
         }
-
-        //編輯密碼
+        //後台帳號編輯密碼
         public int EditPwd(string SQLConnectionString, PutPwdDto value)
         {
             string addAccErrorStr = "";//記錄錯誤訊息
@@ -260,6 +260,125 @@ namespace OnlineShopBack.Persistent
                 }                
             }
             return ResultCode;
+        }
+        //刪除後臺帳號
+        public int DelAcc(string SQLConnectionString, int id)
+        {
+            SqlCommand cmd = null;
+            int ResultCode = (int)AccountEnum.DelAccCode.Defult;
+            try
+            {
+                // 資料庫連線
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+
+                cmd.CommandText = @"EXEC pro_onlineShopBack_delAccount @f_acc";
+
+                cmd.Parameters.AddWithValue("@f_acc", id);
+
+                //開啟連線
+                cmd.Connection.Open();
+                ResultCode = (int)cmd.ExecuteScalar();//執行Transact-SQL
+
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+                ResultCode = (int)AccountEnum.DelAccCode.ExceptionError;
+            }
+            finally
+            {
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            return ResultCode;
+        }
+
+        /*-----------後台帳號權限相關-----------*/
+
+        //取得全部後台權限清單
+        public DataTable GetAccLvList(string SQLConnectionString) {
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevel ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            return dt;
+        }
+
+        public DataTable GetAccLvById(string SQLConnectionString,int id)
+        {
+            string addAccLVErrorStr = "";//記錄錯誤訊息
+
+            if (id > 255 || id < 0)
+            {
+                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
+            }
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(addAccLVErrorStr))
+            {
+                MyTool.WriteErroLog("後端驗證失敗 : "+addAccLVErrorStr);
+            }
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+
+
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getAccountLevelById @accLevel ";
+                cmd.Parameters.AddWithValue("@accLevel", id);
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog("例外錯誤 : "+e.Message);
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+            return dt;
         }
     }
 }

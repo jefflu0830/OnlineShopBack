@@ -75,20 +75,24 @@ namespace OnlineShopBack.Domain.Enum
 
         }
         //刪除帳號
-        public enum DelACCountErrorCode
+        public enum DelAccCode
         {
             //<summary >
             //帳號刪除成功
             //</summary >
             DelOK = 0,
             //<summary >
-            //此帳號不可刪除
+            //後端驗證失敗
             //</summary >
-            ProhibitDel = 100,
+            ValidaFail = 200,
             //<summary >
-            //無此帳號
+            //例外錯誤
             //</summary >
-            AccIsNull = 101
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
 
         }
         #endregion

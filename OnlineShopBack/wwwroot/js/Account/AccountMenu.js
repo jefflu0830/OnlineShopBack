@@ -100,13 +100,39 @@
                 type: "DELETE",
                 data: {},
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    if (result == "帳號刪除成功") {
-                        location.reload(); //刪除成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('刪除成功');
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('預設帳號不可刪除');
+                            break;
+                        };
+                        case 101: {
+                            alert('此帳號不存在');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    };
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
-                    }
+                    };
                 },
                 error: function (error) {
                     alert(error);
