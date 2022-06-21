@@ -138,18 +138,36 @@ $.validator.setDefaults({
                 "canUseOrder": canUseOrder
             }),
             success: function (result) {
-                alert(result)
+                var JsonResult = JSON.parse(result)//JSON字串轉物件
 
-                if (result == "權限新增成功") {
-                    location.reload(); //新增成功才更新頁面
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('新增成功');
+                        location.reload(); //新增成功才更新頁面
+                        break;
+                    };
+                    case 100: {
+                        alert('權限重複');
+                        break;
+                    };
+                    case 200: {
+                        alert('後端驗證失敗,請查詢LOG');
+                        break;
+                    };
+                    case 201: {
+                        alert('例外錯誤,請查詢LOG');
+                        location.reload();
+                        break;
+                    }
+                    default: {
+                        alert(result);
+                    }
                 }
             },
             error: function (error) {
                 alert(error);
             }
         })
-
-
     }
 });
 
@@ -283,11 +301,36 @@ function EditOK_Click(Id) {
             "canUseOrder": EditCanUseOrder
         }),
         success: function (result) {
-            alert(result)
+            var JsonResult = JSON.parse(result)//JSON字串轉物件
 
-            if (result == "權限更新成功") {
-                location.reload(); //新增成功才更新頁面
+            switch (JsonResult[0].st) {
+                case 0: {
+                    alert('權限更新成功');
+                    location.reload(); //新增成功才更新頁面
+                    break;
+                };
+                case 100: {
+                    alert('預設帳號不可更改');
+                    break;
+                };
+                case 101: {
+                    alert('尚未建立權限');
+                    break;
+                };
+                case 200: {
+                    alert('後端驗證失敗,請查詢LOG');
+                    break;
+                };
+                case 201: {
+                    alert('例外錯誤,請查詢LOG');
+                    location.reload();
+                    break;
+                }
+                default: {
+                    alert(result);
+                }
             }
+
         },
         error: function (error) {
             alert(error);

@@ -99,50 +99,67 @@ namespace OnlineShopBack.Domain.Enum
 
         #region 後台帳號權限相關列舉
         //新增權限
-        public enum addACCountLVErrorCode 
+        public enum AddAccountLVCode 
         {
             //<summary >
             //權限新增成功
             //</summary >
             addOK = 0,
             //<summary >
-            //權限重複
+            //後端驗證失敗
             //</summary >
-            duplicateAccountLv = 100
-        }
-        //刪除權限
-        public enum DelACCountLVErrorCode 
-        {
+            ValidaFail = 200,
             //<summary >
-            //權限刪除成功
+            //例外錯誤
             //</summary >
-            DelOK = 0,
+            ExceptionError = 201,
             //<summary >
-            //有帳號使用此權限中
+            //Defult
             //</summary >
-            IsUsing = 100,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            LvIsNull = 101
+            Defult = 999
         }
         // 更新權限
-        public enum PutACCountLVErrorCode 
+        public enum EditAccLvCode
         {
             //<summary >
             //權限更新成功
             //</summary >
             PutOK = 0,
             //<summary >
-            //超級使用者不可更改
+            //後端驗證失敗
             //</summary >
-            prohibitPutlv = 100,
+            ValidaFail = 200,
             //<summary >
-            //尚未建立此權限
+            //例外錯誤
             //</summary >
-            LvIsNull = 101
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
 
         }
+        //刪除權限
+        public enum DelAccLVCode 
+        {
+            //<summary >
+            //權限刪除成功
+            //</summary >
+            DelOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+        }
+
 
         #endregion
 

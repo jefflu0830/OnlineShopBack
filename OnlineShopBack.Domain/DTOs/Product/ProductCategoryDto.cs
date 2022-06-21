@@ -1,4 +1,4 @@
-﻿namespace OnlineShopBack.Controllers
+﻿namespace OnlineShopBack.Domain.DTOs.Product
 {
     public class ProductCategoryDto
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 
-namespace OnlineShopBack.Controllers
+namespace OnlineShopBack.Domain.DTOs.Member
+
 {
     public class MemberDto
     {

@@ -5,6 +5,7 @@
 */
 #endregion
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OnlineShopBack.Tool;
 using System;
@@ -36,7 +37,6 @@ namespace OnlineShopBack.Pages.Account
             //驗證腳色
             public bool RolesValidate()
             {
-
 
                 if (!HttpContext.Session.GetString("Roles").Contains("canUseAccount"))
                 {

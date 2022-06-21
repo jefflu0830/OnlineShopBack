@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace OnlineShopBack.Controllers
+namespace OnlineShopBack.Domain.DTOs.Product
 {
     public class ProductDto
     {

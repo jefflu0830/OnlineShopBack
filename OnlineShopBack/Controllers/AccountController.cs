@@ -25,6 +25,7 @@ namespace OnlineShopBack.Controllers
         //取得SQL連線字串
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
+
         private readonly IAccountRepository _accountService = null;
         public AccountController(IAccountRepository accountService)
         {
@@ -48,7 +49,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            DataTable dt = _accountService.GetAccountAndLevelList(SQLConnectionString);
+            DataTable dt = _accountService.GetAccountAndLevelList();
 
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
@@ -77,10 +78,10 @@ namespace OnlineShopBack.Controllers
             }
 
             //_accountService.AddAccount 新增帳號
-            int ResultCode = _accountService.AddAccount(SQLConnectionString, value);
+            int ResultCode = _accountService.AddAccount(value);
 
 
-            return "[{\"st\": " + (int)ResultCode + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
 
         }
 
@@ -104,9 +105,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
             
-            int ResultCode = _accountService.EditAcc(SQLConnectionString, id, value);
+            int ResultCode = _accountService.EditAcc(id, value);
 
-            return "[{\"st\": " + (int)ResultCode + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //更新帳號_密碼
@@ -129,9 +130,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            int ResultCode = _accountService.EditPwd(SQLConnectionString, value);
+            int ResultCode = _accountService.EditPwd(value);
 
-            return "[{\"st\": " + (int)ResultCode + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //刪除帳號
@@ -154,9 +155,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            int ResultCode = _accountService.DelAcc(SQLConnectionString,id);
+            int ResultCode = _accountService.DelAcc(id);
 
-            return "[{\"st\": " + (int)ResultCode + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         /*-----------後臺帳號權限相關-----------*/
@@ -174,7 +175,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            DataTable dt = _accountService.GetAccLvList(SQLConnectionString);
+            DataTable dt = _accountService.GetAccLvList();
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
 
@@ -200,7 +201,7 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            DataTable dt = _accountService.GetAccLvById(SQLConnectionString, id);
+            DataTable dt = _accountService.GetAccLvById(id);
 
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
@@ -222,112 +223,20 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            string addAccLVErrorStr = "";//記錄錯誤訊息
-            //資料驗證
-
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
 
-            //權限編號 
-            if (value.accLevel == null)
-            {
-                addAccLVErrorStr += "[編號不可為空]\n";
-            }
-            else
-            {
-                if (value.accLevel > 255 || value.accLevel < 0)
-                {
-                    addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
-                }
-            }
-            //權限名稱
-            if (string.IsNullOrEmpty(value.accPosition))
-            {
-                addAccLVErrorStr += "[權限名稱不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsCNAndENAndNumber(value.accPosition))
-                {
-                    addAccLVErrorStr += "[名稱應為中文,英文及數字]\n";
-                }
-                if (value.accPosition.Length > 10 || value.accPosition.Length < 0)
-                {
-                    addAccLVErrorStr += "[名稱應介於0～10個字之間]\n";
-                }
-            }
-            //是否有權使用帳號管理 or 會員管理
-            if (value.canUseAccount == null || value.canUseMember == null ||
-               (value.canUseAccount > 1 || value.canUseAccount < 0) ||
-               (value.canUseMember > 1 || value.canUseMember < 0) ||
-               (value.canUseOrder > 1 || value.canUseOrder < 0))
-            {
-                addAccLVErrorStr += "[選擇權限格式錯誤]\n";
-            }
+            int ResultCode = _accountService.AddAccLv(value);
 
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(addAccLVErrorStr))
-            {
-                return addAccLVErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            string SQLReturnCode = "";
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                //重複驗證寫在SP中
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct, @canUseOrder ";
-
-                cmd.Parameters.AddWithValue("@accLevel", value.accLevel);
-                cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
-                cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
-                cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
-                cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
-                cmd.Parameters.AddWithValue("@canUseOrder", value.canUseOrder);
-
-                //開啟連線
-
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-
-                case (int)addACCountLVErrorCode.addOK:
-                    return "權限新增成功";
-                case (int)addACCountLVErrorCode.duplicateAccountLv:
-                    return "權限編號重複";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //更新權限
         [HttpPut("EditAccLv")]
-        public string PutAccLv([FromQuery] int id, [FromBody] Domain.DTOs.Account.AccountLevelDto value)
+        public string EditAccLv([FromQuery] int id, [FromBody] Domain.DTOs.Account.AccountLevelDto value)
         {
             //登入&身分檢查
             if (!loginValidate())
@@ -337,105 +246,17 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }
-
-            string addAccLVErrorStr = "";//記錄錯誤訊息
+            }           
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
+          
+            int ResultCode = _accountService.EditAccLv(id,value);
 
-            //權限編號 
-            if (id == 0)
-            {
-                addAccLVErrorStr += "此權限編號為最高權限無法更改\n";
-            }
-            if (id > 255 || id < 0)
-            {
-                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
-            }
-
-            //權限名稱
-            if (string.IsNullOrEmpty(value.accPosition))
-            {
-                addAccLVErrorStr += "[權限名稱不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsCNAndENAndNumber(value.accPosition))
-                {
-                    addAccLVErrorStr += "[名稱應為中文,英文及數字]\n";
-                }
-                if (value.accPosition.Length > 10 || value.accPosition.Length < 0)
-                {
-                    addAccLVErrorStr += "[名稱應介於0～10個字之間]\n";
-                }
-            }
-            //是否有權使用帳號管理 or 會員管理
-            if (value.canUseAccount == null || value.canUseMember == null ||
-               (value.canUseAccount > 1 || value.canUseAccount < 0) ||
-               (value.canUseMember > 1 || value.canUseMember < 0) ||
-               (value.canUseProduct > 1 || value.canUseProduct < 0) ||
-               (value.canUseOrder > 1 || value.canUseOrder < 0))
-            {
-                addAccLVErrorStr += "[選擇權限格式錯誤]\n";
-            }
-
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(addAccLVErrorStr))
-            {
-                return addAccLVErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            string SQLReturnCode = "";
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putAccountLevel @accLevel, @accPosission, @canUseAccount, @canUseMember, @canUseProduct, @canUseOrder ";
-
-                cmd.Parameters.AddWithValue("@accLevel", id);
-                cmd.Parameters.AddWithValue("@accPosission", value.accPosition);
-                cmd.Parameters.AddWithValue("@canUseAccount", value.canUseAccount);
-                cmd.Parameters.AddWithValue("@canUseMember", value.canUseMember);
-                cmd.Parameters.AddWithValue("@canUseProduct", value.canUseProduct);
-                cmd.Parameters.AddWithValue("@canUseOrder", value.canUseOrder);
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            int ResultCode = int.Parse(SQLReturnCode);
-
-            switch (ResultCode)
-            {
-                case (int)PutACCountLVErrorCode.prohibitPutlv:
-                    return "此權限不可更改";
-                case (int)PutACCountLVErrorCode.LvIsNull:
-                    return "此權限尚未建立";
-                case (int)PutACCountLVErrorCode.PutOK:
-                    return "權限更新成功";
-                default:
-                    return "失敗";
-            }
-
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //刪除權限
@@ -452,7 +273,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            string addAccLVErrorStr = "";//記錄錯誤訊息
+            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -460,62 +281,11 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //權限編號 
-            if (id == 0)
-            {
-                addAccLVErrorStr += "此權限編號為最高權限無法更改\n";
-            }
-            if (id > 255 || id < 0)
-            {
-                addAccLVErrorStr += "[編號長度應介於0～255個數字之間]\n";
-            }
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(addAccLVErrorStr))
-            {
-                return addAccLVErrorStr;
-            }
+            
 
-            SqlCommand cmd = null;
-            int SQLReturnCode;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+            int ResultCode = _accountService.DelAccLv(id);
 
-                //帳號重複驗證寫在SP中
-                cmd.CommandText = @"EXEC pro_onlineShopBack_delAccountLevel @accLevel";
-
-                cmd.Parameters.AddWithValue("@accLevel", id);
-
-                //開啟連線
-                cmd.Connection.Open();
-                SQLReturnCode = int.Parse(cmd.ExecuteScalar().ToString());
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            switch (SQLReturnCode)
-            {
-                case (int)DelACCountLVErrorCode.LvIsNull:
-                    return "此權限尚未建立";
-                case (int)DelACCountLVErrorCode.IsUsing:
-                    return "此權限目前有人正在使用";
-                case (int)DelACCountLVErrorCode.DelOK:
-                    return "刪除成功";
-                default:
-                    return "失敗";
-            }
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
 
