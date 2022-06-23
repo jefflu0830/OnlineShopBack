@@ -27,12 +27,10 @@
             }
             $('#Table').append(rows);
         },
-
         failure: function (data) {
         },
         error: function (data) {
         }
-
     });
 
 
@@ -49,11 +47,33 @@
                 type: "DELETE",
                 data: {},
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    if (result == "會員刪除成功") {
-                        location.reload(); //刪除成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('刪除成功');
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('無此會員');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    };
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },
@@ -146,11 +166,41 @@ var memMenufun = {
                 "Suspension": parseInt($("#EditSuspension").val())
             }),
             success: function (result) {
-                alert(result)
+                var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                if (result == "更新成功") {
-                    location.reload(); //新增成功才更新頁面
-                } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('更新成功');
+                        location.reload();
+                        break;
+                    };
+                    case 100: {
+                        alert('無此會員');
+                        break;
+                    };
+                    case 101: {
+                        alert('無此等級');
+                        break;
+                    };
+                    case 102: {
+                        alert('無此狀態');
+                        break;
+                    };
+                    case 200: {
+                        alert('後端驗證失敗,請查詢LOG');
+                        break;
+                    };
+                    case 201: {
+                        alert('例外錯誤,請查詢LOG');
+                        location.reload();
+                        break;
+                    }
+                    default: {
+                        alert(result);
+                    }
+                };
+
+                if (result === "已從另一地點登入,轉跳至登入頁面") {
                     location.reload();
                 }
             },
@@ -211,20 +261,20 @@ var memMenufun = {
                         return item //大於等於0則 return item
                     }
                 })
-            }  
+            }
 
             //數字搜尋
             var searchInt = function (searchClass) {
                 tempTable = tempTable.filter((item) => {
                     if (item[searchClass] == serchvalue) {
-                        return item 
+                        return item
                     }
                 })
-            }  
+            }
 
 
             //字串搜尋
-            if (StrClassArr.indexOf($("#SearchClass").val())>=0) {
+            if (StrClassArr.indexOf($("#SearchClass").val()) >= 0) {
                 searchStr($("#SearchClass").val());
             }
             //數字搜尋

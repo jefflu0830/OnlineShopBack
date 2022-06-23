@@ -33,25 +33,31 @@
                     "Pwd": $("#PassWord").val()
                 }),
                 success: function (result) {
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    switch (result) {
-                        case '0': {
+                    switch (JsonResult[0].st) {
+                        case 0: {
                             alert('登入成功');
                             location.href = "/index";
                             break;
                         }
-                        case '100': {
+                        case 100: {
                             alert('密碼錯誤登入失敗');
                             break;
                         }
-                        case '101': {
+                        case 101: {
                             if (window.confirm("有使用者正在連線,已清除連線,要繼續登入嗎?")) {
                                 location.href = "/index";
                             } 
                             break;
                         }
-                        case '102': {
-                            if (window.confirm("後端資料驗證失敗,請檢查LOG")) {
+                        case 201: {
+                            if (window.confirm("後端驗證失敗")) {
+                            }
+                            break;
+                        }
+                        case 202: {
+                            if (window.confirm("例外錯誤")) {
                             }
                             break;
                         }

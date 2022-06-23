@@ -18,8 +18,6 @@
             alert(CheckAccError);
         }
         else {
-
-
             //取得帳號列表
             $.ajax({
                 type: "GET",
@@ -38,7 +36,7 @@
 
                 failure: function (data) {
                 },
-                error: function (data) {   
+                error: function (data) {
                     $("#CfmAcc").html("")
                     $("#CfmName").html("")
                     $("#CfmEmail").html("")
@@ -63,11 +61,41 @@
                     "AdjustAmount": parseInt($("#AdjustAmount").val())
                 }),
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    if (result == "更新成功") {
-                        location.reload(); //新增成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('增加成功');
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('無此會員');
+                            break;
+                        };
+                        case 101: {
+                            alert('原始購物金與帳號不相符');
+                            break;
+                        };
+                        case 102: {
+                            alert('調整後購物金不得小於0 or 大於20000');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    };
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },

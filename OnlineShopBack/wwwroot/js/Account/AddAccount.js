@@ -5,25 +5,25 @@
         var ErrorCode = "";
 
         if ($("#Account").val() === "" || $("#PassWord").val() === "") {
-            ErrorCode += "[帳號] 或 [密碼] 不可空白\n"
+            ErrorCode += "[帳號] 或 [密碼] 不可空白\n";
         } else {
             if ((/^[a-zA-Z0-9]*$/.test($("#Account").val()) == false) ||
                 (/^[a-zA-Z0-9]*$/.test($("#PassWord").val()) == false)) {
-                ErrorCode += "[帳號] 或 [密碼] 只允許輸入英文及數字。\n"
-            }
+                ErrorCode += "[帳號] 或 [密碼] 只允許輸入英文及數字。\n";
+            };
             if (($("#Account").val().length > 20) ||
                 ($("#Account").val().length < 3)) {
-                ErrorCode += "[帳號]請介於3~20個字\n"
-            }
+                ErrorCode += "[帳號]請介於3~20個字\n";
+            };
             if (($("#PassWord").val().length > 16) ||
                 ($("#PassWord").val().length < 8)) {
-                ErrorCode += "[密碼]請介於8~16個字\n"
-            }
+                ErrorCode += "[密碼]請介於8~16個字\n";
+            };
 
         }
 
         if (ErrorCode !== "") {
-            alert(ErrorCode)
+            alert(ErrorCode);
         }
         else {
 
@@ -81,9 +81,8 @@ AddAccountFun = {
     MakeSelect: function (accLV, accPosition) {
         //組標籤
         for (var i = 0; i < accLV.length - 1; i++) {
-            var LvRows = LvRows + "<option value='" + accLV[i] + "'>" + accPosition[i] + "</option>"
+            var LvRows = LvRows + "<option value='" + accLV[i] + "'>" + accPosition[i] + "</option>";
         }
-
         //將組好的標籤append至 #level
         $('#level').html(LvRows);
     }

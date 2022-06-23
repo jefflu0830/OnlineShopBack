@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineShopBack.Domain.Repository;
-using OnlineShopBack.Domain.Tool;
 using OnlineShopBack.Persistent;
 using OnlineShopBack.Services;
 using System;
@@ -16,11 +13,11 @@ namespace OnlineShopBack
     {  
 
         public void ConfigureServices(IServiceCollection services)
-        {
-            
-            //services.AddSingleton<IAccountRepository>(new Persistent.AccountRepository("Data Source=I577;Initial Catalog=OnlineShop;Integrated Security=True;TrustServerCertificate=true") );          //依賴注入 Account相關
-            services.AddSingleton<IConfigHelperRepository, ConfigHelperRepository>();          //依賴注入 Account相關
+        {           
+            services.AddSingleton<IConfigHelperRepository, ConfigHelperRepository>();//依賴注入 Account相關
+            services.AddSingleton<ILoginRepository, LoginRepository>();//依賴注入 Login相關
             services.AddSingleton<IAccountRepository, AccountRepository>();//依賴注入 Account相關
+            services.AddSingleton<IMemberRepository, MemberRepository>();//依賴注入 Member相關
 
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();

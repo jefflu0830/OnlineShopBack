@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using OnlineShopBack.Tool;
+using OnlineShopBack.Domain.Tool;
 using System;
 
 namespace OnlineShopBack.Pages

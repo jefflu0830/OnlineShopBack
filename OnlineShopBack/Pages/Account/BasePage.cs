@@ -7,7 +7,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using OnlineShopBack.Tool;
+using OnlineShopBack.Domain.Tool;
 using System;
 using System.Data;
 

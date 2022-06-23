@@ -25,8 +25,8 @@
                     var rows = rows + "<tr>" +
                         "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
                         "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
-                        "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'Edit_Click(" + data[i].f_accLevel+")' value='編輯'/ ></td>" +
-                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'Del_Click(" + data[i].f_accLevel+")' value='刪除'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'AddAccountLevel.Edit_Click(" + data[i].f_accLevel + ")' value='編輯'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'AddAccountLevel.Del_Click(" + data[i].f_accLevel + ")' value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
@@ -171,19 +171,189 @@ $.validator.setDefaults({
     }
 });
 
-//刪除
-function Del_Click(Id) {
-    if (window.confirm("確定要刪除此權限嗎?")) {
-        $.ajax({
-            url: "/api/Account/DelAccLv?id=" + Id,
-            type: "DELETE",
-            data: {},
-            success: function (result) {
-                alert(result)
 
-                if (result == "刪除成功") {
-                    location.reload(); //刪除成功才更新頁面
+var AddAccountLevel = {
+    //刪除
+    Del_Click: function (Id) {
+        if (window.confirm("確定要刪除此權限嗎?")) {
+            $.ajax({
+                url: "/api/Account/DelAccLv?id=" + Id,
+                type: "DELETE",
+                data: {},
+                success: function (result) {
+                    var JsonResult = JSON.parse(result)//JSON字串轉物件
+
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('刪除成功');
+                            location.reload(); //新增成功才更新頁面
+                            break;
+                        };
+                        case 100: {
+                            alert('此權限有人正在使用');
+                            break;
+                        };
+                        case 101: {
+                            alert('此權限尚未建立');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    }
+                },
+                error: function (error) {
+                    alert(error);
                 }
+            })
+        }
+    },
+    //點擊編輯按鈕
+    Edit_Click: function (Id) {
+        if ($("#EditBox").css("display") == "none") {
+            $.ajax({
+                type: "GET",
+                url: "/api/account/GetAccLVById?id=" + Id,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var canUseAccountChk = ""
+                    var canUseMember = ""
+                    var canUseProduct = ""
+                    if (data[0].f_canUseAccount === "True") {
+                        canUseAccountChk = "checked"
+                    }
+                    if (data[0].f_canUseMember === "True") {
+                        canUseMember = "checked"
+                    }
+                    if (data[0].f_canUseProduct === "True") {
+                        canUseProduct = "checked"
+                    }
+                    if (data[0].f_canUseOrder === "True") {
+                        canUseOrder = "checked"
+                    }
+                    var EditData = "<div><label> 帳號:" + data[0].f_accLevel + "</label></div>" +
+                        //f_accPosition
+                        "<div><label for='EditAccPosission'>AccPosission:</label>" +
+                        "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
+                        //canUseAccount
+                        "<div><input type='checkbox' id='EditCanUseAccount'" + canUseAccountChk + " />" +
+                        " <label for='EditCanUseAccount'>是否有後台帳號管理權限</label></div >" +
+                        //canUseMember
+                        "<div><input type='checkbox' id='EditCanUseMember'" + canUseMember + " />" +
+                        "<label for='EditCanUseMember'>是否有會員管理權限</label></div >" +
+                        //canUseProduct
+                        "<div><input type='checkbox' id='EditCanUseProduct'" + canUseProduct + " />" +
+                        "<label for='EditCanUseProduct'>是否有商品管理權限</label></div >" +
+                        //canUseOrder
+                        "<div><input type='checkbox' id='EditCanUseOrder'" + canUseOrder + " />" +
+                        "<label for='EditCanUseOrder'>是否有訂單管理權限</label></div >" +
+                        //Edit Button
+                        "<div><input id='" + data[0].f_accLevel + "' onclick ='AddAccountLevel.EditOK_Click(this.id)' type='Button' value='Edit' />" +
+                        "<input id='EditCancel' type='Button' value='Cancel' onclick='AddAccountLevel.EditCancel_Click()' /></div> "
+
+                    $('#Editform').append(EditData);
+                },
+                failure: function (data) {
+                },
+                error: function (data) {
+                }
+            });
+            $("#EditBox").show();
+        }
+    },
+    //取消編輯
+    EditCancel_Click: function () {
+        if ($("#EditBox").css("display") !== "none") {
+            $("#EditBox").hide();
+            $("#Editform > div").remove();
+        }
+    },
+    //確認編輯
+    EditOK_Click: function (Id) {
+        var EditcanUseAccount = 0
+        var EditcanUseMember = 0
+        var EditCanUseProduct = 0
+        var EditCanUseOrder = 0
+        //canUseMember  checkbox
+        if ($("#EditCanUseAccount").prop("checked")) {
+            EditcanUseAccount = 1
+        }
+        else {
+            EditcanUseAccount = 0
+        }
+        //canUseMember  checkbox
+        if ($("#EditCanUseMember").prop("checked")) {
+            EditcanUseMember = 1
+        } else {
+            EditcanUseMember = 0
+        }
+        //canUseProduct  checkbox
+        if ($("#EditCanUseProduct").prop("checked")) {
+            EditCanUseProduct = 1
+        } else {
+            EditCanUseProduct = 0
+        }
+        //canUseOrder  checkbox
+        if ($("#EditCanUseOrder").prop("checked")) {
+            EditCanUseOrder = 1
+        }
+        else {
+            EditCanUseOrder = 0
+        }
+
+        $.ajax({
+            url: "/api/account/EditAccLv?id=" + Id,
+            type: "put",
+            contentType: "application/json",
+            dataType: "text",
+            data: JSON.stringify({
+                "accPosition": $("#EditAccPosission").val(),
+                "CanUseAccount": EditcanUseAccount,
+                "CanUseMember": EditcanUseMember,
+                "CanUseProduct": EditCanUseProduct,
+                "canUseOrder": EditCanUseOrder
+            }),
+            success: function (result) {
+                var JsonResult = JSON.parse(result)//JSON字串轉物件
+
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('權限更新成功');
+                        location.reload(); //新增成功才更新頁面
+                        break;
+                    };
+                    case 100: {
+                        alert('預設帳號不可更改');
+                        break;
+                    };
+                    case 101: {
+                        alert('尚未建立權限');
+                        break;
+                    };
+                    case 200: {
+                        alert('後端驗證失敗,請查詢LOG');
+                        break;
+                    };
+                    case 201: {
+                        alert('例外錯誤,請查詢LOG');
+                        location.reload();
+                        break;
+                    }
+                    default: {
+                        alert(result);
+                    }
+                }
+
             },
             error: function (error) {
                 alert(error);
@@ -192,148 +362,8 @@ function Del_Click(Id) {
     }
 }
 
-//點擊編輯按鈕
-function Edit_Click(Id) {
-    if ($("#EditBox").css("display") == "none") {
-        $.ajax({
-            type: "GET",
-            url: "/api/account/GetAccLVById?id=" + Id,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                var canUseAccountChk = ""
-                var canUseMember = ""
-                var canUseProduct = ""
-                if (data[0].f_canUseAccount === "True") {
-                    canUseAccountChk = "checked"
-                }
-                if (data[0].f_canUseMember === "True") {
-                    canUseMember = "checked"
-                }
-                if (data[0].f_canUseProduct === "True") {
-                    canUseProduct = "checked"
-                }
-                if (data[0].f_canUseOrder === "True") {
-                    canUseOrder = "checked"
-                }
-                var EditData = "<div><label> 帳號:" + data[0].f_accLevel + "</label></div>" +
-                    //f_accPosition
-                    "<div><label for='EditAccPosission'>AccPosission:</label>" +
-                    "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
-                    //canUseAccount
-                    "<div><input type='checkbox' id='EditCanUseAccount'" + canUseAccountChk + " />" +
-                    " <label for='EditCanUseAccount'>是否有後台帳號管理權限</label></div >" +
-                    //canUseMember
-                    "<div><input type='checkbox' id='EditCanUseMember'" + canUseMember + " />" +
-                    "<label for='EditCanUseMember'>是否有會員管理權限</label></div >" +
-                    //canUseProduct
-                    "<div><input type='checkbox' id='EditCanUseProduct'" + canUseProduct + " />" +
-                    "<label for='EditCanUseProduct'>是否有商品管理權限</label></div >" +
-                    //canUseOrder
-                    "<div><input type='checkbox' id='EditCanUseOrder'" + canUseOrder + " />" +
-                    "<label for='EditCanUseOrder'>是否有訂單管理權限</label></div >" +
-                    //Edit Button
-                    "<div><input id='" + data[0].f_accLevel + "' onclick ='EditOK_Click(this.id)' type='Button' value='Edit' />" +
-                    "<input id='EditCancel' type='Button' value='Cancel' onclick='EditCancel_Click()' /></div> "
 
-                $('#Editform').append(EditData);
-            },
-            failure: function (data) {
-            },
-            error: function (data) {
-            }
-        });
-        $("#EditBox").show();
-    }
-}
 
-//取消編輯
-function EditCancel_Click() {
-    if ($("#EditBox").css("display") !== "none") {
-        $("#EditBox").hide();
-        $("#Editform > div").remove();
-    }
-}
 
-//確認編輯
-function EditOK_Click(Id) {
-    var EditcanUseAccount = 0
-    var EditcanUseMember = 0
-    var EditCanUseProduct = 0
-    var EditCanUseOrder = 0
-    //canUseMember  checkbox
-    if ($("#EditCanUseAccount").prop("checked")) {
-        EditcanUseAccount = 1
-    }
-    else {
-        EditcanUseAccount = 0
-    }
-    //canUseMember  checkbox
-    if ($("#EditCanUseMember").prop("checked")) {
-        EditcanUseMember = 1
-    } else {
-        EditcanUseMember = 0
-    }
-    //canUseProduct  checkbox
-    if ($("#EditCanUseProduct").prop("checked")) {
-        EditCanUseProduct = 1
-    } else {
-        EditCanUseProduct = 0
-    }
-    //canUseOrder  checkbox
-    if ($("#EditCanUseOrder").prop("checked")) {
-        EditCanUseOrder = 1
-    }
-    else {
-        EditCanUseOrder = 0
-    }
 
-    $.ajax({
-        url: "/api/account/EditAccLv?id=" + Id,
-        type: "put",
-        contentType: "application/json",
-        dataType: "text",
-        data: JSON.stringify({
-            "accPosition": $("#EditAccPosission").val(),
-            "CanUseAccount": EditcanUseAccount,
-            "CanUseMember": EditcanUseMember,
-            "CanUseProduct": EditCanUseProduct,
-            "canUseOrder": EditCanUseOrder
-        }),
-        success: function (result) {
-            var JsonResult = JSON.parse(result)//JSON字串轉物件
 
-            switch (JsonResult[0].st) {
-                case 0: {
-                    alert('權限更新成功');
-                    location.reload(); //新增成功才更新頁面
-                    break;
-                };
-                case 100: {
-                    alert('預設帳號不可更改');
-                    break;
-                };
-                case 101: {
-                    alert('尚未建立權限');
-                    break;
-                };
-                case 200: {
-                    alert('後端驗證失敗,請查詢LOG');
-                    break;
-                };
-                case 201: {
-                    alert('例外錯誤,請查詢LOG');
-                    location.reload();
-                    break;
-                }
-                default: {
-                    alert(result);
-                }
-            }
-
-        },
-        error: function (error) {
-            alert(error);
-        }
-    })
-}

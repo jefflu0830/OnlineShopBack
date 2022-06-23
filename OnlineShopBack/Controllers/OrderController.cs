@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Services;
-using OnlineShopBack.Tool;
+using OnlineShopBack.Domain.Tool;
 using System;
 using System.Data;
 using System.IO;

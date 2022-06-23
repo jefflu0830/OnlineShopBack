@@ -8,7 +8,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using OnlineShopBack.Tool;
+using OnlineShopBack.Domain.Tool;
 
 namespace OnlineShopBack.Pages
 {

@@ -62,9 +62,8 @@
 
 <script id="getSelect">
     //取得權限下拉選單資料
-    var accLevel = "@Html.Raw(Model.AccLevel)".split('/');
-    var accPosition = "@Html.Raw(Model.AccPosition)".split('/');
-    var AccJson = "";
+    window.accLevel = "@Html.Raw(Model.AccLevel)".split('/');
+    window.accPosition = "@Html.Raw(Model.AccPosition)".split('/');
     $("#getSelect").remove();    
 </script>
 

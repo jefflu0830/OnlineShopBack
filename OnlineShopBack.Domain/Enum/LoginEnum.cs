@@ -17,17 +17,21 @@ namespace OnlineShopBack.Enum
             //</summary >
             Success = 0,
             //<summary >
-            //帳號驗證失敗
+            //登入失敗 帳號or密碼錯誤
             //</summary >
             AccOrPwdError = 100,
             //<summary >
-            //重複登入
+            //後端驗證失敗
             //</summary >
-            RepeatLogin = 101,
+            ValidaFail = 200,
             //<summary >
-            //後端驗證錯誤
+            //例外錯誤
             //</summary >
-            BackEndError = 102
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
         }
     }
 }
