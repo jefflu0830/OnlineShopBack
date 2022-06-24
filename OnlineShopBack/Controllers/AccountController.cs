@@ -14,6 +14,9 @@ using OnlineShopBack.Services;
 using OnlineShopBack.Domain.Tool;
 using System;
 using System.Data;
+using OnlineShopBack.Domain.DTOs.Account;
+using System.Linq;
+using System.Text.Json;
 
 namespace OnlineShopBack.Controllers
 {
@@ -50,10 +53,26 @@ namespace OnlineShopBack.Controllers
 
             DataTable dt = _accountService.GetAccountAndLevelList();
 
+            //AccountDto[] accountList = dt.Rows.Cast<DataRow>()   //dt.Rows 要轉成 IEnumerable 要下 Cast<>  要轉成 DataRow型態 因此變成 Cast<DataRow>()
+            //    .Select(row => AccountDto.GrenerateInstance(row))//將dt丟入 Dto中的 GrenerateInstance 進行處理
+            //    .Where(accTuple => accTuple.Item1 == true)       //篩選條件 為  第一項回傳直為 true
+            //    .Select(accTuple => accTuple.Item2)              //篩選完 在Select一次  出第二項
+            //    .ToArray();                                     //最後要轉乘 Array
+
+
+            AccountDto[] accountList = dt.Rows.Cast<DataRow>()   //dt.Rows 要轉成 IEnumerable 要下 Cast<>  要轉成 DataRow型態 因此變成 Cast<DataRow>()
+                .Select(row => AccountDto.GrenerateInstance(row))//將dt丟入 Dto中的 GrenerateInstance 進行處理
+                .Where(accTuple => accTuple.Item1 == true)       //篩選條件 為  第一項回傳直為 true
+                .Select(accTuple => accTuple.Item2)              //篩選完 在Select一次  出第二項
+                .ToArray();                                     //最後要轉乘 Array
+
+            string aa = JsonSerializer.Serialize(accountList);
+            //return aa ;        //序列化回傳  回傳型態 string
+
             //DataTable轉Json;
             string result = MyTool.DataTableJson(dt);
 
-            return result;
+            return JsonSerializer.Serialize(accountList);
         }
 
         //增加帳號
@@ -96,14 +115,14 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-            
+
             int ResultCode = _accountService.EditAcc(id, value);
 
             return "[{\"st\": " + ResultCode + "}]";
@@ -121,7 +140,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -245,15 +264,15 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "未有使用權限";
-            }           
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-          
-            int ResultCode = _accountService.EditAccLv(id,value);
+
+            int ResultCode = _accountService.EditAccLv(id, value);
 
             return "[{\"st\": " + ResultCode + "}]";
         }
@@ -272,7 +291,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            
+
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -280,7 +299,7 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            
+
 
             int ResultCode = _accountService.DelAccLv(id);
 

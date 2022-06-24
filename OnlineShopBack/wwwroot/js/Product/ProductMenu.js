@@ -230,16 +230,39 @@ $(document).ready(function () {
                         processData: false,
                         success: function (result) {
 
-                            var JsonResult = JSON.parse(result)//JSON字串轉物件
+                            var JsonResult = JSON.parse(result);//JSON字串轉物件
+
                             switch (JsonResult[0].st) {
                                 case 0: {
-                                    alert('更新成功');
-                                    location.reload(); //新增成功才更新頁面
+                                    alert('編輯成功');
+                                    location.reload();
+                                    break;
+                                };
+                                case 100: {
+                                    alert('商品不存在');
+                                    break;
+                                };
+                                case 101: {
+                                    alert('未有此商品類型');
+                                    break;
+                                };
+                                case 200: {
+                                    alert('後端驗證失敗,請查詢LOG');
+                                    break;
+                                };
+                                case 201: {
+                                    alert('例外錯誤,請查詢LOG');
+                                    location.reload();
                                     break;
                                 }
-                                case 100:
-                                    alert('尚未建立此類別');
+                                case 202: {
+                                    alert('圖片上傳失敗,請檢查格式');
+                                    location.reload();
                                     break;
+                                }
+                                default: {
+                                    alert(result);
+                                }
                             }
 
                             if (result == "更新成功") {

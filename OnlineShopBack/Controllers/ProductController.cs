@@ -18,6 +18,7 @@ using System.Data;
 using System.IO;
 using System.Text.Json;
 using static OnlineShopBack.Enum.ProductEnum;
+using OnlineShopBack.Domain.Repository;
 
 namespace OnlineShopBack.Controllers
 {
@@ -29,13 +30,12 @@ namespace OnlineShopBack.Controllers
         //SQL連線字串  SQLConnectionString
         private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
 
-        private readonly IWebHostEnvironment _env;
-
-        public ProductController(IWebHostEnvironment env)
+        private readonly IProductRepository _accountService = null;
+        public ProductController(IProductRepository accountService)
         {
-            _env = env;
+            _accountService = accountService;
         }
-        //商品相關----------------------------------------------
+        /*---------------商品相關---------------*/
         //取得商品List
         [HttpGet("GetProduct")]
         public string GetProduct()
@@ -50,35 +50,7 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            DataSet ds = new DataSet();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductAndCategory ";
-
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+            DataTable dt = _accountService.GetProduct();
             //DataTable轉Json;
             var result = MyTool.DataTableJson(dt);
 
@@ -90,11 +62,9 @@ namespace OnlineShopBack.Controllers
         public string AddProduct()
         {
             //其他文字資訊
-            //var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
-
-            var dto = JsonSerializer.Deserialize<ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
+            OnlineShopBack.Domain.DTOs.Product.ProductDto dto = JsonSerializer.Deserialize<OnlineShopBack.Domain.DTOs.Product.ProductDto>(Request.Form["AddProductFrom"]);//檔案類實體引數
             //圖片檔
-            var files = Request.Form.Files;
+            IFormFileCollection files = Request.Form.Files;
 
 
             //登入&身分檢查
@@ -106,278 +76,26 @@ namespace OnlineShopBack.Controllers
             {
                 return "無使用權限";
             }
-
-            //資料驗證-----------------------------------------------
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
 
-            string ErrorStr = "";//記錄錯誤訊息
+            int ResultCode = _accountService.AddProduct(dto, files);
 
-            //商品代號
-            if (string.IsNullOrWhiteSpace(dto.Num))
-            {
-                ErrorStr += "[商品代號不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsENAndNumber(dto.Num))
-                {
-                    ErrorStr += "[商品代號只能為英數]\n";
-                }
-                if (dto.Num.Length > 20 || dto.Num.Length < 3)
-                {
-                    ErrorStr += "[商品代號長度應介於3～20個數字之間]\n";
-                }
-            }
-            //商品主類別編號
-            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
-            if (CategoryArr.IndexOf(dto.Category) < 0)
-            {
-                ErrorStr += "[主類別]不存在請重新輸入\n";
-            }
-            //商品子類型
-            if (dto.SubCategory > 999 || dto.SubCategory < 0)
-            {
-                ErrorStr += "[商品類型&商品子類型範圍應在0-999之間]\n";
-            }
-            //商品名稱
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                ErrorStr += "[商品名稱不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsCNAndENAndNumber(dto.Name))
-                {
-                    ErrorStr += "[商品名稱應為中文,英文及數字]\n";
-                }
-                if (dto.Name.Length > 20 || dto.Name.Length < 1)
-                {
-                    ErrorStr += "[商品名稱應介於1～20個字之間]\n";
-                }
-            }
-            //價格
-            if (dto.Price < 0 || dto.Price > 999999999)
-            {
-                ErrorStr += "[價格不得為負或大於999999999]\n";
-            }
-            //是否開放商品
-            if ((dto.Status != 0 && dto.Status != 100))//|| (value.Status != 0))
-            {
-                ErrorStr += "[狀態碼應為0(開放)或100(不開放)]\n";
-            }
-            //商品描述
-            if (!string.IsNullOrWhiteSpace(dto.Name))
-            {//不為空才要做字數判斷
-                if (dto.Content.Length > 500 || dto.Content.Length < 0)
-                {
-                    ErrorStr += "[商品描述應在500字內]\n";
-                }
-            }
-            //庫存量
-            if (dto.Stock < 1 || dto.Stock > 99999)
-            {
-                ErrorStr += "[庫存量應介於1-99999]\n";
-            }
-            //熱門度
-            if (dto.Popularity < 0 || dto.Popularity > 999)
-            {
-                ErrorStr += "[庫存量應介於1-99999]\n";
-            }
-
-
-            //ErrorStr不為空 則回傳錯誤訊息
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            ProductReturnCode result = ProductReturnCode.Default;
-            try
-            {
-
-                //取得存放路徑
-                string ImgPath = _env.ContentRootPath + @"\wwwroot\Img\";
-                //新圖片名稱
-                string NewProductName = "";
-                //儲存路徑
-                string SaveImgPath = "";
-
-                if (files.Count != 1) //圖片數量不為1
-                {
-                    result = ProductReturnCode.ImgFail; 
-                    return "[{\"st\": " + (int)result + "}]";
-
-
-                }
-                else//圖片為一張
-                {
-                    var Imgfile = files[0];
-                    string imgType = Path.GetExtension(Imgfile.FileName); //取得圖片格式
-                    //限制圖片格式
-                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))//bmp?
-                    {
-                        if (!Directory.Exists(ImgPath))//資料夾不存在新增資料夾                    
-                        {
-                            Directory.CreateDirectory(ImgPath);
-                        }
-                        else
-                        {
-                            NewProductName = dto.Num + imgType; //新圖片名稱
-                            SaveImgPath = ImgPath + NewProductName;//儲存路徑 
-                        }
-                    }
-                    else//不支援此格式
-                    {
-                        result = ProductReturnCode.ImgFormatErr;
-                        return "[{\"st\": " + (int)result + "}]";
-                    }
-
-                }
-
-
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addProduct @num, @category, @subCategory, @name, @ImgPath, @price, @status, @contnet, @stock, @popularity";
-
-                cmd.Parameters.AddWithValue("@num", dto.Num);                //商品代號
-                cmd.Parameters.AddWithValue("@category", dto.Category);      //商品類型
-                cmd.Parameters.AddWithValue("@subCategory", dto.SubCategory);//商品子類型
-                cmd.Parameters.AddWithValue("@name", dto.Name);              //商品名稱
-                cmd.Parameters.AddWithValue("@ImgPath", NewProductName);        //圖片
-                cmd.Parameters.AddWithValue("@price", dto.Price);            //價格
-                cmd.Parameters.AddWithValue("@status", dto.Status);          //開放狀態
-                cmd.Parameters.AddWithValue("@contnet", dto.Content);        //商品描述     
-                cmd.Parameters.AddWithValue("@stock", dto.Stock);            //庫存量
-                cmd.Parameters.AddWithValue("@popularity", dto.Popularity);  //熱門度
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-
-                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = ProductReturnCode.Fail;
-                }
-
-                //資料庫輸入成功後才會做儲存圖片動作
-                if (result == (int)ProductReturnCode.Success && !string.IsNullOrWhiteSpace(NewProductName))
-                {
-                    var file = files[0];
-                    var stream = new FileStream(SaveImgPath, FileMode.Create);
-                    file.CopyToAsync(stream);
-                    stream.Close();//關閉
-                }
-
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            return "[{\"st\": " + (int)result + "}]";
-        }
-
-        //刪除商品
-        [HttpDelete("DelProduct")]
-        public string DelCategory([FromQuery] int ProductId, string ProductNum, string ImgName)
-        {
-            //登入&身分檢查
-            if (!loginValidate())
-            {
-                return "已從另一地點登入,轉跳至登入頁面";
-            }
-            else if (RolesValidate())
-            {
-                return "無使用權限";
-            }
-
-            string ErrorStr = "";//記錄錯誤訊息
-
-            //查詢資料庫狀態是否正常
-            if (ModelState.IsValid == false)
-            {
-                return "參數異常";
-            }
-
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            ProductReturnCode result = ProductReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @"EXEC pro_onlineShopBack_delProduct @productId, @productNum";
-
-                cmd.Parameters.AddWithValue("@productId", ProductId);
-                cmd.Parameters.AddWithValue("@productNum", ProductNum);
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = ProductReturnCode.Fail;
-                }
-
-                //資料庫刪除成功後才會做刪除圖片動作
-                if (result == (int)ProductReturnCode.Success)
-                {
-                    //取得存放路徑
-                    string ImgPath = _env.ContentRootPath + @"\wwwroot\Img\";
-                    string DelImgPath = ImgPath + ImgName;//儲存路徑 
-                    System.IO.FileInfo file = new System.IO.FileInfo(DelImgPath);
-                    if (file.Exists)
-                    {
-                        file.Delete();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //更新商品
         [HttpPut("UpdateProduct")]
         public string UpdateProduct()
         {
-
             //其他文字資訊
             //var dto = JsonConvert.DeserializeObject<ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
-            var dto = JsonSerializer.Deserialize<ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
+            OnlineShopBack.Domain.DTOs.Product.ProductDto dto = JsonSerializer.Deserialize<OnlineShopBack.Domain.DTOs.Product.ProductDto>(Request.Form["EditProductFrom"]);//檔案類實體引數
             //圖片檔
-            var files = Request.Form.Files;
+            IFormFileCollection files = Request.Form.Files;
 
             //登入&身分檢查
             if (!loginValidate())
@@ -389,7 +107,34 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-            string ErrorStr = "";//記錄錯誤訊息
+
+
+            //查詢資料庫狀態是否正常
+            if (ModelState.IsValid == false)
+            {
+                return "參數異常";
+            }
+           
+
+            int ResultCode = _accountService.UpdateProduct(dto, files);
+
+            return "[{\"st\": " + ResultCode + "}]";
+        }
+
+        //刪除商品
+        [HttpDelete("DelProduct")]
+        public string DelProduct([FromQuery] int ProductId, string ProductNum, string ImgName)
+        {
+            //登入&身分檢查
+            if (!loginValidate())
+            {
+                return "已從另一地點登入,轉跳至登入頁面";
+            }
+            else if (RolesValidate())
+            {
+                return "無使用權限";
+            }
+
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -397,101 +142,12 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
+            int ResultCode = _accountService.DelProduct(ProductId, ProductNum, ImgName);
 
-            SqlCommand cmd = null;
-            ProductReturnCode result = ProductReturnCode.Default;
-            try
-            {
-
-                //取得存放路徑
-                string ImgPath = _env.ContentRootPath + @"\wwwroot\Img\";
-                //新圖片名稱
-                string NewProductName = "";
-                //儲存路徑
-                string SaveImgPath = "";
-
-                if (files.Count == 1) //有要更新的圖片
-                {
-                    var Imgfile = files[0];
-                    string imgType = Path.GetExtension(Imgfile.FileName); //取得圖片格式
-                    //限制圖片格式
-                    if (imgType.Contains(".jpg") || imgType.Contains(".png") || imgType.Contains(".bmp"))//bmp?
-                    {
-                        if (!Directory.Exists(ImgPath))//資料夾不存在新增資料夾                    
-                        {
-                            Directory.CreateDirectory(ImgPath);
-                        }
-                        else
-                        {
-                            NewProductName = dto.Num + imgType; //新圖片名稱
-                            SaveImgPath = ImgPath + NewProductName;//儲存路徑 
-                        }
-                    }
-                    else//不支援此格式
-                    {
-                        result = ProductReturnCode.ImgFormatErr;
-                        return "[{\"st\": " + (int)result + "}]";
-                    }
-                }
-
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putProduct @productNum, @category, @subCategory, @name, @price, @status, @contnet, @stock, @popularity";
-
-
-                cmd.Parameters.AddWithValue("@productNum", dto.Num);          //商品代號
-                cmd.Parameters.AddWithValue("@category", dto.Category);      //商品類型
-                cmd.Parameters.AddWithValue("@subCategory", dto.SubCategory);//商品子類型
-                cmd.Parameters.AddWithValue("@name", dto.Name);              //商品名稱
-                //cmd.Parameters.AddWithValue("@ImgPath", NewProductName);   //圖片
-                cmd.Parameters.AddWithValue("@price", dto.Price);            //價格
-                cmd.Parameters.AddWithValue("@status", dto.Status);          //開放狀態
-                cmd.Parameters.AddWithValue("@contnet", dto.Content);        //商品描述     
-                cmd.Parameters.AddWithValue("@stock", dto.Stock);            //庫存量
-                cmd.Parameters.AddWithValue("@popularity", dto.Popularity);  //熱門度
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
-
-                if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = ProductReturnCode.Fail;
-                }
-
-                //資料庫輸入成功後才會做儲存圖片動作&有新圖片
-                if (result == (int)ProductReturnCode.Success && !string.IsNullOrWhiteSpace(NewProductName) && files.Count == 1)
-                {
-                    var file = files[0];
-                    var stream = new FileStream(SaveImgPath, FileMode.Create);
-                    file.CopyToAsync(stream);
-                    stream.Close(); //關閉
-
-                }
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            return "[{\"st\": " + (int)result + "}]";
-
+            return "[{\"st\": " + ResultCode + "}]";
         }
+
+ 
 
         //類別相關-----------------------------------------
 

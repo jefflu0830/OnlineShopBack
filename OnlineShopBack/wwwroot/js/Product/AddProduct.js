@@ -92,30 +92,39 @@ $(document).ready(function () {
                 contentType: false,
                 processData: false,
                 success: function (result) {
-                    var JsonResult = JSON.parse(result)//JSON字串轉物件
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
                     switch (JsonResult[0].st) {
                         case 0: {
                             alert('新增成功');
-                            location.href = "/Product/ProductMenu";//新增成功回Menu
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('商品代號重複');
+                            break;
+                        };
+                        case 101: {
+                            alert('未有此商品類型');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
                             break;
                         }
-                        case 1:
-                            alert('資料庫新增失敗');
+                        case 202: {
+                            alert('圖片上傳失敗,請檢查格式');
+                            location.reload();
                             break;
-                        case 3:
-                            alert('圖片格式錯誤');
-                            break;
-                        case 4:
-                            alert('需上傳圖片,且不可超過1張');
-                            break;
-                        case 100:
-                            alert('已有相同類別');
-                            break;
-                        case 101:
-                            alert('無此商品類別or此類別已被刪除');
-                            break;
-
+                        }
+                        default: {
+                            alert(result);
+                        }
                     }
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {

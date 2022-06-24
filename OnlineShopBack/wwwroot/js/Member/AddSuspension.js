@@ -9,12 +9,12 @@
         success: function (data) {
             for (var i in data) {
 
-                if (data[i].f_suspensionLv === "0" || data[i].f_suspensionLv === "100" ) {//編號0 or 100 不可刪除
+                if (data[i].f_suspensionLv === "0" || data[i].f_suspensionLv === "100") {//編號0 or 100 不可刪除
                     var rows = rows + "<tr>" +
                         "<td name='suspensionLv'>" + data[i].f_suspensionLv + "</td>" +
                         "<td name='suspensionName'>" + data[i].f_suspensionName + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn' value='編輯'/ ></td>" +
-                        "<td></td >"+
+                        "<td></td >" +
                         "</tr>";
                 }
                 else {
@@ -70,11 +70,33 @@
                     "suspensionName": $("#suspensionName").val()
                 }),
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    if (result == "狀態新增成功") {
-                        location.reload(); //新增成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('狀態新增成功');
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('狀態重複');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    }
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },
@@ -99,7 +121,7 @@
             var EditData =
                 "<h5>會員等級修改</h5>" +
                 "<div><label>會員等級編號 ： </label><label >" + suspensionLv + "</label></div>" +
-                "<div><label>會員等級名稱 ： </label><input type='text' id='EditName' name='EditName'maxlength='10'value='" + suspensionName+"' /></div>" +
+                "<div><label>會員等級名稱 ： </label><input type='text' id='EditName' name='EditName'maxlength='10'value='" + suspensionName + "' /></div>" +
                 //"<div id='Editbutton'><input name='EditMemLv' onclick ='EditMemLv_Click(" + col1 + ")' type='Button' value='確認修改' />" +
                 "<div id='Editbutton'><input id='EditMemLv' name='EditMemLv' type='Button' onclick ='Edit_Click(" + suspensionLv + ")' value='確認修改' />" +
                 "<input name='EditCancel' id = 'EditCancel' name='EditCancel' type = 'Button'  value = '取消修改' /></div > "
@@ -120,11 +142,37 @@
                 type: "DELETE",
                 data: {},
                 success: function (result) {
-                    alert(result)
+                    var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                    if (result == "刪除成功") {
-                        location.reload(); //刪除成功才更新頁面
-                    } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                    switch (JsonResult[0].st) {
+                        case 0: {
+                            alert('狀態刪除成功');
+                            location.reload();
+                            break;
+                        };
+                        case 100: {
+                            alert('此狀態不可刪除');
+                            break;
+                        };
+                        case 101: {
+                            alert('此狀態尚未建立');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    }
+
+                    if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
                     }
                 },
@@ -176,11 +224,33 @@ function Edit_Click(suspensionLv) {
                 "suspensionName": $("#EditName").val()
             }),
             success: function (result) {
-                alert(result)
+                var JsonResult = JSON.parse(result);//JSON字串轉物件
 
-                if (result == "狀態更新成功") {
-                    location.reload(); //新增成功才更新頁面
-                } else if (result === "已從另一地點登入,轉跳至登入頁面") {
+                switch (JsonResult[0].st) {
+                    case 0: {
+                        alert('狀態編輯成功');
+                        location.reload();
+                        break;
+                    };
+                    case 100: {
+                        alert('尚未建立此權限');
+                        break;
+                    };
+                    case 200: {
+                        alert('後端驗證失敗,請查詢LOG');
+                        break;
+                    };
+                    case 201: {
+                        alert('例外錯誤,請查詢LOG');
+                        location.reload();
+                        break;
+                    }
+                    default: {
+                        alert(result);
+                    }
+                }
+
+                if (result === "已從另一地點登入,轉跳至登入頁面") {
                     location.reload();
                 }
             },

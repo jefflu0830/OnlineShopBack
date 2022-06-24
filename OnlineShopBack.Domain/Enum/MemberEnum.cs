@@ -76,51 +76,65 @@ namespace OnlineShopBack.Domain.Enum
         #endregion
 
         #region 會員等級相關列舉(Enum)
-        public enum AddMemLvErrorCode //增加會員等級
+        public enum AddMemLvCode //增加會員等級
         {
             //<summary >
             //添加成功
             //</summary >
             AddOK = 0,
             //<summary >
-            //無此等級
+            //後端驗證失敗
             //</summary >
-            DuplicateMemLv = 100
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
         }
-
-        public enum DelMemLvErrorCode //刪除會員等級
-        {
-            //<summary >
-            //會員刪除成功
-            //</summary >
-            DelOK = 0,
-            //<summary >
-            //此等級不可刪除
-            //</summary >
-            ProhibitDel = 100,
-            //<summary >
-            //此等級尚未建立
-            //</summary >
-            IsNull = 101,
-            //<summary >
-            //有使用者正在套用此等級
-            //</summary >
-            IsUsing = 102,
-        }
-
-        public enum PutMemLVErrorCode // 更新權限
+        public enum PutMemLVCode // 更新權限
         {
             //<summary >
             //權限更新成功
             //</summary >
             PutOK = 0,
             //<summary >
-            //尚未建立此權限
+            //後端驗證失敗
             //</summary >
-            LvIsNull = 100
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
 
         }
 
+        public enum DelMemLvCode //刪除會員等級
+        {
+            //<summary >
+            //會員刪除成功
+            //</summary >
+            DelOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+        }
         #endregion
 
         #region 會員狀態相關列舉(Enum)
@@ -132,9 +146,38 @@ namespace OnlineShopBack.Domain.Enum
             //</summary >
             AddOK = 0,
             //<summary >
-            //無此會員
+            //後端驗證失敗
             //</summary >
-            Duplicate = 100
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+        }
+        // 更新狀態
+        public enum EditSuspensionCode
+        {
+            //<summary >
+            //權限更新成功
+            //</summary >
+            PutOK = 0,
+            //<summary >
+            //後端驗證失敗
+            //</summary >
+            ValidaFail = 200,
+            //<summary >
+            //例外錯誤
+            //</summary >
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
+
         }
         //刪除會員狀態
         public enum DelSuspensionCode 
@@ -144,27 +187,19 @@ namespace OnlineShopBack.Domain.Enum
             //</summary >
             DelOK = 0,
             //<summary >
-            //禁止刪除
+            //後端驗證失敗
             //</summary >
-            ProhibitDel = 100,
+            ValidaFail = 200,
             //<summary >
-            //編號尚未建立
+            //例外錯誤
             //</summary >
-            isNull = 101
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
         }
-        // 更新狀態
-        public enum PutSuspensionCode 
-        {
-            //<summary >
-            //權限更新成功
-            //</summary >
-            PutOK = 0,
-            //<summary >
-            //尚未建立此權限
-            //</summary >
-            IsNull = 100
 
-        }
 
         #endregion
 

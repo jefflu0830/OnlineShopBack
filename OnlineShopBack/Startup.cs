@@ -14,10 +14,11 @@ namespace OnlineShopBack
 
         public void ConfigureServices(IServiceCollection services)
         {           
-            services.AddSingleton<IConfigHelperRepository, ConfigHelperRepository>();//依賴注入 Account相關
-            services.AddSingleton<ILoginRepository, LoginRepository>();//依賴注入 Login相關
-            services.AddSingleton<IAccountRepository, AccountRepository>();//依賴注入 Account相關
-            services.AddSingleton<IMemberRepository, MemberRepository>();//依賴注入 Member相關
+            services.AddSingleton<IConfigHelperRepository, ConfigHelperRepository>();//Account相關
+            services.AddSingleton<ILoginRepository, LoginRepository>();              //Login相關
+            services.AddSingleton<IAccountRepository, AccountRepository>();          //Account相關
+            services.AddSingleton<IMemberRepository, MemberRepository>();            //Member相關
+            services.AddSingleton<IProductRepository, ProductRepository>();          //Product相關
 
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();
