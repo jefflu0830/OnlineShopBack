@@ -1,4 +1,8 @@
-﻿$(document).ready(function (data) {
+﻿AddAccountLevelMune = {
+    AccountLevel: {}
+}
+
+$(document).ready(function (data) {
     $("#GoAccMenu").click(function () {
         location.href = "/Account/Accountmenu"
     });
@@ -13,20 +17,21 @@
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+
             for (var i in data) {
-                if (data[i].f_accLevel == 0) {//最高權限無法更改&刪除
+                if (data[i].accLevel == 0) {//最高權限無法更改&刪除
                     var rows = rows + "<tr>" +
-                        "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
-                        "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
+                        "<td name='faccLevel'>" + data[i].accLevel + "</td>" +
+                        "<td name='faccPosition'>" + data[i].accPosition + "</td>" +
                         "<td align='center'></td>" +
                         "<td align='center'></td>" +
                         "</tr>";
                 } else {
                     var rows = rows + "<tr>" +
-                        "<td name='faccLevel'>" + data[i].f_accLevel + "</td>" +
-                        "<td name='faccPosition'>" + data[i].f_accPosition + "</td>" +
-                        "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'AddAccountLevel.Edit_Click(" + data[i].f_accLevel + ")' value='編輯'/ ></td>" +
-                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'AddAccountLevel.Del_Click(" + data[i].f_accLevel + ")' value='刪除'/ ></td>" +
+                        "<td name='faccLevel'>" + data[i].accLevel + "</td>" +
+                        "<td name='faccPosition'>" + data[i].accPosition + "</td>" +
+                        "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'AddAccountLevel.Edit_Click(" + data[i].accLevel + ")' value='編輯'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'AddAccountLevel.Del_Click(" + data[i].accPosition + ")' value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
@@ -229,22 +234,22 @@ var AddAccountLevel = {
                     var canUseAccountChk = ""
                     var canUseMember = ""
                     var canUseProduct = ""
-                    if (data[0].f_canUseAccount === "True") {
+                    if (data[0].canUseAccount === 1) {
                         canUseAccountChk = "checked"
                     }
-                    if (data[0].f_canUseMember === "True") {
+                    if (data[0].canUseMember === 1) {
                         canUseMember = "checked"
                     }
-                    if (data[0].f_canUseProduct === "True") {
+                    if (data[0].canUseProduct === 1) {
                         canUseProduct = "checked"
                     }
-                    if (data[0].f_canUseOrder === "True") {
+                    if (data[0].canUseOrder === 1) {
                         canUseOrder = "checked"
                     }
-                    var EditData = "<div><label> 帳號:" + data[0].f_accLevel + "</label></div>" +
+                    var EditData = "<div><label> 帳號:" + data[0].accLevel + "</label></div>" +
                         //f_accPosition
                         "<div><label for='EditAccPosission'>AccPosission:</label>" +
-                        "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].f_accPosition + "'/></div>" +
+                        "<input type='text' id='EditAccPosission' name='AccPosission' maxlength='10' value='" + data[0].accPosition + "'/></div>" +
                         //canUseAccount
                         "<div><input type='checkbox' id='EditCanUseAccount'" + canUseAccountChk + " />" +
                         " <label for='EditCanUseAccount'>是否有後台帳號管理權限</label></div >" +
@@ -258,7 +263,7 @@ var AddAccountLevel = {
                         "<div><input type='checkbox' id='EditCanUseOrder'" + canUseOrder + " />" +
                         "<label for='EditCanUseOrder'>是否有訂單管理權限</label></div >" +
                         //Edit Button
-                        "<div><input id='" + data[0].f_accLevel + "' onclick ='AddAccountLevel.EditOK_Click(this.id)' type='Button' value='Edit' />" +
+                        "<div><input id='" + data[0].accLevel + "' onclick ='AddAccountLevel.EditOK_Click(this.id)' type='Button' value='Edit' />" +
                         "<input id='EditCancel' type='Button' value='Cancel' onclick='AddAccountLevel.EditCancel_Click()' /></div> "
 
                     $('#Editform').append(EditData);

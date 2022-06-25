@@ -423,9 +423,9 @@ namespace OnlineShopBack.Persistent
             }
             //是否有權使用帳號管理 or 會員管理
             if (value.canUseAccount == null || value.canUseMember == null ||
-               (value.canUseAccount > 1 || value.canUseAccount < 0) ||
-               (value.canUseMember > 1 || value.canUseMember < 0) ||
-               (value.canUseOrder > 1 || value.canUseOrder < 0))
+            (value.canUseAccount > 1 || value.canUseAccount < 0) ||
+            (value.canUseMember > 1 || value.canUseMember < 0) ||
+            (value.canUseOrder > 1 || value.canUseOrder < 0))
             {
                 ValidaFailString += "[選擇權限格式錯誤]\n";
             }

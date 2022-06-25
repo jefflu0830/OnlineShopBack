@@ -53,26 +53,14 @@ namespace OnlineShopBack.Controllers
 
             DataTable dt = _accountService.GetAccountAndLevelList();
 
-            //AccountDto[] accountList = dt.Rows.Cast<DataRow>()   //dt.Rows 要轉成 IEnumerable 要下 Cast<>  要轉成 DataRow型態 因此變成 Cast<DataRow>()
-            //    .Select(row => AccountDto.GrenerateInstance(row))//將dt丟入 Dto中的 GrenerateInstance 進行處理
-            //    .Where(accTuple => accTuple.Item1 == true)       //篩選條件 為  第一項回傳直為 true
-            //    .Select(accTuple => accTuple.Item2)              //篩選完 在Select一次  出第二項
-            //    .ToArray();                                     //最後要轉乘 Array
-
-
             AccountDto[] accountList = dt.Rows.Cast<DataRow>()   //dt.Rows 要轉成 IEnumerable 要下 Cast<>  要轉成 DataRow型態 因此變成 Cast<DataRow>()
                 .Select(row => AccountDto.GrenerateInstance(row))//將dt丟入 Dto中的 GrenerateInstance 進行處理
                 .Where(accTuple => accTuple.Item1 == true)       //篩選條件 為  第一項回傳直為 true
                 .Select(accTuple => accTuple.Item2)              //篩選完 在Select一次  出第二項
-                .ToArray();                                     //最後要轉乘 Array
+                .ToArray();                                     //最後要轉成 Array
 
-            string aa = JsonSerializer.Serialize(accountList);
-            //return aa ;        //序列化回傳  回傳型態 string
-
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
-
-            return JsonSerializer.Serialize(accountList);
+            string Result = JsonSerializer.Serialize(accountList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //增加帳號
@@ -194,10 +182,15 @@ namespace OnlineShopBack.Controllers
             }
 
             DataTable dt = _accountService.GetAccLvList();
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
+            AccountLevelDto[] accountLevelList = dt.Rows.Cast<DataRow>()   
+                .Select(row => AccountLevelDto.GetAccLvList(row))
+                .Where(accTuple => accTuple.Item1 == true)      
+                .Select(accTuple => accTuple.Item2)              
+                .ToArray();        
+            
+            string Result = JsonSerializer.Serialize(accountLevelList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //依照ID查詢權限資料
@@ -221,10 +214,15 @@ namespace OnlineShopBack.Controllers
 
             DataTable dt = _accountService.GetAccLvById(id);
 
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
+            AccountLevelDto[] accountLevelList = dt.Rows.Cast<DataRow>()
+                .Select(row => AccountLevelDto.GetAccLvById(row))
+                .Where(accTuple => accTuple.Item1 == true)
+                .Select(accTuple => accTuple.Item2)
+                .ToArray();
+
+            string Result = JsonSerializer.Serialize(accountLevelList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //增加權限

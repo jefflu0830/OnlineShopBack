@@ -83,15 +83,15 @@ var AccountMenufun = {
         var htmlText = '';
 
         for (var i = 0; i < accArray.length; i++) {
-            var accEdit = accArray[i].f_id == 0 ? '' : "<input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ >";
-            var pwdEdit = accArray[i].f_id == 0 ? '' : "<input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>";
-            var accDel = accArray[i].f_id == 0 ? '' : "<input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ >";
+            var accEdit = accArray[i].Id == 0 ? '' : "<input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ >";
+            var pwdEdit = accArray[i].Id == 0 ? '' : "<input type='button' class='EditPwdBtn'  name='EditPwdBtn' value='修改密碼'/ ></td>";
+            var accDel = accArray[i].Id == 0 ? '' : "<input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ >";
 
             htmlText += "<tr>" +
-                "<td name='fid' id='" + accArray[i].f_id + "'>" + accArray[i].f_id + "</td>" +
-                "<td name='facc' id='" + accArray[i].f_id + "'>" + accArray[i].f_acc + "</td>" +
-                "<td name='faccPosition' id='" + accArray[i].f_id + "'>" + accArray[i].f_accPosition + "</td>" +
-                "<td name='fcreateDate' id='" + accArray[i].f_id + "'>" + accArray[i].f_createDate + "</td>" +
+                "<td name='fid' id='" + accArray[i].Id + "'>" + accArray[i].Id + "</td>" +
+                "<td name='facc' id='" + accArray[i].Id + "'>" + accArray[i].Account + "</td>" +
+                "<td name='faccPosition' id='" + accArray[i].Id + "'>" + accArray[i].LevelName + "</td>" +
+                "<td name='fcreateDate' id='" + accArray[i].Id + "'>" + accArray[i].CreateDate + "</td>" +
                 "<td align='center'>" + accEdit + "</td>" +
                 "<td align='center'>" + pwdEdit + "</td>" +
                 "<td align='center'>" + accDel + "</td>";
