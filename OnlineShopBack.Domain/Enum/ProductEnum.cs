@@ -40,13 +40,17 @@ namespace OnlineShopBack.Domain.Enum
             //</summary >
             Success = 0,
             //<summary >
-            //失敗
+            //後端驗證失敗
             //</summary >
-            Fail = 1,
+            ValidaFail = 200,
             //<summary >
-            //預設值
+            //例外錯誤
             //</summary >
-            Default = 2
+            ExceptionError = 201,
+            //<summary >
+            //Defult
+            //</summary >
+            Defult = 999
         }
     }
 }

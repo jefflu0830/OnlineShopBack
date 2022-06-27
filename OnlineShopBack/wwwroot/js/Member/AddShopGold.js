@@ -18,10 +18,10 @@
                 dataType: "json",
                 success: function (data) {
 
-                    $("#CfmAcc").html(data[0].f_acc)
-                    $("#CfmName").html(data[0].f_name)
-                    $("#CfmEmail").html(data[0].f_mail)
-                    $("#NowAmount").html(data[0].f_shopGold)
+                    $("#CfmAcc").html(data[0].MemAcc)
+                    $("#CfmName").html(data[0].Name)
+                    $("#CfmEmail").html(data[0].Mail)
+                    $("#NowAmount").html(data[0].ShopGold)
                     $("#EditBox").show();
 
                 },

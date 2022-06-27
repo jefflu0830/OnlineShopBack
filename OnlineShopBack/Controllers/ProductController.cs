@@ -5,20 +5,20 @@
 */
 #endregion
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Services;
+using OnlineShopBack.Domain.DTOs.Product;
+using OnlineShopBack.Domain.Repository;
 using OnlineShopBack.Domain.Tool;
+using OnlineShopBack.Services;
 using System;
 using System.Data;
-using System.IO;
+using System.Linq;
 using System.Text.Json;
 using static OnlineShopBack.Enum.ProductEnum;
-using OnlineShopBack.Domain.Repository;
 
 namespace OnlineShopBack.Controllers
 {
@@ -51,10 +51,15 @@ namespace OnlineShopBack.Controllers
             }
 
             DataTable dt = _accountService.GetProduct();
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
 
-            return result;
+            ProductDto[] ProductList = dt.Rows.Cast<DataRow>()
+                 .Select(row => ProductDto.GetProductList(row))
+                 .Where(Tuple => Tuple.Item1 == true)
+                 .Select(Tuple => Tuple.Item2)
+                 .ToArray();
+
+            string Result = JsonSerializer.Serialize(ProductList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //新增商品 
@@ -147,9 +152,7 @@ namespace OnlineShopBack.Controllers
             return "[{\"st\": " + ResultCode + "}]";
         }
 
- 
-
-        //類別相關-----------------------------------------
+        /*---------------類別相關---------------*/
 
         //取得類別
         [HttpGet("GetCategory")]
@@ -165,39 +168,17 @@ namespace OnlineShopBack.Controllers
                 return "未有使用權限";
             }
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            DataSet ds = new DataSet();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductCategory ";
 
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            //DataTable轉Json;
-            var result = MyTool.DataTableJson(dt);
+            DataTable dt = _accountService.GetCategory();
 
-            return result;
+            ProductCategoryDto[] CategoryList = dt.Rows.Cast<DataRow>()
+                 .Select(row => ProductCategoryDto.GetCategoryList(row))
+                 .Where(Tuple => Tuple.Item1 == true)
+                 .Select(Tuple => Tuple.Item2)
+                 .ToArray();
+
+            string Result = JsonSerializer.Serialize(CategoryList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //新增類別 
@@ -223,80 +204,10 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            string ErrorStr = "";//記錄錯誤訊息
+            int ResultCode = _accountService.AddCategory(value);
 
-            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
-            //主類別
-            if (CategoryArr.IndexOf(value.CategoryNum) < 0)
-            {
-                ErrorStr += "[主類別]不存在請重新輸入\n";
-            }
-
-            //子類別
-            if (value.SubCategoryNum > 999 || value.SubCategoryNum < 0)
-            {
-                ErrorStr += "[子類別編號應介於0～999之間]\n";
-            }
-            //子類別名稱
-            if (string.IsNullOrEmpty(value.SubCategoryName))
-            {
-                ErrorStr += "[名稱不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsCNAndENAndNumber(value.SubCategoryName))
-                {
-                    ErrorStr += "[名稱應為中文,英文及數字]\n";
-                }
-                if (value.SubCategoryName.Length > 20 || value.SubCategoryName.Length < 0)
-                {
-                    ErrorStr += "[名稱應介於0～20個字之間]\n";
-                }
-            }
-
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_addProductCategory @categoryNum, @subCategoryNum, @subCategoryName";
-
-                cmd.Parameters.AddWithValue("@categoryNum", value.CategoryNum);
-                cmd.Parameters.AddWithValue("@subCategoryNum", value.SubCategoryNum);
-                cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = CategoryReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                //TODO 要有log
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            return "[{\"st\": " + (int)result + "}]";
+            
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //刪除類別
@@ -313,7 +224,6 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-            string ErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -321,57 +231,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //主類別編號
-            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
-            if (CategoryArr.IndexOf(Num) < 0)
-            {
-                ErrorStr += "[主類別]不存在請重新輸入\n";
-            }
+            int ResultCode = _accountService.DelCategory(Num, SubNum);
 
-            //子類別編號 
-            if (SubNum > 999 || SubNum < 0)
-            {
-                ErrorStr += "[子類別編號 應介於0～999之間]\n";
-            }
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @"EXEC pro_onlineShopBack_delCategory @categoryNum, @subCategoryNum";
-
-                cmd.Parameters.AddWithValue("@categoryNum", Num);
-                cmd.Parameters.AddWithValue("@subCategoryNum", SubNum);
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
-
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = CategoryReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
         }
 
         //更新類別
@@ -388,7 +250,7 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-            string ErrorStr = "";//記錄錯誤訊息
+            
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -396,79 +258,9 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            //主類別編號
-            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
-            if (CategoryArr.IndexOf(Num) < 0)
-            {
-                ErrorStr += "[主類別]不存在請重新輸入\n";
-            }
+            int ResultCode = _accountService.UpdateCategory(Num, SubNum, value);
 
-            //子類別編號 
-            if (SubNum > 999 || SubNum < 0)
-            {
-                ErrorStr += "[子類別編號應介於0～999個之間]\n";
-            }
-
-            //權限名稱
-            if (string.IsNullOrEmpty(value.SubCategoryName))
-            {
-                ErrorStr += "[子類別名稱不可為空]\n";
-            }
-            else
-            {
-                if (!MyTool.IsCNAndENAndNumber(value.SubCategoryName))
-                {
-                    ErrorStr += "[子類別名稱應為中文,英文及數字]\n";
-                }
-                if (value.SubCategoryName.Length > 20 || value.SubCategoryName.Length < 0)
-                {
-                    ErrorStr += "[子類別名稱應介於0～20個字之間]\n";
-                }
-            }
-
-            //錯誤訊息有值 return錯誤值
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            CategoryReturnCode result = CategoryReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putCategory @num, @subNum, @subCategoryName";
-
-                cmd.Parameters.AddWithValue("@num", Num);
-                cmd.Parameters.AddWithValue("@subNum", SubNum);
-                cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
-
-                if (!CategoryReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = CategoryReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
 
         }
 

@@ -3,9 +3,9 @@
     Category20: "",
     Category30: "",
     ProductJson: "",
-    CategotyJson:"",
-    MainTempTable:"",
-    FilterTemp:""
+    CategotyJson: "",
+    MainTempTable: "",
+    FilterTemp: ""
 }
 $(document).ready(function () {
     //取得類型列表
@@ -71,18 +71,18 @@ $(document).ready(function () {
         //Id搜尋要刪除的商品
         var DelSearchById = function (JsonCol, SearchItem) {
             var tempTable = ProductJson.filter((item) => {
-                if (item[JsonCol].indexOf(SearchItem) >= 0) {
+                if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
                     return item
                 }
             })
             return tempTable;
         }
 
-        var DelProduct = DelSearchById('f_id', ProductId)
+        var DelProduct = DelSearchById('Id', ProductId)
 
         if (window.confirm("確定要刪除此商品嗎?")) {
             $.ajax({
-                url: '/api/Product/DelProduct?ProductId=' + DelProduct[0].f_id + '&ProductNum=' + DelProduct[0].f_num + '&ImgName=' + DelProduct[0].f_img,
+                url: '/api/Product/DelProduct?ProductId=' + DelProduct[0].Id + '&ProductNum=' + DelProduct[0].Num + '&ImgName=' + DelProduct[0].ImgPath,
                 type: 'DELETE',
                 data: {},
                 success: function (result) {
@@ -92,15 +92,33 @@ $(document).ready(function () {
                             alert('刪除成功');
                             location.reload(); //新增成功才更新頁面
                             break;
-                        }
-                        case 100:
+                        };
+                        case 100: {
                             alert('無此商品');
+                            break
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
                             break;
-                    }
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        };
+                        case 202: {
+                            alert('圖片上傳失敗,請檢查格式');
+                            location.reload();
+                            break;
+                        };
+                        default: {
+                            alert(result);
+                        };
+                    };
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {
                         location.reload();
-                    }
+                    };
                 },
                 error: function (error) {
                     alert(error);
@@ -117,38 +135,38 @@ $(document).ready(function () {
         //Id搜尋要更新的商品
         var EditSearchById = function (JsonCol, SearchItem) {
             var tempTable = ProductJson.filter((item) => {
-                if (item[JsonCol].indexOf(SearchItem) >= 0) {
+                if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
                     return item
                 }
             })
             return tempTable;
         }
 
-        var EditProduct = EditSearchById('f_id', ProductId)
+        var EditProduct = EditSearchById('Id', ProductId)
 
         //開放狀態
-        switch (EditProduct[0].f_status) {
-            case '0':
+        switch (EditProduct[0].Status) {
+            case 0:
                 ProductStatus = '<option selected value = "0" selected>開放 </option ><option value="100">不開放</option>';
                 break;
-            case '100':
+            case 100:
                 ProductStatus = '<option value = "0">開放 </option ><option selected value="100" >不開放</option>'
                 break;
 
         }
         //主類別&子類別
-        switch (EditProduct[0].f_category) {
-            case '10': {
+        switch (EditProduct[0].Category) {
+            case 10: {
                 ProductCategoryNum = '<option selected value = "10"> 3C</option ><option value="20">電腦周邊</option><option value="30">軟體</option>';
                 ProductSubCategory = Category10
                 break;
             }
-            case '20': {
+            case 20: {
                 ProductCategoryNum = '<option value = "10"> 3C</option ><option selected value="20">電腦周邊</option><option value="30">軟體</option>';
                 ProductSubCategory = Category20
                 break;
             }
-            case '30': {
+            case 30: {
                 ProductCategoryNum = '<option value = "10"> 3C</option ><option value="20">電腦周邊</option><option selected value="30">軟體</option>';
                 ProductSubCategory = Category30
                 break;
@@ -163,7 +181,7 @@ $(document).ready(function () {
                 '<div><label> 圖片:</label> ' +
                 '<input type="file" name="ImgPath" id="ImgPath">' +
                 //商品代號
-                '<div><label> 商品代號:</label> <label id="ProductNum">' + EditProduct[0].f_num + '</label></div>' +
+                '<div><label> 商品代號:</label> <label id="ProductNum">' + EditProduct[0].Num + '</label></div>' +
                 //主類別
                 '<div><label for="EditProductCategory">主類別:</label>' +
                 '<select id="EditProductCategory" onchange="ProductMenuFun.SelectSubCategory()">' + ProductCategoryNum + '</select ></div>' +
@@ -172,22 +190,22 @@ $(document).ready(function () {
                 '<select id="EditSubCategory">' + ProductSubCategory + '</select >' +
                 //名稱
                 '<div><label for="ProductName">商品名稱:</label>' +
-                '<input type="text" id="ProductName" name="ProductName" maxlength="20" value="' + EditProduct[0].f_name + '"/></div>' +
+                '<input type="text" id="ProductName" name="ProductName" maxlength="20" value="' + EditProduct[0].Name + '"/></div>' +
                 //開放狀態
                 '<div><label for="ProductStatus">開放狀態:</label>' +
                 '<select id="ProductStatus">' + ProductStatus + '</select ></div > ' +
                 //價格
                 '<div><label for="ProductPrice">價格:</label>' +
-                '<input type="text" id="ProductPrice" name="ProductPrice" maxlength="9" value="' + EditProduct[0].f_price + '" oninput="value=value.replace(/[^\d]/g,"")" /></div>' +
+                '<input type="text" id="ProductPrice" name="ProductPrice" maxlength="9" value="' + EditProduct[0].Price + '" oninput="value=value.replace(/[^\d]/g,"")" /></div>' +
                 //庫存量
                 '<div><label for="ProductStock">庫存量:</label>' +
-                '<input type="text" id="ProductStock" name="ProductStock" maxlength="4" value="' + EditProduct[0].f_stock + '" /></div>' +
+                '<input type="text" id="ProductStock" name="ProductStock" maxlength="4" value="' + EditProduct[0].Stock + '" /></div>' +
                 //熱門度
                 '<div><label for="Popularity">熱門度:</label>' +
-                '<input type="text" id="Popularity" name="Popularity" maxlength="3" value="' + EditProduct[0].f_popularity + '" /></div>' +
+                '<input type="text" id="Popularity" name="Popularity" maxlength="3" value="' + EditProduct[0].Popularity + '" /></div>' +
                 //內容
                 '<div><label for="Productcontent" style="display: block;">細項說明:</label>' +
-                '<textarea id="ProductContent" name="ProductContent" rows="5" cols="90" maxlength="500">' + EditProduct[0].f_content + '</textarea></div>' +
+                '<textarea id="ProductContent" name="ProductContent" rows="5" cols="90" maxlength="500">' + EditProduct[0].Content + '</textarea></div>' +
                 "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
                 "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
             $('#Editform').html(EditData);
@@ -304,8 +322,8 @@ $(document).ready(function () {
 
         if ($('#SerchCategory').val() === '0') {
 
-            $("#SearchSubCategoryBox").hide();                        
-            
+            $("#SearchSubCategoryBox").hide();
+
             ProductMenuFun.SearchInput()
         } else {
             var AllStrTag = '<option value="All">全部</option>';
@@ -325,18 +343,18 @@ $(document).ready(function () {
             };
 
             //篩選 主類別
-            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_category", $('#SerchCategory').val())
+            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "Category", $('#SerchCategory').val())
             FilterTemp = $.extend(true, [], MainTempTable);
             ProductMenuFun.SearchInput()
-        }        
+        }
     });
     //子類別下拉欄位chnage事件
     $('#SubCategory').change(function () {
         MainTempTable = $.extend(true, [], FilterTemp);
 
         if ($('#SubCategory').val() !== 'All') {
-            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "f_subCategory", $('#SubCategory').val())
-        }      
+            MainTempTable = ProductMenuFun.JsonFilter(MainTempTable, "SubCategory", $('#SubCategory').val())
+        }
 
         ProductMenuFun.SearchInput()
     });
@@ -346,13 +364,13 @@ ProductMenuFun = {
     //主類別名稱轉換
     TransCategoryNum: function (categoryNum) {
         switch (categoryNum) {
-            case "10": {
+            case 10: {
                 return "3C";
             }
-            case "20": {
+            case 20: {
                 return "電腦周邊";
             }
-            case "30":
+            case 30:
                 return "軟體";
         };
 
@@ -360,10 +378,10 @@ ProductMenuFun = {
     //開放狀態名稱轉換
     TransStatus: function (statusCode) {
         switch (statusCode) {
-            case '0': {
+            case 0: {
                 return '開放';
             }
-            case '100': {
+            case 100: {
                 return "不開放";
             }
         };
@@ -376,17 +394,17 @@ ProductMenuFun = {
     },
     //主類別select onchange事件
     SelectSubCategory: function () {
-        var CategoryValue = $("#ProductCategory").val();//取主類別值
+        var CategoryValue = $("#EditProductCategory").val();//取主類別值
 
         switch (CategoryValue) {
             case ('10'):
-                $('#SubCategory').html(Category10);
+                $('#EditSubCategory').html(Category10);
                 break;
             case ('20'):
-                $('#SubCategory').html(Category20);
+                $('#EditSubCategory').html(Category20);
                 break;
             case ('30'):
-                $('#SubCategory').html(Category30);
+                $('#EditSubCategory').html(Category30);
                 break;
         }
     },
@@ -395,17 +413,17 @@ ProductMenuFun = {
 
         var rows = '';
         for (var i in ProudctJson) {
-            var categoryName = ProductMenuFun.TransCategoryNum(ProudctJson[i].f_category);
-            var status = ProductMenuFun.TransStatus(ProudctJson[i].f_status)
+            var categoryName = ProductMenuFun.TransCategoryNum(ProudctJson[i].Category);
+            var status = ProductMenuFun.TransStatus(ProudctJson[i].Status)
             rows += "<tr>" +
-                '<td id="' + ProudctJson[i].f_id + '">' + ProudctJson[i].f_num + '</td>' +
-                '<td name="' + ProudctJson[i].f_category + '">' + categoryName + '</td>' +
-                '<td name="SubCategoryName">' + ProudctJson[i].f_subCategoryName + '</td>' +
-                '<td name="Name">' + ProudctJson[i].f_name + '</td>' +
-                '<td name="Price">' + ProudctJson[i].f_price + '</td>' +
-                '<td name="' + ProudctJson[i].f_status + '">' + status + '</td>' +
-                '<td name="Status">' + ProudctJson[i].f_stock + '</td>' +
-                '<td name="Status">' + ProudctJson[i].f_popularity + '</td>' +
+                '<td id="' + ProudctJson[i].Id + '">' + ProudctJson[i].Num + '</td>' +
+                '<td name="' + ProudctJson[i].Category + '">' + categoryName + '</td>' +
+                '<td name="SubCategoryName">' + ProudctJson[i].SubCategoryName + '</td>' +
+                '<td name="Name">' + ProudctJson[i].Name + '</td>' +
+                '<td name="Price">' + ProudctJson[i].Price + '</td>' +
+                '<td name="' + ProudctJson[i].Status + '">' + status + '</td>' +
+                '<td name="Status">' + ProudctJson[i].Stock + '</td>' +
+                '<td name="Status">' + ProudctJson[i].Popularity + '</td>' +
                 "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'  value='編輯商品'/ ></td>" +
                 "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>";
             "</tr>";
@@ -415,7 +433,7 @@ ProductMenuFun = {
     //Json查詢  //JsonTable=>要Filter的JSON, ItemName=>查詢的欄位, Searchvalue=>要查詢的值
     JsonFilter: function (JsonTable, ItemName, Searchvalue) {
         var Filter = JsonTable.filter(function (item) {
-            if (item[ItemName].indexOf(Searchvalue) >= 0) {
+            if (item[ItemName].toString().indexOf(Searchvalue) >= 0) {
                 return item
             }
         })

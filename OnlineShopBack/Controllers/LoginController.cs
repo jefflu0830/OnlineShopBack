@@ -7,12 +7,11 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using OnlineShopBack.Domain.Repository;
-using OnlineShopBack.Services;
 using OnlineShopBack.Domain.Tool;
+using OnlineShopBack.Services;
 using System;
 using System.Data;
 

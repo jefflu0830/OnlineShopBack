@@ -9,12 +9,12 @@
             CategoryJson = data;
             for (var i in data) {
 
-                var categoryName = AddCategoryFun.TransCategoryNum(data[i].f_categoryNum);
+                var categoryName = AddCategoryFun.TransCategoryNum(data[i].CategoryNum);
 
                 var rows = rows + "<tr>" +
-                    "<td name='" + data[i].f_categoryNum + "'>" + categoryName + "</td>" +
-                    "<td name='SubCategoryNum'>" + data[i].f_subCategoryNum + "</td>" +
-                    "<td name='SubCategoryName'>" + data[i].f_subCategoryName + "</td>" +
+                    "<td name='" + data[i].CategoryNum + "'>" + categoryName + "</td>" +
+                    "<td name='SubCategoryNum'>" + data[i].SubCategoryNum + "</td>" +
+                    "<td name='SubCategoryName'>" + data[i].SubCategoryName + "</td>" +
                     "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn'  value='編輯類型名稱'/ ></td>" +
                     "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
                     "</tr>";
@@ -67,9 +67,22 @@
                                     location.reload(); //新增成功才更新頁面
                                     break;
                                 }
-                                case 100:
+                                case 100: {
                                     alert('尚未建立此類別');
                                     break;
+                                }
+                                case 200: {
+                                    alert('後端驗證失敗,請查詢LOG');
+                                    break;
+                                };
+                                case 201: {
+                                    alert('例外錯誤,請查詢LOG');
+                                    location.reload();
+                                    break;
+                                }
+                                default: {
+                                    alert(result);
+                                }
                             }
 
                             if (result == "更新成功") {
@@ -91,7 +104,7 @@
 
             });
             //刪除按鈕
-            $(".DeleteBtn").click( function () {
+            $(".DeleteBtn").click(function () {
                 var currentRow = $(this).closest("tr");
                 var Num = currentRow.find("td:eq(0)").attr('name');
                 var SubNum = currentRow.find("td:eq(1)").text();
@@ -109,9 +122,22 @@
                                     location.reload(); //新增成功才更新頁面
                                     break;
                                 }
-                                case 100:
+                                case 100: {
                                     alert('無此帳號');
                                     break;
+                                }
+                                case 200: {
+                                    alert('後端驗證失敗,請查詢LOG');
+                                    break;
+                                };
+                                case 201: {
+                                    alert('例外錯誤,請查詢LOG');
+                                    location.reload();
+                                    break;
+                                }
+                                default: {
+                                    alert(result);
+                                }
                             }
 
                             if (result === "已從另一地點登入,轉跳至登入頁面") {
@@ -176,11 +202,28 @@
                             alert('新增成功');
                             location.reload(); //新增成功才更新頁面
                             break;
-                        }
-                        case 100:
+                        };
+                        case 100: {
                             alert('已有相同類別');
                             break;
-                    }
+                        };
+                        case 101: {
+                            alert('未有此商品類型');
+                            break;
+                        };
+                        case 200: {
+                            alert('後端驗證失敗,請查詢LOG');
+                            break;
+                        };
+                        case 201: {
+                            alert('例外錯誤,請查詢LOG');
+                            location.reload();
+                            break;
+                        }
+                        default: {
+                            alert(result);
+                        }
+                    };
 
 
                     if (result === "已從另一地點登入,轉跳至登入頁面") {
@@ -205,13 +248,13 @@ var AddCategoryFun = {
     //主類別名稱轉換
     TransCategoryNum: function (categoryNum) {
         switch (categoryNum) {
-            case "10": {
+            case 10: {
                 return "3C";
             }
-            case "20": {
+            case 20: {
                 return "電腦周邊";
             }
-            case "30":
+            case 30:
                 return "軟體";
         };
 

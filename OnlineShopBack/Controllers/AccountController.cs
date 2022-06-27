@@ -7,14 +7,13 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using OnlineShopBack.Domain.DTOs.Account;
 using OnlineShopBack.Domain.Repository;
-using OnlineShopBack.Services;
 using OnlineShopBack.Domain.Tool;
+using OnlineShopBack.Services;
 using System;
 using System.Data;
-using OnlineShopBack.Domain.DTOs.Account;
 using System.Linq;
 using System.Text.Json;
 
@@ -215,13 +214,13 @@ namespace OnlineShopBack.Controllers
             DataTable dt = _accountService.GetAccLvById(id);
 
 
-            AccountLevelDto[] accountLevelList = dt.Rows.Cast<DataRow>()
+            AccountLevelDto[] AccLvById = dt.Rows.Cast<DataRow>()
                 .Select(row => AccountLevelDto.GetAccLvById(row))
                 .Where(accTuple => accTuple.Item1 == true)
                 .Select(accTuple => accTuple.Item2)
                 .ToArray();
 
-            string Result = JsonSerializer.Serialize(accountLevelList);//序列化回傳  回傳型態 string
+            string Result = JsonSerializer.Serialize(AccLvById);//序列化回傳  回傳型態 string
             return Result;
         }
 

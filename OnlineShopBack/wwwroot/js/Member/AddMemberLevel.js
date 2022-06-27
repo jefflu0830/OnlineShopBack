@@ -9,24 +9,24 @@
         success: function (data) {
             for (var i in data) {
 
-                if (data[i].f_memberLevel === "0") {//編號0 不可刪除
+                if (data[i].memLv === 0) {//編號0 不可刪除
                     var rows = rows + "<tr>" +
-                        "<td name='faccLevel'>" + data[i].f_memberLevel + "</td>" +
-                        "<td name='faccPosition'>" + data[i].f_LevelName + "</td>" +
+                        "<td name='faccLevel'>" + data[i].memLv + "</td>" +
+                        "<td name='faccPosition'>" + data[i].LvName + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn' value='編輯'/ ></td>" +
                         "<td></td >" +
                         "</tr>";
                 }
                 else {
                     var rows = rows + "<tr>" +
-                        "<td name='faccLevel'>" + data[i].f_memberLevel + "</td>" +
-                        "<td name='faccPosition'>" + data[i].f_LevelName + "</td>" +
+                        "<td name='faccLevel'>" + data[i].memLv + "</td>" +
+                        "<td name='faccPosition'>" + data[i].LvName + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn' value='編輯'/ ></td>" +
                         "<td align='center'> <input type='button'   class='DeleteBtn'  value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
-            $('#TableBody').append(rows);
+            $('#TableBody').html(rows);
         },
 
         failure: function (data) {

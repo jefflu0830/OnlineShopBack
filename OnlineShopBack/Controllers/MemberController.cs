@@ -6,15 +6,15 @@
 #endregion
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using OnlineShopBack.Services;
+using OnlineShopBack.Domain.DTOs.Member;
+using OnlineShopBack.Domain.Repository;
 using OnlineShopBack.Domain.Tool;
+using OnlineShopBack.Services;
 using System;
 using System.Data;
-using OnlineShopBack.Enum;
-using OnlineShopBack.Domain.Repository;
-using OnlineShopBack.Domain.DTOs.Member;
+using System.Linq;
+using System.Text.Json;
 
 namespace OnlineShopBack.Controllers
 {
@@ -48,10 +48,15 @@ namespace OnlineShopBack.Controllers
 
             DataTable dt = new DataTable();
             dt = _MemberService.GetAccountAndLevelList();
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
+            MemberDto[] MemberList = dt.Rows.Cast<DataRow>()
+                .Select(row => MemberDto.GetMemberList(row))
+                .Where(accTuple => accTuple.Item1 == true)
+                .Select(accTuple => accTuple.Item2)
+                .ToArray();
+
+            string Result = JsonSerializer.Serialize(MemberList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //取得指定會員資料
@@ -70,11 +75,16 @@ namespace OnlineShopBack.Controllers
 
             DataTable dt = new DataTable();
             dt = _MemberService.GetMemberByAcc(Acc);
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
 
+            MemberDto[] MemberListByAcc = dt.Rows.Cast<DataRow>()
+               .Select(row => MemberDto.GetMemberListByAcc(row))
+               .Where(accTuple => accTuple.Item1 == true)
+               .Select(accTuple => accTuple.Item2)
+               .ToArray();
+
+            string Result = JsonSerializer.Serialize(MemberListByAcc);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //刪除會員
@@ -115,15 +125,11 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-            
-
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-
-
 
             int ResultCode = _MemberService.EditMember(id, value);
 
@@ -171,13 +177,16 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
 
-
             DataTable dt = _MemberService.GetMemLvList();
-            
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
+            MemLvDto[] MemLvList = dt.Rows.Cast<DataRow>()
+              .Select(row => MemLvDto.GetMemLvList(row))
+              .Where(accTuple => accTuple.Item1 == true)
+              .Select(accTuple => accTuple.Item2)
+              .ToArray();
+
+            string Result = JsonSerializer.Serialize(MemLvList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //添加會員等級 
@@ -192,7 +201,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "無使用權限";
-            }           
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -217,7 +226,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "無使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -243,7 +252,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "無使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -273,11 +282,15 @@ namespace OnlineShopBack.Controllers
                 return "無使用權限";
             }
             DataTable dt = _MemberService.GetSuspensionList();
-            
-            //DataTable轉Json;
-            string result = MyTool.DataTableJson(dt);
 
-            return result;
+            suspensionDto[] SuspensionList = dt.Rows.Cast<DataRow>()
+                .Select(row => suspensionDto.GetSuspensionList(row))
+                .Where(Tuple => Tuple.Item1 == true)
+                .Select(Tuple => Tuple.Item2)
+                .ToArray();
+
+            string Result = JsonSerializer.Serialize(SuspensionList);//序列化回傳  回傳型態 string
+            return Result;
         }
 
         //增加狀態 
@@ -320,7 +333,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "無使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
@@ -328,7 +341,7 @@ namespace OnlineShopBack.Controllers
                 return "參數異常";
             }
 
-            int ResultCode = _MemberService.EditSuspension(id,value);
+            int ResultCode = _MemberService.EditSuspension(id, value);
 
             return "[{\"st\": " + ResultCode + "}]";
 
@@ -346,7 +359,7 @@ namespace OnlineShopBack.Controllers
             else if (RolesValidate())
             {
                 return "無使用權限";
-            }            
+            }
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)

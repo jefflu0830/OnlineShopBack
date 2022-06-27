@@ -21,12 +21,6 @@ namespace OnlineShopBack.Persistent
             _env = env;
             _SQLConnectionString = configHelperRepository.SQLConnectionStrings();
         }
-
-        //public ProductRepository(IConfigHelperRepository configHelperRepository)
-        //{
-        //    //SQL連線字串
-
-        //}
         /*---------------商品相關---------------*/
         //取得商品List
         public DataTable GetProduct()
@@ -418,59 +412,308 @@ namespace OnlineShopBack.Persistent
         //刪除商品
         public int DelProduct(int ProductId, string ProductNum, string ImgName)
         {
-            //string ErrorStr = "";//記錄錯誤訊息
-            ////錯誤訊息有值 return錯誤值
-            //if (!string.IsNullOrEmpty(ErrorStr))
-            //{
-            //    return ErrorStr;
-            //}
+            string ErrorStr = "";//記錄錯誤訊息
+            int ResultCode = (int)ProductEnum.ProductReturnCode.Defult;
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                ResultCode = (int)ProductEnum.ProductReturnCode.ValidaFail;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(_SQLConnectionString);
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_delProduct @productId, @productNum";
 
-            //SqlCommand cmd = null;
-            //ProductReturnCode result = ProductReturnCode.Default;
-            //try
-            //{
-            //    // 資料庫連線
-            //    cmd = new SqlCommand();
-            //    cmd.Connection = new SqlConnection(SQLConnectionString);
-            //    cmd.CommandText = @"EXEC pro_onlineShopBack_delProduct @productId, @productNum";
+                    cmd.Parameters.AddWithValue("@productId", ProductId);
+                    cmd.Parameters.AddWithValue("@productNum", ProductNum);
+                    //開啟連線
+                    cmd.Connection.Open();
+                    ResultCode = (int)cmd.ExecuteScalar();//執行Transact-SQL
 
-            //    cmd.Parameters.AddWithValue("@productId", ProductId);
-            //    cmd.Parameters.AddWithValue("@productNum", ProductNum);
-            //    //開啟連線
-            //    cmd.Connection.Open();
-            //    string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL
 
-            //    if (!ProductReturnCode.TryParse(SQLReturnCode, out result))
-            //    {
-            //        result = ProductReturnCode.Fail;
-            //    }
+                    //資料庫刪除成功後才會做刪除圖片動作
+                    if (ResultCode == (int)ProductEnum.ProductReturnCode.Success)
+                    {
+                        //取得存放路徑
+                        string ImgPath = _env.ContentRootPath + @"\wwwroot\Img\";
+                        string DelImgPath = ImgPath + ImgName;//儲存路徑 
+                        System.IO.FileInfo file = new System.IO.FileInfo(DelImgPath);
+                        if (file.Exists)
+                        {
+                            file.Delete();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    ResultCode = (int)ProductEnum.ProductReturnCode.ExceptionError;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
+            return ResultCode;
+        }
 
-            //    //資料庫刪除成功後才會做刪除圖片動作
-            //    if (result == (int)ProductReturnCode.Success)
-            //    {
-            //        //取得存放路徑
-            //        string ImgPath = _env.ContentRootPath + @"\wwwroot\Img\";
-            //        string DelImgPath = ImgPath + ImgName;//儲存路徑 
-            //        System.IO.FileInfo file = new System.IO.FileInfo(DelImgPath);
-            //        if (file.Exists)
-            //        {
-            //            file.Delete();
-            //        }
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    return e.Message;
-            //}
-            //finally
-            //{
-            //    if (cmd != null)
-            //    {
-            //        cmd.Parameters.Clear();
-            //        cmd.Connection.Close();
-            //    }
-            //}
-            throw new NotImplementedException();
+        //取得類別
+        public DataTable GetCategory()
+        {
+
+            SqlCommand cmd = null;
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter();
+            try
+            {
+                // 資料庫連線&SQL指令
+                cmd = new SqlCommand();
+                cmd.Connection = new SqlConnection(_SQLConnectionString);
+                cmd.CommandText = @" EXEC pro_onlineShopBack_getProductCategory ";
+
+                //開啟連線
+                cmd.Connection.Open();
+                da.SelectCommand = cmd;
+                da.Fill(dt);
+            }
+            catch (Exception e)
+            {
+                MyTool.WriteErroLog(e.Message);
+            }
+            finally
+            {
+                //關閉連線
+                if (cmd != null)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.Connection.Close();
+                }
+            }
+
+            return dt;
+        }
+
+        //新增類別 
+        public int AddCategory(ProductCategoryDto value)
+        {
+            string ErrorStr = "";//記錄錯誤訊息
+            int ResultCode = (int)ProductEnum.CategoryReturnCode.Defult;
+
+            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
+            //主類別
+            if (Array.IndexOf(CategoryArr, value.CategoryNum) < 0)
+            {
+                ErrorStr += "[主類別]不存在請重新輸入\n";
+            }
+
+            //子類別
+            if (value.SubCategoryNum > 999 || value.SubCategoryNum < 0)
+            {
+                ErrorStr += "[子類別編號應介於0～999之間]\n";
+            }
+            //子類別名稱
+            if (string.IsNullOrEmpty(value.SubCategoryName))
+            {
+                ErrorStr += "[名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.SubCategoryName))
+                {
+                    ErrorStr += "[名稱應為中文,英文及數字]\n";
+                }
+                if (value.SubCategoryName.Length > 20 || value.SubCategoryName.Length < 0)
+                {
+                    ErrorStr += "[名稱應介於0～20個字之間]\n";
+                }
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                MyTool.WriteErroLog(ErrorStr);
+                ResultCode = (int)ProductEnum.CategoryReturnCode.ValidaFail;
+            }
+            else
+            {
+                SqlCommand cmd = null;
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(_SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_addProductCategory @categoryNum, @subCategoryNum, @subCategoryName";
+
+                    cmd.Parameters.AddWithValue("@categoryNum", value.CategoryNum);
+                    cmd.Parameters.AddWithValue("@subCategoryNum", value.SubCategoryNum);
+                    cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
+                    //開啟連線
+                    cmd.Connection.Open();
+                    ResultCode = (int)cmd.ExecuteScalar();//執行Transact-SQL
+
+                }
+                catch (Exception e)
+                {
+                    MyTool.WriteErroLog(e.Message);
+                    ResultCode = (int)ProductEnum.CategoryReturnCode.ExceptionError;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
+            return ResultCode;
+        }
+
+        //更新類別
+        public int UpdateCategory(int Num, int SubNum, ProductCategoryDto value)
+        {
+            int ResultCode = (int)ProductEnum.CategoryReturnCode.Defult;
+
+            string ErrorStr = "";//記錄錯誤訊息
+            //主類別編號
+            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
+            if (Array.IndexOf(CategoryArr, Num) < 0)
+            {
+                ErrorStr += "[主類別]不存在請重新輸入\n";
+            }
+
+            //子類別編號 
+            if (SubNum > 999 || SubNum < 0)
+            {
+                ErrorStr += "[子類別編號應介於0～999個之間]\n";
+            }
+
+            //權限名稱
+            if (string.IsNullOrEmpty(value.SubCategoryName))
+            {
+                ErrorStr += "[子類別名稱不可為空]\n";
+            }
+            else
+            {
+                if (!MyTool.IsCNAndENAndNumber(value.SubCategoryName))
+                {
+                    ErrorStr += "[子類別名稱應為中文,英文及數字]\n";
+                }
+                if (value.SubCategoryName.Length > 20 || value.SubCategoryName.Length < 0)
+                {
+                    ErrorStr += "[子類別名稱應介於0～20個字之間]\n";
+                }
+            }
+
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                MyTool.WriteErroLog(ErrorStr);
+                ResultCode = (int)ProductEnum.CategoryReturnCode.ValidaFail;
+            }
+            else
+            {
+
+                SqlCommand cmd = null;
+
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(_SQLConnectionString);
+
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_putCategory @num, @subNum, @subCategoryName";
+
+                    cmd.Parameters.AddWithValue("@num", Num);
+                    cmd.Parameters.AddWithValue("@subNum", SubNum);
+                    cmd.Parameters.AddWithValue("@subCategoryName", value.SubCategoryName);
+
+                    //開啟連線
+                    cmd.Connection.Open();
+                    ResultCode = (int)cmd.ExecuteScalar();//執行Transact-SQL                
+                }
+                catch (Exception e)
+                {
+                    MyTool.WriteErroLog(e.Message);
+                    ResultCode = (int)ProductEnum.CategoryReturnCode.ExceptionError;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
+            return ResultCode;
+        }
+        //刪除類別
+        public int DelCategory(int Num, int SubNum)
+        {
+            int ResultCode = (int)ProductEnum.CategoryReturnCode.Defult;
+            string ErrorStr = "";//記錄錯誤訊息
+
+
+            //主類別編號
+            int[] CategoryArr = { 10, 20, 30 };//10=3C ,20=電腦周邊 ,30=軟體
+            if (Array.IndexOf(CategoryArr, Num) < 0)
+            {
+                ErrorStr += "[主類別]不存在請重新輸入\n";
+            }
+
+            //子類別編號 
+            if (SubNum > 999 || SubNum < 0)
+            {
+                ErrorStr += "[子類別編號 應介於0～999之間]\n";
+            }
+            //錯誤訊息有值 return錯誤值
+            if (!string.IsNullOrEmpty(ErrorStr))
+            {
+                MyTool.WriteErroLog(ErrorStr);
+                ResultCode = (int)ProductEnum.CategoryReturnCode.ValidaFail;
+            }
+            else
+            {
+
+                SqlCommand cmd = null;
+                try
+                {
+                    // 資料庫連線
+                    cmd = new SqlCommand();
+                    cmd.Connection = new SqlConnection(_SQLConnectionString);
+                    cmd.CommandText = @"EXEC pro_onlineShopBack_delCategory @categoryNum, @subCategoryNum";
+
+                    cmd.Parameters.AddWithValue("@categoryNum", Num);
+                    cmd.Parameters.AddWithValue("@subCategoryNum", SubNum);
+                    //開啟連線
+                    cmd.Connection.Open();
+                    ResultCode = (int)cmd.ExecuteScalar();//執行Transact-SQL
+                }
+                catch (Exception e)
+                {
+                    MyTool.WriteErroLog(e.Message);
+                    ResultCode = (int)ProductEnum.CategoryReturnCode.ExceptionError;
+                }
+                finally
+                {
+                    if (cmd != null)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Connection.Close();
+                    }
+                }
+            }
+            return ResultCode;
         }
     }
 }

@@ -11,16 +11,16 @@
 
             for (var i in data) {
                 var rows = rows + "<tr>" +
-                    "<td id='id'>" + data[i].f_id + "</td>" +
-                    "<td id='acc'>" + data[i].f_acc + "</td>" +
-                    "<td id='name'>" + data[i].f_name + "</td>" +
-                    "<td id='phone'>" + data[i].f_phone + "</td>" +
-                    "<td id='mail'>" + data[i].f_mail + "</td>" +
-                    "<td id='address'>" + data[i].f_address + "</td>" +
-                    "<td id='shopGold'>" + data[i].f_shopGold + "</td>" +
-                    "<td id='level'>" + data[i].f_LevelName + "</td>" +
-                    "<td id='suspension'>" + data[i].f_suspensionName + "</td>" +
-                    "<td id='createDate'>" + data[i].f_createDate + "</td>" +
+                    "<td id='id'>" + data[i].Id + "</td>" +
+                    "<td id='acc'>" + data[i].MemAcc + "</td>" +
+                    "<td id='name'>" + data[i].Name + "</td>" +
+                    "<td id='phone'>" + data[i].Phone + "</td>" +
+                    "<td id='mail'>" + data[i].Mail + "</td>" +
+                    "<td id='address'>" + data[i].Address + "</td>" +
+                    "<td id='shopGold'>" + data[i].ShopGold + "</td>" +
+                    "<td id='level'>" + data[i].LevelName + "</td>" +
+                    "<td id='suspension'>" + data[i].SuspensionName + "</td>" +
+                    "<td id='createDate'>" + data[i].CreateDate + "</td>" +
                     "<td align='center'> <input type='button' class='EditBtn'  name='EditBtn' value='編輯'/ ></td>" +
                     "<td align='center'> <input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ ></td>" +
                     "</tr>";
@@ -214,20 +214,20 @@ var memMenufun = {
         var htmlText = '';
 
         for (var i = 0; i < memArray.length; i++) {
-            var memEdit = memArray[i].f_id == 0 ? '' : "<input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ >";
-            var memDel = memArray[i].f_id == 0 ? '' : "<input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ >";
+            var memEdit = memArray[i].Id == 0 ? '' : "<input type='button' class='EditAccBtn'  name='EditAccBtn'  value='編輯帳號'/ >";
+            var memDel = memArray[i].Id == 0 ? '' : "<input type='button' class='DeleteBtn'  name='DeleteBtn' value='刪除'/ >";
 
             htmlText += "<tr>" +
-                "<td id='RegdNo'>" + memArray[i].f_id + "</td>" +
-                "<td id='RegdNo'>" + memArray[i].f_acc + "</td>" +
-                "<td id='Name'>" + memArray[i].f_name + "</td>" +
-                "<td id='phone'>" + memArray[i].f_phone + "</td>" +
-                "<td id='mail'>" + memArray[i].f_mail + "</td>" +
-                "<td id='address'>" + memArray[i].f_address + "</td>" +
-                "<td id='shopGold'>" + memArray[i].f_shopGold + "</td>" +
-                "<td id='level'>" + memArray[i].f_LevelName + "</td>" +
-                "<td id='suspension'>" + memArray[i].f_suspensionName + "</td>" +
-                "<td id='createDate'>" + memArray[i].f_createDate + "</td>" +
+                "<td id='RegdNo'>" + memArray[i].Id + "</td>" +
+                "<td id='RegdNo'>" + memArray[i].MemAcc + "</td>" +
+                "<td id='Name'>" + memArray[i].Name + "</td>" +
+                "<td id='phone'>" + memArray[i].Phone + "</td>" +
+                "<td id='mail'>" + memArray[i].Mail + "</td>" +
+                "<td id='address'>" + memArray[i].Address + "</td>" +
+                "<td id='shopGold'>" + memArray[i].ShopGold + "</td>" +
+                "<td id='level'>" + memArray[i].LevelName + "</td>" +
+                "<td id='suspension'>" + memArray[i].SuspensionName + "</td>" +
+                "<td id='createDate'>" + memArray[i].CreateDate + "</td>" +
                 "<td align='center'>" + memEdit + "</td>" +
                 "<td align='center'>" + memDel + "</td>" +
                 "</tr>";
@@ -244,8 +244,8 @@ var memMenufun = {
 
         var serchvalue = $("#Search").val();
 
-        var StrClassArr = ["f_id", "f_acc", "f_name", "f_phone", "f_mail", "f_address", "f_LevelName", "f_suspensionName", "f_createDate"]
-        var IntClassArr = ["f_shopGold"]
+        var StrClassArr = ["Id", "MemAcc", "Name", "Phone", "Mail", "Address", "LevelName", "Suspension", "CreateDate"]
+        var IntClassArr = ["ShopGold"]
 
         if (serchvalue === "") {
 
@@ -257,7 +257,7 @@ var memMenufun = {
             //字串搜尋
             var searchStr = function (searchClass) {
                 tempTable = tempTable.filter((item) => {//filter搜尋json
-                    if (item[searchClass].indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
+                    if (item[searchClass].toString().indexOf(serchvalue) >= 0) {//indexOf -> 有找到所鍵入文字則回傳 >=0
                         return item //大於等於0則 return item
                     }
                 })

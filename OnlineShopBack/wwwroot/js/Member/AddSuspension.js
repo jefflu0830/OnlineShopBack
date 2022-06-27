@@ -9,24 +9,24 @@
         success: function (data) {
             for (var i in data) {
 
-                if (data[i].f_suspensionLv === "0" || data[i].f_suspensionLv === "100") {//編號0 or 100 不可刪除
+                if (data[i].suspensionLv === 0 || data[i].suspensionLv === 100) {//編號0 or 100 不可刪除
                     var rows = rows + "<tr>" +
-                        "<td name='suspensionLv'>" + data[i].f_suspensionLv + "</td>" +
-                        "<td name='suspensionName'>" + data[i].f_suspensionName + "</td>" +
+                        "<td name='suspensionLv'>" + data[i].suspensionLv + "</td>" +
+                        "<td name='suspensionName'>" + data[i].suspensionName + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn' value='編輯'/ ></td>" +
                         "<td></td >" +
                         "</tr>";
                 }
                 else {
                     var rows = rows + "<tr>" +
-                        "<td name='suspensionLv'>" + data[i].f_suspensionLv + "</td>" +
-                        "<td name='suspensionName'>" + data[i].f_suspensionName + "</td>" +
+                        "<td name='suspensionLv'>" + data[i].suspensionLv + "</td>" +
+                        "<td name='suspensionName'>" + data[i].suspensionName + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn' value='編輯'/ ></td>" +
                         "<td align='center'> <input type='button'   class='DeleteBtn'  value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
-            $('#TableBody').append(rows);
+            $('#TableBody').html(rows);
         },
 
         failure: function (data) {
