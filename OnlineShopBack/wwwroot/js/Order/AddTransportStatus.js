@@ -3,7 +3,7 @@
     //組Transport下拉選單
     var TransportSelectTag = '';
     for (i in TransportJson) {
-        TransportSelectTag += ' <option value="' + TransportJson[i].f_transport + '">' + TransportJson[i].f_transportName + '</option>'
+        TransportSelectTag += ' <option value="' + TransportJson[i].Transport + '">' + TransportJson[i].TransportName + '</option>'
     }
     $('#TransportSelect').html(TransportSelectTag)
 
@@ -230,9 +230,9 @@ AddTransStatusFun = {
         for (var i in MenuJson) {
 
             rows += "<tr>" +
-                '<td id="' + MenuJson[i].f_transport + '" >' + $('#TransportSelect option:selected').text() + '</td>' +
-                '<td >' + MenuJson[i].f_transportStatus + '</td>' +
-                '<td >' + MenuJson[i].f_transportStatusName + '</td>' +
+                '<td id="' + MenuJson[i].Transport + '" >' + $('#TransportSelect option:selected').text() + '</td>' +
+                '<td >' + MenuJson[i].TransportStatus + '</td>' +
+                '<td >' + MenuJson[i].TransportStatusName + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯名稱"/ ></td>' +
                 "<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='刪除'/ ></td>";
             "</tr>";
@@ -243,7 +243,7 @@ AddTransStatusFun = {
     TransportSelectOnChange: function () {
         var Transport = $('#TransportSelect').val();
         var temp = TransportStatusJson.filter(function (item) {
-            if (item['f_transport'] == parseInt(Transport)) {
+            if (item['Transport'] == parseInt(Transport)) {
                 return item
             }
         });
