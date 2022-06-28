@@ -31,29 +31,29 @@ $(document).ready(function () {
 
                 //篩選所點選訂單id資料
                 var Filter = OrderTable.filter(function (item) {
-                    if (item["f_id"] == OrderId) {
+                    if (item["Id"] == OrderId) {
                         return item
                     }
                 })
                 //組配送方式下拉選單
                 for (var i in TransportTable) {
-                    if (TransportTable[i].f_transport == Filter[0].f_transport) {
-                        TransportSelectTag += '<option selected value="' + TransportTable[i].f_transport + '">' + TransportTable[i].f_transportName + '</option >';
+                    if (TransportTable[i].Transport == Filter[0].Transport) {
+                        TransportSelectTag += '<option selected value="' + TransportTable[i].Transport + '">' + TransportTable[i].TransportName + '</option >';
                     } else {
-                        TransportSelectTag += '<option value="' + TransportTable[i].f_transport + '">' + TransportTable[i].f_transportName + '</option >';
+                        TransportSelectTag += '<option value="' + TransportTable[i].Transport + '">' + TransportTable[i].TransportName + '</option >';
                     };
                 };
 
                 //組配送狀態下拉選單
-                TransportStatusSelectTag = OrderMenuFun.MakeTransportStatusSelect(Filter[0].f_transport, Filter[0].f_transportStatus);
+                TransportStatusSelectTag = OrderMenuFun.MakeTransportStatusSelect(Filter[0].Transport, Filter[0].TransportStatus);
 
                 //組html Tag
                 if ($("#EditBox").css("display") == "none") {
 
                     var EditData =
                         '<h5>配送方式編輯</h5>' +
-                        '<div><label> 訂單編號:</label><label>' + Filter[0].f_orderNum + '</label></div>' +
-                        '<div><label> 訂購帳號:</label><label>' + Filter[0].f_acc + '</label></div>' +
+                        '<div><label> 訂單編號:</label><label>' + Filter[0].OrderNum + '</label></div>' +
+                        '<div><label> 訂購帳號:</label><label>' + Filter[0].MemberAcc + '</label></div>' +
                         '<div><label> 配送方式:</label><select id="EditTransport" >' + TransportSelectTag + '</select ></div>' +
                         '<div><label> 配送狀態:</label><span style="color:red;" id="StatusSelect">' + TransportStatusSelectTag + '</span></div>' +
                         "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
@@ -88,7 +88,7 @@ $(document).ready(function () {
                             alert(ErrorCode);
                         } else {
                             $.ajax({
-                                url: '/api/Order/UpdateOrder?OrderNum=' + Filter[0].f_orderNum + '&TransportNum=' + $('#EditTransport').val() + '&TransportStatusNum=' + $('#EditTransportStatus').val(),
+                                url: '/api/Order/UpdateOrder?OrderNum=' + Filter[0].OrderNum + '&TransportNum=' + $('#EditTransport').val() + '&TransportStatusNum=' + $('#EditTransportStatus').val(),
                                 type: "put",
                                 contentType: "application/json",
                                 dataType: "text",
@@ -138,13 +138,13 @@ $(document).ready(function () {
 
                     //篩選所點選訂單id資料
                     var Filter = OrderTable.filter(function (item) {
-                        if (item["f_id"] == OrderId) {
+                        if (item["Id"] == OrderId) {
                             return item
                         }
                     })
                     var ErrorCode = '';
 
-                    if (Filter[0].f_orderStatus != 2) {
+                    if (Filter[0].OrderStatus != 2) {
                         ErrorCode = '此訂單狀態不為待退貨，無法退貨';
                     }
 
@@ -203,13 +203,13 @@ $(document).ready(function () {
 
                     //篩選所點選訂單id資料
                     var Filter = OrderTable.filter(function (item) {
-                        if (item["f_id"] == OrderId) {
+                        if (item["Id"] == OrderId) {
                             return item
                         }
                     })
                     var ErrorCode = '';
 
-                    if (Filter[0].f_orderStatus != 0) {
+                    if (Filter[0].OrderStatus != 0) {
                         ErrorCode = '此訂單狀態不為未取貨，無法取消';
                     }
 
@@ -280,13 +280,13 @@ OrderMenuFun = {
         for (var i in MenuJson) {
 
             var TempTransport = TransportTable.filter(function (item) {
-                if (item['f_transport'].indexOf(MenuJson[i].f_transport) >= 0) {
+                if (item['Transport'].toString().indexOf(MenuJson[i].Transport) >= 0) {
                     return item
                 }
             })
             var TempStatus = TransportStatusTable.filter(function (item) {
-                if (item['f_transport'].indexOf(MenuJson[i].f_transport) >= 0 &&
-                    item['f_transportStatus'].indexOf(MenuJson[i].f_transportStatus) >= 0) {
+                if (item['Transport'].toString().indexOf(MenuJson[i].Transport) >= 0 &&
+                    item['TransportStatus'].toString().indexOf(MenuJson[i].TransportStatus) >= 0) {
                     return item
                 }
             })
@@ -294,24 +294,23 @@ OrderMenuFun = {
             var OrderStatus = '';
             var ReturnBtn = '';
             var CancelOrderBtn = '';
-            switch (MenuJson[i].f_orderStatus) {
-                case '0':
+            switch (MenuJson[i].OrderStatus) {
+                case 0:
                     OrderStatus = '未取貨';
                     CancelOrderBtn = '<input type="button" class="CancelOrder" name="CancelOrder" value="取消訂單" />'
                     break;
-                case '1':
+                case 1:
                     OrderStatus = '已取貨';
                     break;
-                case '2':
+                case 2:
                     OrderStatus = '待退貨';
                     ReturnBtn = '<input type="button" class="ReturnBtn" name="ReturnBtn" value="退貨" />'
                     break;
-                case '3':
+                case 3:
                     OrderStatus = '已退貨';
                     break;
-                case '4':
-                    OrderStatus = '訂單取消';
-                    
+                case 4:
+                    OrderStatus = '訂單取消';                    
                     break;
                 default:
                     alert('訂單狀態碼參數異常');
@@ -320,12 +319,12 @@ OrderMenuFun = {
 
 
             rows += "<tr>" +
-                '<td id="' + MenuJson[i].f_id + '">' + MenuJson[i].f_orderNum + '</td>' +
-                '<td name="Acc">' + MenuJson[i].f_acc + '</td>' +
-                '<td name="TransportName">' + TempTransport[0].f_transportName + '</td>' +
-                '<td name="TransportStatusName">' + TempStatus[0].f_transportStatusName + '</td>' +
+                '<td id="' + MenuJson[i].Id + '">' + MenuJson[i].OrderNum + '</td>' +
+                '<td name="Acc">' + MenuJson[i].MemberAcc + '</td>' +
+                '<td name="TransportName">' + TempTransport[0].TransportName + '</td>' +
+                '<td name="TransportStatusName">' + TempStatus[0].TransportStatusName + '</td>' +
                 '<td name="OrderStatus">' + OrderStatus + '</td>' +
-                '<td name="OrderDate">' + MenuJson[i].f_orderDate + '</td>' +
+                '<td name="OrderDate">' + MenuJson[i].OrderDate + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯配送"/ ></td>' +
                 '<td align="center">' + ReturnBtn + ' </td>' +
                 '<td align="center">' + CancelOrderBtn + ' </td>' +
@@ -336,7 +335,7 @@ OrderMenuFun = {
     },
     MakeTransportStatusSelect: function (TransportValue, TransportStatusValue) {
         var TransportStatus = TransportStatusTable.filter(function (item) {
-            if (item['f_transport'].indexOf(TransportValue) >= 0) {
+            if (item['Transport'].toString().indexOf(TransportValue) >= 0) {
                 return item;
             }
         })
@@ -345,10 +344,10 @@ OrderMenuFun = {
         for (var i in TransportStatus) {
 
 
-            if (TransportStatus[i].f_transportStatus == TransportStatusValue) {
-                TransportStatusTag += '<option selected value="' + TransportStatus[i].f_transportStatus + '">' + TransportStatus[i].f_transportStatusName + '</option >';
+            if (TransportStatus[i].TransportStatus == TransportStatusValue) {
+                TransportStatusTag += '<option selected value="' + TransportStatus[i].TransportStatus + '">' + TransportStatus[i].TransportStatusName + '</option >';
             } else {
-                TransportStatusTag += '<option value="' + TransportStatus[i].f_transportStatus + '">' + TransportStatus[i].f_transportStatusName + '</option >';
+                TransportStatusTag += '<option value="' + TransportStatus[i].TransportStatus + '">' + TransportStatus[i].TransportStatusName + '</option >';
             };
 
         }
@@ -359,8 +358,6 @@ OrderMenuFun = {
             TagResult = '';
         }
 
-
         return TagResult;
-
     }
 };

@@ -17,7 +17,8 @@ namespace OnlineShopBack.Pages.Account
 {
     public class AccountMenuModel : BasePageModel
     {
-        private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        //private static string SQLConnectionString = AppConfigurationService.SQLConnectionString;
+        private static string SQLConnectionString = AppConfigurationService.GetConnectionStr();
         public string AccLevel;
         public string AccPosition;
         public void OnGet()

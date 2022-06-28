@@ -18,17 +18,13 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Text.Json;
-using static OnlineShopBack.Enum.ProductEnum;
 
 namespace OnlineShopBack.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
-    {
-
-        //SQL連線字串  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+    { 
 
         private readonly IProductRepository _accountService = null;
         public ProductController(IProductRepository accountService)

@@ -24,5 +24,6 @@ namespace OnlineShopBack.Domain.Repository
         public int UpdateCategory(int Num, int SubNum, ProductCategoryDto value);//更新類別
 
         public int DelCategory(int Num, int SubNum);//刪除類別
+
     }
 }

@@ -23,10 +23,6 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        //取得SQL連線字串
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
-
-
         private readonly IAccountRepository _accountService = null;
         public AccountController(IAccountRepository accountService)
         {

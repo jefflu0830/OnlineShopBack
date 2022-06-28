@@ -14,7 +14,8 @@ namespace OnlineShopBack.Pages.Member
 {
     public class MemberMenuModel : BasePageModel
     {
-        private static string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        //private static string SQLConnectionString = AppConfigurationService.SQLConnectionString;
+        private static string SQLConnectionString = AppConfigurationService.GetConnectionStr();
         public string Level;
         public string LevelName;
         public string Suspension;

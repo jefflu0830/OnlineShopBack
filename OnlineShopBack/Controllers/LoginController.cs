@@ -21,7 +21,6 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase"); //SQL連線字串  SQLConnectionString
 
         private readonly ILoginRepository _LoginService = null;
         public LoginController(ILoginRepository accountService)

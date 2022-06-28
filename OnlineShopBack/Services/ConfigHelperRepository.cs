@@ -7,9 +7,8 @@ namespace OnlineShopBack.Services
     {
         
         public string SQLConnectionStrings()
-        {
-            string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
-
+        {     
+            string SQLConnectionString = AppConfigurationService.GetConnectionStr();
             return SQLConnectionString;
         }
     }

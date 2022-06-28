@@ -17,7 +17,8 @@ namespace OnlineShopBack.Pages.Order
     public class AddTransportModel :  BasePageModel
     {
         //SQLßB¾€×Ö´®  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        //private static string SQLConnectionString = AppConfigurationService.SQLConnectionString;
+        private static string SQLConnectionString = AppConfigurationService.GetConnectionStr();
         public string TransportJson;
 
         public void OnGet()

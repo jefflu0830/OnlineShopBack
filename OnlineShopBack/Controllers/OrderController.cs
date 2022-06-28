@@ -14,6 +14,10 @@ using System;
 using System.Data;
 using System.IO;
 using static OnlineShopBack.Enum.OrderEnum;
+using OnlineShopBack.Domain.DTOs.Order;
+using System.Text.Json;
+using System.Linq;
+using OnlineShopBack.Domain.Repository;
 
 namespace OnlineShopBack.Controllers
 {
@@ -21,122 +25,62 @@ namespace OnlineShopBack.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        //SQL連線字串  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        private readonly IOrderRepository _orderService = null;
+        public OrderController(IOrderRepository OrderService)
+        {
+            _orderService = OrderService;
+        }
 
-        /*訂單相關-----------------*/
+        /*-----------------訂單相關-----------------*/
 
         //取得訂單
         [HttpGet("GetOrder")]
         public string GetOrder()
         {
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            DataSet st = new DataSet();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" EXEC pro_onlineShopBack_getOrder ";
+            DataSet st = _orderService.GetOrder();
 
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(st);
-            }
-            catch (Exception e)
-            {
-                MyTool.WriteErroLog(e.Message);
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-            //DataTable轉Json;
+            OrderDto[] OrderList = st.Tables[0].Rows.Cast<DataRow>()
+                 .Select(row => OrderDto.GetOrderList(row))
+                 .Where(accTuple => accTuple.Item1 == true)
+                 .Select(accTuple => accTuple.Item2)
+                 .ToArray();
 
-            var OrderTable = "\"OrderTable\":" + MyTool.DataTableJson(st.Tables[0]);
-            var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(st.Tables[1]);
-            var TransportStatusTable = "\"TransportStatusTable\":" + MyTool.DataTableJson(st.Tables[2]);
+            TransportDto[] TransportList = st.Tables[1].Rows.Cast<DataRow>()
+                  .Select(row => TransportDto.GetTransportList(row))
+                  .Where(accTuple => accTuple.Item1 == true)
+                  .Select(accTuple => accTuple.Item2)
+                  .ToArray();
+
+            TransportDto[] TransportStatusList = st.Tables[2].Rows.Cast<DataRow>()
+                   .Select(row => TransportDto.GetTransportStatusList(row))
+                   .Where(accTuple => accTuple.Item1 == true)
+                   .Select(accTuple => accTuple.Item2)
+                   .ToArray();
+
+            string OrderTable = "\"OrderTable\":" + JsonSerializer.Serialize(OrderList);
+            string TransportTable = "\"TransportTable\":" + JsonSerializer.Serialize(TransportList);
+            string TransportStatusTable = "\"TransportStatusTable\":" + JsonSerializer.Serialize(TransportStatusList);
 
             return "{" + OrderTable + "," + TransportTable + "," + TransportStatusTable + "}";
+
         }
 
         //更新訂單配送方式&狀態
         [HttpPut("UpdateOrder")]
         public string UpdateOrder([FromQuery] string OrderNum, int TransportNum, int TransportStatusNum)
         {
-            string ErrorStr = "";//記錄錯誤訊息
+
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-            //訂單編號
-            if (!MyTool.OnlyNumber(OrderNum))
-            {
-                ErrorStr += "[訂單號碼只能是數字]\n";
-            }
 
-            //配送方式&配送狀態
-            if (TransportNum > 255 || TransportNum < 0 ||
-                TransportStatusNum > 255 || TransportStatusNum < 0)
-            {
-                ErrorStr += "[方式代號&狀態代號，應介於0～255個之間]\n";
-            }
+            int ResultCode = _orderService.UpdateOrder(OrderNum, TransportNum, TransportStatusNum);
 
-            //錯誤訊息有值 return錯誤訊息
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
-
-            SqlCommand cmd = null;
-            OrderReturnCode result = OrderReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @"EXEC pro_onlineShopBack_putOrder @orderNum, @transportNum, @transportStatusNum ";
-
-                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
-                cmd.Parameters.AddWithValue("@transportNum", TransportNum);
-                cmd.Parameters.AddWithValue("@transportStatusNum", TransportStatusNum);
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
-
-                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = OrderReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                MyTool.WriteErroLog(e.Message);
-                result = OrderReturnCode.Fail;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
 
         }
 
@@ -144,61 +88,16 @@ namespace OnlineShopBack.Controllers
         [HttpPut("OrderReturn")]
         public string OrderReturn([FromQuery] string OrderNum)
         {
-            string ErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-            //訂單編號
-            if (!MyTool.OnlyNumber(OrderNum))
-            {
-                ErrorStr += "[訂單號碼只能是數字]\n";
-            }
 
-            //錯誤訊息有值 return錯誤訊息
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
+            int ResultCode = _orderService.OrderReturn(OrderNum);
 
-            SqlCommand cmd = null;
-            OrderReturnCode result = OrderReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @" EXEC pro_onlineShopBack_putOrderReturn @orderNum ";
-
-                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
-
-                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = OrderReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                MyTool.WriteErroLog(e.Message);
-                result = OrderReturnCode.Fail;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
 
         }
 
@@ -206,61 +105,16 @@ namespace OnlineShopBack.Controllers
         [HttpPut("OrderCancel")]
         public string OrderCancel([FromQuery] string OrderNum)
         {
-            string ErrorStr = "";//記錄錯誤訊息
 
             //查詢資料庫狀態是否正常
             if (ModelState.IsValid == false)
             {
                 return "參數異常";
             }
-            //訂單編號
-            if (!MyTool.OnlyNumber(OrderNum))
-            {
-                ErrorStr += "[訂單號碼只能是數字]\n";
-            }
 
-            //錯誤訊息有值 return錯誤訊息
-            if (!string.IsNullOrEmpty(ErrorStr))
-            {
-                return ErrorStr;
-            }
+            int ResultCode = _orderService.OrderCancel(OrderNum);
 
-            SqlCommand cmd = null;
-            OrderReturnCode result = OrderReturnCode.Default;
-            try
-            {
-                // 資料庫連線
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-
-                cmd.CommandText = @" EXEC pro_onlineShopBack_putOrderCancel @orderNum ";
-
-                cmd.Parameters.AddWithValue("@orderNum", OrderNum);
-
-                //開啟連線
-                cmd.Connection.Open();
-                string SQLReturnCode = cmd.ExecuteScalar().ToString();//執行Transact-SQL                
-
-                if (!OrderReturnCode.TryParse(SQLReturnCode, out result))
-                {
-                    result = OrderReturnCode.Fail;
-                }
-            }
-            catch (Exception e)
-            {
-                MyTool.WriteErroLog(e.Message);
-                result = OrderReturnCode.Fail;
-            }
-            finally
-            {
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
-
-            return "[{\"st\": " + (int)result + "}]";
+            return "[{\"st\": " + ResultCode + "}]";
 
         }
 
@@ -270,44 +124,24 @@ namespace OnlineShopBack.Controllers
         [HttpGet("GetTransport")]
         public string GetTransport()
         {
+            DataTable dt = _orderService.GetTransport();
 
-            SqlCommand cmd = null;
-            DataTable dt = new DataTable();
-            SqlDataAdapter da = new SqlDataAdapter();
-            try
-            {
-                // 資料庫連線&SQL指令
-                cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
-                cmd.CommandText = @" SELECT f_transport, f_transportName FROM t_transport ";
+            TransportDto[] TransportList = dt.Rows.Cast<DataRow>()
+                 .Select(row => TransportDto.GetTransportList(row))
+                 .Where(accTuple => accTuple.Item1 == true)
+                 .Select(accTuple => accTuple.Item2)
+                 .ToArray();
 
-                //開啟連線
-                cmd.Connection.Open();
-                da.SelectCommand = cmd;
-                da.Fill(dt);
-            }
-            catch (Exception e)
-            {
-                MyTool.WriteErroLog(e.Message);
-            }
-            finally
-            {
-                //關閉連線
-                if (cmd != null)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Connection.Close();
-                }
-            }
+            string TransportTable = "";//"\"OrderTable\":" + JsonSerializer.Serialize(TransportList);
             //DataTable轉Json;
-            var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(dt);
+            //var TransportTable = "\"TransportTable\":" + MyTool.DataTableJson(dt);
 
-            return "{" + TransportTable +  "}";
+            return "{" + TransportTable + "}";
         }
 
         //新增配送方式
         [HttpPost("AddTransport")]
-        public string AddTransport([FromBody] TransportDto value )
+        public string AddTransport([FromBody] TransportDto value)
         {
 
             //資料驗證
@@ -354,7 +188,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
 
                 cmd.CommandText = @"EXEC pro_onlineShopBack_addTransport @transport, @transportName ";
 
@@ -434,7 +268,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
 
                 cmd.CommandText = @"EXEC pro_onlineShopBack_putTransport @TransportNum, @TransportName ";
 
@@ -498,7 +332,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
                 cmd.CommandText = @"EXEC pro_onlineShopBack_delTransport @transportNum ";
 
                 cmd.Parameters.AddWithValue("@transportNum", TransportNum);
@@ -542,7 +376,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線&SQL指令
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
                 cmd.CommandText = @" SELECT f_transport, f_transportName FROM t_transport  
                                      SELECT f_transport, f_transportStatus,f_transportStatusName FROM t_transportStatus ";
 
@@ -624,7 +458,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
 
                 cmd.CommandText = @"EXEC pro_onlineShopBack_addTransportStatus @transport, @transportStatus, @transportName ";
 
@@ -678,7 +512,7 @@ namespace OnlineShopBack.Controllers
             }
 
             //名稱
-            if (string.IsNullOrEmpty(TransportStatusName) )
+            if (string.IsNullOrEmpty(TransportStatusName))
             {
                 ErrorStr += "[名稱不可為空]\n";
             }
@@ -706,7 +540,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
 
                 cmd.CommandText = @"EXEC pro_onlineShopBack_putTransportStatus @TransportNum, @transportStatusNum, @transportStatusName ";
 
@@ -765,7 +599,7 @@ namespace OnlineShopBack.Controllers
             {
                 // 資料庫連線
                 cmd = new SqlCommand();
-                cmd.Connection = new SqlConnection(SQLConnectionString);
+                cmd.Connection = new SqlConnection("");
                 cmd.CommandText = @"EXEC pro_onlineShopBack_delTransportStatus @transportNum, @transportStatusNum ";
 
                 cmd.Parameters.AddWithValue("@transportNum", TransportNum);

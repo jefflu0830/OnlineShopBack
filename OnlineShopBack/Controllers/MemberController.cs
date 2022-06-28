@@ -26,9 +26,7 @@ namespace OnlineShopBack.Controllers
         public MemberController(IMemberRepository MemberService)
         {
             _MemberService = MemberService;
-        }
-        //SQL連線字串  SQLConnectionString
-        private string SQLConnectionString = AppConfigurationService.Configuration.GetConnectionString("OnlineShopDatabase");
+        }        
 
         /*----------前台會員相關----------*/
 
