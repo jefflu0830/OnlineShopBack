@@ -565,6 +565,7 @@ namespace OnlineShopBack.Persistent
             return ResultCode;
         }
 
+        //後臺帳號權限刪除
         public int DelAccLv(int id)
         {
             int ResultCode = (int)AccountEnum.DelAccLVCode.Defult;

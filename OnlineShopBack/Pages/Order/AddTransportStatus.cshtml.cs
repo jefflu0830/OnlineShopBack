@@ -19,8 +19,6 @@ namespace OnlineShopBack.wwwroot.js.Order
 {
     public class AddTransportStatusModel : BasePageModel
     {
-        //SQLßB¾€×Ö´®  SQLConnectionString
-        //private static string SQLConnectionString = AppConfigurationService.SQLConnectionString;
         private static string SQLConnectionString = AppConfigurationService.GetConnectionStr();
         public string TransportJson;
         public string TransportStatusJson;

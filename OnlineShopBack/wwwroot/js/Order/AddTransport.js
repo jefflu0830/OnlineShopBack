@@ -223,8 +223,8 @@ OrderMenuFun = {
         for (var i in MenuJson) {
 
             rows += "<tr>" +
-                '<td >' + MenuJson[i].f_transport + '</td>' +
-                '<td id="' + MenuJson[i].f_transport+'" >' + MenuJson[i].f_transportName + '</td>' +
+                '<td >' + MenuJson[i].Transport + '</td>' +
+                '<td id="' + MenuJson[i].Transport + '" >' + MenuJson[i].TransportName + '</td>' +
                 '<td align="center"> <input type="button" class="EditTransportBtn" value="編輯名稱"/ ></td>' +
                 "<td align='center'> <input type='button' class='DeleteBtn'  name='ReturnBtn' value='刪除'/ ></td>";
             "</tr>";

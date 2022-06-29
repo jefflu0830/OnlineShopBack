@@ -11,6 +11,9 @@ using OnlineShopBack.Domain.Tool;
 using System;
 using System.Data;
 using static OnlineShopBack.Pages.Order.BasePage;
+using OnlineShopBack.Domain.DTOs.Order;
+using System.Linq;
+using System.Text.Json;
 
 namespace OnlineShopBack.Pages.Order
 {
@@ -65,8 +68,14 @@ namespace OnlineShopBack.Pages.Order
                     cmd.Connection.Close();
                 }
             }
-            //DataTableﬁDJson;            
-            TransportJson = MyTool.DataTableJson(dt);
+
+            TransportDto[] TransportList = dt.Rows.Cast<DataRow>()
+                .Select(row => TransportDto.GetTransportList(row))
+                .Where(accTuple => accTuple.Item1 == true)
+                .Select(accTuple => accTuple.Item2)
+                .ToArray();
+
+            TransportJson = JsonSerializer.Serialize(TransportList);
 
 
         }

@@ -18,22 +18,20 @@ $(document).ready(function () {
             CategotyJson = data
 
             Category10 = ProductMenuFun.MakeSelectHtml(data.filter(function (item) {
-                if (item["f_categoryNum"].indexOf(10) >= 0) {
+                if (item["CategoryNum"].toString().indexOf(10) >= 0) {
                     return item
                 }
             }));
             Category20 = ProductMenuFun.MakeSelectHtml(data.filter(function (item) {
-                if (item["f_categoryNum"].indexOf(20) >= 0) {
+                if (item["CategoryNum"].toString().indexOf(20) >= 0) {
                     return item
                 }
             }));
             Category30 = ProductMenuFun.MakeSelectHtml(data.filter(function (item) {
-                if (item["f_categoryNum"].indexOf(30) >= 0) {
+                if (item["CategoryNum"].toString().indexOf(30) >= 0) {
                     return item
                 }
             }));
-
-
         },
         failure: function (data) {
             alert(data);
@@ -56,213 +54,39 @@ $(document).ready(function () {
             var rows = ProductMenuFun.MakeProductMenuTag(ProductJson);
             $('#TableBody').html(rows);
 
-        },
-        failure: function (data) {
-        },
-        error: function (data) {
-        }
-    });
+            //刪除按鈕
+            $('.DeleteBtn').click(function () {
+                var currentRow = $(this).closest("tr");
+                var ProductId = currentRow.find('td:eq(0)').attr('id');
 
-    //刪除按鈕
-    $('#TableBody').on('click', '.DeleteBtn', function () {
-        var currentRow = $(this).closest("tr");
-        var ProductId = currentRow.find('td:eq(0)').attr('id');
-
-        //Id搜尋要刪除的商品
-        var DelSearchById = function (JsonCol, SearchItem) {
-            var tempTable = ProductJson.filter((item) => {
-                if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
-                    return item
-                }
-            })
-            return tempTable;
-        }
-
-        var DelProduct = DelSearchById('Id', ProductId)
-
-        if (window.confirm("確定要刪除此商品嗎?")) {
-            $.ajax({
-                url: '/api/Product/DelProduct?ProductId=' + DelProduct[0].Id + '&ProductNum=' + DelProduct[0].Num + '&ImgName=' + DelProduct[0].ImgPath,
-                type: 'DELETE',
-                data: {},
-                success: function (result) {
-                    var JsonResult = JSON.parse(result)//JSON字串轉物件
-                    switch (JsonResult[0].st) {
-                        case 0: {
-                            alert('刪除成功');
-                            location.reload(); //新增成功才更新頁面
-                            break;
-                        };
-                        case 100: {
-                            alert('無此商品');
-                            break
-                        };
-                        case 200: {
-                            alert('後端驗證失敗,請查詢LOG');
-                            break;
-                        };
-                        case 201: {
-                            alert('例外錯誤,請查詢LOG');
-                            location.reload();
-                            break;
-                        };
-                        case 202: {
-                            alert('圖片上傳失敗,請檢查格式');
-                            location.reload();
-                            break;
-                        };
-                        default: {
-                            alert(result);
-                        };
-                    };
-
-                    if (result === "已從另一地點登入,轉跳至登入頁面") {
-                        location.reload();
-                    };
-                },
-                error: function (error) {
-                    alert(error);
-                }
-            })
-        }
-    });
-
-    //點擊編輯商品按鈕
-    $("#TableBody").on('click', '.EditBtn', function () {
-        var currentRow = $(this).closest("tr");
-        var ProductId = currentRow.find("td:eq(0)").attr('id');
-
-        //Id搜尋要更新的商品
-        var EditSearchById = function (JsonCol, SearchItem) {
-            var tempTable = ProductJson.filter((item) => {
-                if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
-                    return item
-                }
-            })
-            return tempTable;
-        }
-
-        var EditProduct = EditSearchById('Id', ProductId)
-
-        //開放狀態
-        switch (EditProduct[0].Status) {
-            case 0:
-                ProductStatus = '<option selected value = "0" selected>開放 </option ><option value="100">不開放</option>';
-                break;
-            case 100:
-                ProductStatus = '<option value = "0">開放 </option ><option selected value="100" >不開放</option>'
-                break;
-
-        }
-        //主類別&子類別
-        switch (EditProduct[0].Category) {
-            case 10: {
-                ProductCategoryNum = '<option selected value = "10"> 3C</option ><option value="20">電腦周邊</option><option value="30">軟體</option>';
-                ProductSubCategory = Category10
-                break;
-            }
-            case 20: {
-                ProductCategoryNum = '<option value = "10"> 3C</option ><option selected value="20">電腦周邊</option><option value="30">軟體</option>';
-                ProductSubCategory = Category20
-                break;
-            }
-            case 30: {
-                ProductCategoryNum = '<option value = "10"> 3C</option ><option value="20">電腦周邊</option><option selected value="30">軟體</option>';
-                ProductSubCategory = Category30
-                break;
-            }
-        }
-
-        if ($("#EditBox").css("display") == "none") {
-
-            var EditData =
-                '<h5>商品編輯</h5>' +
-                //商品圖片
-                '<div><label> 圖片:</label> ' +
-                '<input type="file" name="ImgPath" id="ImgPath">' +
-                //商品代號
-                '<div><label> 商品代號:</label> <label id="ProductNum">' + EditProduct[0].Num + '</label></div>' +
-                //主類別
-                '<div><label for="EditProductCategory">主類別:</label>' +
-                '<select id="EditProductCategory" onchange="ProductMenuFun.SelectSubCategory()">' + ProductCategoryNum + '</select ></div>' +
-                //子類別
-                '<div><label for="EditSubCategory">子類別:</label>' +
-                '<select id="EditSubCategory">' + ProductSubCategory + '</select >' +
-                //名稱
-                '<div><label for="ProductName">商品名稱:</label>' +
-                '<input type="text" id="ProductName" name="ProductName" maxlength="20" value="' + EditProduct[0].Name + '"/></div>' +
-                //開放狀態
-                '<div><label for="ProductStatus">開放狀態:</label>' +
-                '<select id="ProductStatus">' + ProductStatus + '</select ></div > ' +
-                //價格
-                '<div><label for="ProductPrice">價格:</label>' +
-                '<input type="text" id="ProductPrice" name="ProductPrice" maxlength="9" value="' + EditProduct[0].Price + '" oninput="value=value.replace(/[^\d]/g,"")" /></div>' +
-                //庫存量
-                '<div><label for="ProductStock">庫存量:</label>' +
-                '<input type="text" id="ProductStock" name="ProductStock" maxlength="4" value="' + EditProduct[0].Stock + '" /></div>' +
-                //熱門度
-                '<div><label for="Popularity">熱門度:</label>' +
-                '<input type="text" id="Popularity" name="Popularity" maxlength="3" value="' + EditProduct[0].Popularity + '" /></div>' +
-                //內容
-                '<div><label for="Productcontent" style="display: block;">細項說明:</label>' +
-                '<textarea id="ProductContent" name="ProductContent" rows="5" cols="90" maxlength="500">' + EditProduct[0].Content + '</textarea></div>' +
-                "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
-                "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
-            $('#Editform').html(EditData);
-            $("#EditBox").show();
-
-            //確認編輯
-            $('#EditConfirm').click(function () {
-                var errorCode = '';
-
-                //errorCode若不為空,不進行修改
-                if (errorCode !== "") {
-                    alert(errorCode);
-                }
-                else {
-                    var data = new FormData(document.getElementById("Editform"));
-
-                    var EditProduct = JSON.stringify({
-                        Num: $("#ProductNum").html(),
-                        Category: parseInt($("#EditProductCategory").val()),
-                        SubCategory: parseInt($("#EditSubCategory").val()),
-                        Name: $("#ProductName").val(),
-                        ImgPath: $("#ProductImg").val(),
-                        Price: parseInt($("#ProductPrice").val()),
-                        Status: parseInt($("#ProductStatus").val()),
-                        Content: $("#ProductContent").val(),
-                        Stock: parseInt($("#ProductStock").val()),
-                        Popularity: parseInt($("#Popularity").val())
+                //Id搜尋要刪除的商品
+                var DelSearchById = function (JsonCol, SearchItem) {
+                    var tempTable = ProductJson.filter((item) => {
+                        if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
+                            return item
+                        }
                     })
+                    return tempTable;
+                }
 
+                var DelProduct = DelSearchById('Id', ProductId)
 
-                    data.append("EditProductFrom", EditProduct);
-
+                if (window.confirm("確定要刪除此商品嗎?")) {
                     $.ajax({
-                        url: '/api/Product/UpdateProduct',
-                        type: 'put',
-                        contentType: 'application/json',
-                        dataType: 'text',
-                        data: data,
-                        contentType: false,
-                        processData: false,
+                        url: '/api/Product/DelProduct?ProductId=' + DelProduct[0].Id + '&ProductNum=' + DelProduct[0].Num + '&ImgName=' + DelProduct[0].ImgPath,
+                        type: 'DELETE',
+                        data: {},
                         success: function (result) {
-
-                            var JsonResult = JSON.parse(result);//JSON字串轉物件
-
+                            var JsonResult = JSON.parse(result)//JSON字串轉物件
                             switch (JsonResult[0].st) {
                                 case 0: {
-                                    alert('編輯成功');
-                                    location.reload();
+                                    alert('刪除成功');
+                                    location.reload(); //新增成功才更新頁面
                                     break;
                                 };
                                 case 100: {
-                                    alert('商品不存在');
-                                    break;
-                                };
-                                case 101: {
-                                    alert('未有此商品類型');
-                                    break;
+                                    alert('無此商品');
+                                    break
                                 };
                                 case 200: {
                                     alert('後端驗證失敗,請查詢LOG');
@@ -272,35 +96,210 @@ $(document).ready(function () {
                                     alert('例外錯誤,請查詢LOG');
                                     location.reload();
                                     break;
-                                }
+                                };
                                 case 202: {
                                     alert('圖片上傳失敗,請檢查格式');
                                     location.reload();
                                     break;
-                                }
+                                };
                                 default: {
                                     alert(result);
-                                }
-                            }
-
-                            if (result == "更新成功") {
-                                location.reload(); //新增成功才更新頁面
-                            }
+                                };
+                            };
+                            if (result === "已從另一地點登入,轉跳至登入頁面") {
+                                location.reload();
+                            };
                         },
                         error: function (error) {
                             alert(error);
                         }
                     })
                 }
-            })
-            //取消編輯
-            $('#EditCancel').click(function () {
-                if ($("#EditBox").css("display") !== "none") {
-                    $("#EditBox").hide();
+            });
+
+            //點擊編輯商品按鈕
+            $('.EditBtn').click(function () {
+                var currentRow = $(this).closest("tr");
+                var ProductId = currentRow.find("td:eq(0)").attr('id');
+
+                //Id搜尋要更新的商品
+                var EditSearchById = function (JsonCol, SearchItem) {
+                    var tempTable = ProductJson.filter((item) => {
+                        if (item[JsonCol].toString().indexOf(SearchItem) >= 0) {
+                            return item
+                        }
+                    })
+                    return tempTable;
                 }
-            })
+
+                var EditProduct = EditSearchById('Id', ProductId)
+
+                //開放狀態
+                switch (EditProduct[0].Status) {
+                    case 0:
+                        ProductStatus = '<option selected value = "0" selected>開放 </option ><option value="100">不開放</option>';
+                        break;
+                    case 100:
+                        ProductStatus = '<option value = "0">開放 </option ><option selected value="100" >不開放</option>'
+                        break;
+
+                }
+                //主類別&子類別
+                switch (EditProduct[0].Category) {
+                    case 10: {
+                        ProductCategoryNum = '<option selected value = "10"> 3C</option ><option value="20">電腦周邊</option><option value="30">軟體</option>';
+                        ProductSubCategory = Category10
+                        break;
+                    }
+                    case 20: {
+                        ProductCategoryNum = '<option value = "10"> 3C</option ><option selected value="20">電腦周邊</option><option value="30">軟體</option>';
+                        ProductSubCategory = Category20
+                        break;
+                    }
+                    case 30: {
+                        ProductCategoryNum = '<option value = "10"> 3C</option ><option value="20">電腦周邊</option><option selected value="30">軟體</option>';
+                        ProductSubCategory = Category30
+                        break;
+                    }
+                }
+
+                if ($("#EditBox").css("display") == "none") {
+
+                    var EditData =
+                        '<h5>商品編輯</h5>' +
+                        //商品圖片
+                        '<div><label> 圖片:</label> ' +
+                        '<input type="file" name="ImgPath" id="ImgPath">' +
+                        //商品代號
+                        '<div><label> 商品代號:</label> <label id="ProductNum">' + EditProduct[0].Num + '</label></div>' +
+                        //主類別
+                        '<div><label for="EditProductCategory">主類別:</label>' +
+                        '<select id="EditProductCategory" onchange="ProductMenuFun.SelectSubCategory()">' + ProductCategoryNum + '</select ></div>' +
+                        //子類別
+                        '<div><label for="EditSubCategory">子類別:</label>' +
+                        '<select id="EditSubCategory">' + ProductSubCategory + '</select >' +
+                        //名稱
+                        '<div><label for="ProductName">商品名稱:</label>' +
+                        '<input type="text" id="ProductName" name="ProductName" maxlength="20" value="' + EditProduct[0].Name + '"/></div>' +
+                        //開放狀態
+                        '<div><label for="ProductStatus">開放狀態:</label>' +
+                        '<select id="ProductStatus">' + ProductStatus + '</select ></div > ' +
+                        //價格
+                        '<div><label for="ProductPrice">價格:</label>' +
+                        '<input type="text" id="ProductPrice" name="ProductPrice" maxlength="9" value="' + EditProduct[0].Price + '" oninput="value=value.replace(/[^\d]/g,"")" /></div>' +
+                        //庫存量
+                        '<div><label for="ProductStock">庫存量:</label>' +
+                        '<input type="text" id="ProductStock" name="ProductStock" maxlength="4" value="' + EditProduct[0].Stock + '" /></div>' +
+                        //熱門度
+                        '<div><label for="Popularity">熱門度:</label>' +
+                        '<input type="text" id="Popularity" name="Popularity" maxlength="3" value="' + EditProduct[0].Popularity + '" /></div>' +
+                        //內容
+                        '<div><label for="Productcontent" style="display: block;">細項說明:</label>' +
+                        '<textarea id="ProductContent" name="ProductContent" rows="5" cols="90" maxlength="500">' + EditProduct[0].Content + '</textarea></div>' +
+                        "<div id='Editbutton'><input id='EditConfirm' type='Button' value='確認編輯' />" +
+                        "<input name='EditCancel' id = 'EditCancel' type = 'Button' value = '取消編輯' /></div > ";
+                    $('#Editform').html(EditData);
+                    $("#EditBox").show();
+
+                    //確認編輯
+                    $('#EditConfirm').click(function () {
+                        var errorCode = '';
+
+                        //errorCode若不為空,不進行修改
+                        if (errorCode !== "") {
+                            alert(errorCode);
+                        }
+                        else {
+                            var data = new FormData(document.getElementById("Editform"));
+
+                            var EditProduct = JSON.stringify({
+                                Num: $("#ProductNum").html(),
+                                Category: parseInt($("#EditProductCategory").val()),
+                                SubCategory: parseInt($("#EditSubCategory").val()),
+                                Name: $("#ProductName").val(),
+                                ImgPath: $("#ProductImg").val(),
+                                Price: parseInt($("#ProductPrice").val()),
+                                Status: parseInt($("#ProductStatus").val()),
+                                Content: $("#ProductContent").val(),
+                                Stock: parseInt($("#ProductStock").val()),
+                                Popularity: parseInt($("#Popularity").val())
+                            })
+
+
+                            data.append("EditProductFrom", EditProduct);
+
+                            $.ajax({
+                                url: '/api/Product/UpdateProduct',
+                                type: 'put',
+                                contentType: 'application/json',
+                                dataType: 'text',
+                                data: data,
+                                contentType: false,
+                                processData: false,
+                                success: function (result) {
+
+                                    var JsonResult = JSON.parse(result);//JSON字串轉物件
+
+                                    switch (JsonResult[0].st) {
+                                        case 0: {
+                                            alert('編輯成功');
+                                            location.reload();
+                                            break;
+                                        };
+                                        case 100: {
+                                            alert('商品不存在');
+                                            break;
+                                        };
+                                        case 101: {
+                                            alert('未有此商品類型');
+                                            break;
+                                        };
+                                        case 200: {
+                                            alert('後端驗證失敗,請查詢LOG');
+                                            break;
+                                        };
+                                        case 201: {
+                                            alert('例外錯誤,請查詢LOG');
+                                            location.reload();
+                                            break;
+                                        }
+                                        case 202: {
+                                            alert('圖片上傳失敗,請檢查格式');
+                                            location.reload();
+                                            break;
+                                        }
+                                        default: {
+                                            alert(result);
+                                        }
+                                    }
+
+                                    if (result == "更新成功") {
+                                        location.reload(); //新增成功才更新頁面
+                                    }
+                                },
+                                error: function (error) {
+                                    alert(error);
+                                }
+                            })
+                        }
+                    })
+                    //取消編輯
+                    $('#EditCancel').click(function () {
+                        if ($("#EditBox").css("display") !== "none") {
+                            $("#EditBox").hide();
+                        }
+                    })
+                }
+            });
+
+        },
+        failure: function (data) {
+        },
+        error: function (data) {
         }
-    });
+    });  
+    
+    
 
     //前往新增商品
     $("#AddProduct").click(function () {

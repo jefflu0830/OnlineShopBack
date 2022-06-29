@@ -31,7 +31,7 @@ $(document).ready(function (data) {
                         "<td name='faccLevel'>" + data[i].accLevel + "</td>" +
                         "<td name='faccPosition'>" + data[i].accPosition + "</td>" +
                         "<td align='center'> <input type='button'   class='EditBtn'  onclick = 'AddAccountLevel.Edit_Click(" + data[i].accLevel + ")' value='編輯'/ ></td>" +
-                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'AddAccountLevel.Del_Click(" + data[i].accPosition + ")' value='刪除'/ ></td>" +
+                        "<td align='center'> <input type='button'   class='DeleteBtn'  onclick = 'AddAccountLevel.Del_Click(" + data[i].accLevel + ")' value='刪除'/ ></td>" +
                         "</tr>";
                 }
             }
