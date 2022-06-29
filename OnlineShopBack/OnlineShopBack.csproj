@@ -51,6 +51,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="5.0.1" />
+    <PackageReference Include="NLog.Config" Version="4.7.15" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.0.0" />
   </ItemGroup>
@@ -58,6 +60,12 @@
   <ItemGroup>
     <ProjectReference Include="..\OnlineShopBack.Domain\OnlineShopBack.Domain.csproj" />
     <ProjectReference Include="..\OnlineShopBack.Persistent\OnlineShopBack.Persistent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\Administrator\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

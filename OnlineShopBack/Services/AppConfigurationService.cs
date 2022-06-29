@@ -32,7 +32,10 @@ namespace OnlineShopBack.Services
             Builder.AddJsonFile(System.AppDomain.CurrentDomain.BaseDirectory + "/appsettings.json", optional: false, reloadOnChange: true);
             var configurationRoot = Builder.Build();
             SQLstring SQLConnectionStr = new SQLstring();
-           
+            //程式預設目錄
+            //develop enviverment  // development environment 
+            //net core development environment appseting  :1.https://marcus116.blogspot.com/2019/04/netcore-aspnet-core-appsettingsjson.html
+
             configurationRoot.GetSection("ConnectionStrings").Bind(SQLConnectionStr);            
            
             return SQLConnectionStr.OnlineShopDatabase;
