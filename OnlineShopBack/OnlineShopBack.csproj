@@ -51,6 +51,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
